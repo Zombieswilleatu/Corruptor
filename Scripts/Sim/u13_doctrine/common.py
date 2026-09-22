@@ -494,9 +494,18 @@ class CommonSmartCore:
         assessments = []
         for category, term in terms:
             selected = (category, term) in picked
-            count = counts[(category, term)]
+            # Complete-plan variants can retain powers outside the standalone
+            # shortlist (for example Gremory's coordinated Ruin payment).
+            # Count actual distinct proposals, without changing selection.
+            base_generated = generated[category]+(generated['monsters'] if category == 'combat' else [])
             alternatives = retained[category]+(retained['monsters'] if category == 'combat' else [])
-            kept = sum(p.term == term for p in alternatives)
+            variants = [p for candidate in complete for p in candidate['selected']
+                        if p.category == category and p.term == term]
+            generated_keys = {key(p) for p in base_generated if p.term == term}
+            retained_keys = {key(p) for p in alternatives if p.term == term}
+            variant_keys = {key(p) for p in variants}
+            count = counts[(category, term)]+len(variant_keys-generated_keys)
+            kept = len(retained_keys | variant_keys)
             if selected: reason = 'selected'
             elif category == 'rites' and kept:
                 reason = ('complete_plan_score' if selection['mode'] == 'greedy' else 'complete_plan_selection') if rite_plans[term]['scored_plans'] else 'complete_plan_budget'
@@ -511,8 +520,13 @@ class CommonSmartCore:
             assessments.append(dict(category=category, term=term, opportunity=opportunity,
                 legal=True if selected else None, affordable=True if selected else False if reason == 'resource_shortfall' else None,
                 generated=count, retained=kept, selected=selected, reason=reason))
-        assessments.extend(recipes.assessments(generated['combat']+generated['monsters'],
-            retained['combat']+retained['monsters'], chosen['plan'], exhausted['monsters'] and exhausted['combat']))
+        # Reservation/variant assembly may attach a recipe that was absent
+        # from the standalone shortlist. Include the actual assembled orders.
+        assembled_orders = {fingerprint(c['plan']['order']): c['plan']['order'] for c in complete}
+        recipe_variants = [Proposal('combat', order.get('action', 'Pass'), order, 0,
+                                   'assembled_recipe_candidate') for order in assembled_orders.values()]
+        assessments.extend(recipes.assessments(generated['combat']+generated['monsters']+recipe_variants,
+            retained['combat']+retained['monsters']+recipe_variants, chosen['plan'], exhausted['monsters'] and exhausted['combat']))
         return dict(policy=self.policy_id+(':SPLIT_WARD_V1' if split_rules.enabled(f.world) else ''),
                     split_ward=dict(enabled=split_rules.enabled(f.world), candidates=len(split),
                                     selected=bool(chosen['plan']['order'].get('ward'))), plan=copy_data(chosen['plan']), score=chosen['score'], selection=selection,

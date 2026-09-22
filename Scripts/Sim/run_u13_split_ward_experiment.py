@@ -26,7 +26,12 @@ NAMESPACE = 'u13-split-ward-screen-20260921'
 PAIRS = (('Gremory', 'Kanifous'), ('Kalligan', 'Deimos'), ('Humbaba', 'Kroni'))
 
 
-def specs(full_roster=False, tempo=False, early_check=False):
+def specs(full_roster=False, tempo=False, early_check=False, roster_screen=False):
+    if roster_screen:
+        for case in cases(2, "u13-tempo-roster-20260922"):
+            yield dict(case, name=case["name"]+"_tempo", arm="tempo",
+                setup=dict(case["setup"], ward_experiment=VERSION, tempo_experiment=TEMPO))
+        return
     if early_check:
         early = {('Kanifous', 'Gremory'), ('Gremory', 'Kanifous'), ('Humbaba', 'Kroni')}
         for case in cases(6, NAMESPACE):
@@ -117,14 +122,14 @@ def worker(spec, identity, directory):
     return result
 
 
-def execute(output, full_roster=False, tempo=False, early_check=False):
+def execute(output, full_roster=False, tempo=False, early_check=False, roster_screen=False):
     verify_frozen(output)
-    identity = manifest(Path(__file__).resolve().parents[2], NAMESPACE, Weights())
+    identity = manifest(Path(__file__).resolve().parents[2], "u13-tempo-roster-20260922" if roster_screen else NAMESPACE, Weights())
     identity.update(experiment=VERSION, scope='Python-only opt-in rules trial; no native/UI parity claim',
                     frozen_source=fingerprint(json.loads((output/'frozen-source.json').read_text())))
     atomic_json(output/'manifest.json', identity)
-    case_list = list(specs(full_roster, tempo, early_check))
-    atomic_json(output/'split-config.json', dict(cases=case_list, workers=2, worker_batch_size=4, full_roster=full_roster, tempo=tempo, early_check=early_check,
+    case_list = list(specs(full_roster, tempo, early_check, roster_screen))
+    atomic_json(output/'split-config.json', dict(cases=case_list, workers=2, worker_batch_size=4, full_roster=full_roster, tempo=tempo, early_check=early_check, roster_screen=roster_screen,
         tempo_rule="Veil 13/17/21: +1/+2/+3 attack; bonus souls from round 20; hard end after normal victories at round 25" if tempo else None,
         bonus='One extra soul for Hunt banishment or Siege target destruction, max one per player/round; no pillage',
         source_revision=identity['source_revision'], runtime=platform.python_implementation(),
@@ -135,6 +140,11 @@ def execute(output, full_roster=False, tempo=False, early_check=False):
         print(json.dumps(result), flush=True)
         atomic_json(output/(result['name']+'-performance.json'), result)
         if result['status'] != 'complete': raise RuntimeError(result['error'])
+    if roster_screen:
+        from u13_doctrine.lord_balance import summarize, markdown
+        balance = summarize(read_record(games/(spec["name"]+".json.gz"), identity, spec) for spec in case_list)
+        atomic_json(output/"lord-balance.json", balance)
+        (output/"lord-balance.md").write_text(markdown(balance), encoding="utf-8")
     arms = {spec['arm']: Counter() for spec in case_list}
     paired = {}
     for spec in case_list:
@@ -156,7 +166,7 @@ def execute(output, full_roster=False, tempo=False, early_check=False):
             stats['ritual_with_neither_at_five_tears'] += max(finish['personal_tears']) < 5
         arms[spec['arm']].update(stats)
         paired.setdefault(spec['name'].rsplit('_', 1)[0], {})[spec['arm']] = dict(stats, victory_race=finish, attack_escalation_first_round=diagnostics["attack_escalation_first_round"])
-    report = dict(arms=arms, paired=paired, scope=('Five fresh seeds for each of three previously early seat-ordered matchups; new tempo rules only' if early_check
+    report = dict(arms=arms, paired=paired, scope=('162 current-tempo games: two fresh seeds per ordered matchup, including 18 mirrors' if roster_screen else 'Five fresh seeds for each of three previously early seat-ordered matchups; new tempo rules only' if early_check
                      else f'{len(case_list)//3} seed/loadout/seat triplets; exploratory comparison, not tuned balance'),
                   primary=('Normal victories in rounds 15-20; early/late tails and round-25 forced endings' if tempo
                            else 'FinalCollapse frequency and endings below Veil 26'), guardrail='Preserve Dominion alongside Ritual; inspect terminal souls, tears and Veil')
@@ -169,15 +179,19 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path)
     parser.add_argument('--prepare-only', action='store_true')
+    parser.add_argument('--roster-screen', action='store_true', help='162 current-tempo games; two fresh seeds per ordered matchup')
     parser.add_argument('--early-check', action='store_true', help='Five fresh seeds per early matchup; 15 tempo games')
     parser.add_argument('--tempo', action='store_true', help='Compare split, always-on bonus, and Veil/round-25 tempo profile')
     parser.add_argument('--full-roster', action='store_true', help='81 matchups per arm, 243 games total')
     parser.add_argument('--frozen', action='store_true', help=argparse.SUPPRESS)
     args = parser.parse_args()
+    if args.roster_screen:
+        if args.full_roster or args.early_check: parser.error("roster-screen cannot combine with another sample selection")
+        args.tempo = True
     if args.early_check:
         if args.full_roster: parser.error("early-check and full-roster are mutually exclusive")
         args.tempo = True
-    if args.frozen: return execute(args.output, args.full_roster, args.tempo, args.early_check)
+    if args.frozen: return execute(args.output, args.full_roster, args.tempo, args.early_check, args.roster_screen)
     root = Path(__file__).resolve().parents[2]
     output = (args.output or Path.home()/'Downloads/Corruptor/Balance'/
               time.strftime('split-ward-%Y%m%d-%H%M%S')).resolve()
@@ -185,19 +199,19 @@ def main():
     frozen = freeze(root, output)
     env = dict(os.environ); env.pop('PYTHONPATH', None)
     checks = subprocess.run([sys.executable, '-m', 'unittest', 'u13_doctrine.test_split_ward',
-        'u13_doctrine.test_ward_recipes', 'u13_doctrine.test_reserved_recipes',
+        'u13_doctrine.test_ward_recipes', 'u13_doctrine.test_reserved_recipes', 'u13_doctrine.test_diagnostics',
         'u13_doctrine.test_recipes_veil'], cwd=frozen/'Scripts/Sim', env=env,
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     (output/'focused-python.log').write_text(checks.stdout)
     print(checks.stdout, flush=True)
     if checks.returncode: return checks.returncode
-    print(f'Prepared {15 if args.early_check else 243 if args.full_roster else 18} games, two workers, recycle every four games: {output}', flush=True)
+    print(f'Prepared {162 if args.roster_screen else 15 if args.early_check else 243 if args.full_roster else 18} games, two workers, recycle every four games: {output}', flush=True)
     if args.prepare_only: return 0
     code = 1
     try:
         with (output/'run.log').open('w') as log:
             proc = subprocess.Popen([sys.executable, '-u', str(frozen/'Scripts/Sim/run_u13_split_ward_experiment.py'),
-                '--frozen', '--output', str(output)]+(['--full-roster'] if args.full_roster else [])+(['--tempo'] if args.tempo else [])+(['--early-check'] if args.early_check else []), cwd=frozen, env=env,
+                '--frozen', '--output', str(output)]+(['--full-roster'] if args.full_roster else [])+(['--tempo'] if args.tempo else [])+(['--early-check'] if args.early_check else [])+(['--roster-screen'] if args.roster_screen else []), cwd=frozen, env=env,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             for line in proc.stdout: print(line, end='', flush=True); log.write(line); log.flush()
             code = proc.wait()

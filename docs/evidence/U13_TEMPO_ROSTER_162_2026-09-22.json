@@ -1,0 +1,7511 @@
+{
+  "counts": {
+    "15to20": 64,
+    "action:Hunt": 1009,
+    "action:Pass": 121,
+    "action:Profane": 1,
+    "action:Siege": 3584,
+    "action:Ward": 1,
+    "attack_cards": 17426,
+    "attacks_with_bonus:0": 3367,
+    "attacks_with_bonus:1": 480,
+    "attacks_with_bonus:2": 310,
+    "attacks_with_bonus:3": 361,
+    "decisions": 4716,
+    "decisive_souls": 20,
+    "early_without_attack_escalation": 22,
+    "games": 162,
+    "monster_bodies": 6432,
+    "monster_summons": 4570,
+    "normal_recruits": 18780,
+    "over20": 10,
+    "rejected_previews": 18,
+    "split_candidates": 18864,
+    "split_decisions": 892,
+    "under15": 88,
+    "ward_cards": 1889,
+    "ward_contested": 453,
+    "ward_decisions": 893,
+    "ward_saved": 144,
+    "ward_souls": 144
+  },
+  "diagnostics_fix_verification": [
+    {
+      "attempt": "tempo-roster-162-01",
+      "unchanged_completed_games": 3,
+      "unchanged_failed_prefix_decisions": 18
+    },
+    {
+      "attempt": "tempo-roster-162-02",
+      "unchanged_completed_games": 31,
+      "unchanged_failed_prefix_decisions": 20
+    }
+  ],
+  "endings": {
+    "Dominion": 95,
+    "Ritual": 67
+  },
+  "frozen_source_sha256": "6fc0c4a5dd0432d6b43a66a515dd2a8e34a11703aa603950b2da87c0a05f60d1",
+  "games": [
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 8,
+        "2": 9,
+        "3": 10
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          3
+        ],
+        "personal_tears_tied": true,
+        "round": 15,
+        "souls": [
+          0,
+          12
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 38,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Gremory",
+        "Gremory"
+      ],
+      "name": "gremory_gremory_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 15,
+      "seed": "u13-tempo-roster-20260922:Gremory:Gremory:00",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Gremory"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          4
+        ],
+        "personal_tears_tied": true,
+        "round": 8,
+        "souls": [
+          1,
+          12
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 14,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Gremory",
+        "Deimos"
+      ],
+      "name": "gremory_deimos_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 8,
+      "seed": "u13-tempo-roster-20260922:Deimos:Gremory:00",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 12,
+        "3": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          2,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          5,
+          4
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 24,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Gremory",
+        "Humbaba"
+      ],
+      "name": "gremory_humbaba_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Gremory:Humbaba:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Humbaba"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 12,
+        "3": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 15,
+        "souls": [
+          12,
+          2
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 28,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Gremory",
+        "Kalligan"
+      ],
+      "name": "gremory_kalligan_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 15,
+      "seed": "u13-tempo-roster-20260922:Gremory:Kalligan:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Gremory"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          0
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          5
+        ],
+        "personal_tears_tied": false,
+        "round": 10,
+        "souls": [
+          0,
+          12
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 12,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Gremory",
+        "Orias"
+      ],
+      "name": "gremory_orias_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 10,
+      "seed": "u13-tempo-roster-20260922:Gremory:Orias:00",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Orias"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 13,
+        "2": 15,
+        "3": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 18,
+        "souls": [
+          3,
+          4
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 30,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Gremory",
+        "Odradek"
+      ],
+      "name": "gremory_odradek_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 18,
+      "seed": "u13-tempo-roster-20260922:Gremory:Odradek:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 12,
+        "2": 13,
+        "3": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          2,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          8,
+          3
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 26,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Gremory",
+        "Kroni"
+      ],
+      "name": "gremory_kroni_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Gremory:Kroni:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 10,
+        "3": 12
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 12,
+        "souls": [
+          7,
+          2
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 26,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Gremory",
+        "Valak"
+      ],
+      "name": "gremory_valak_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 12,
+      "seed": "u13-tempo-roster-20260922:Gremory:Valak:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 11,
+        "3": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 16,
+        "souls": [
+          12,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 28,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Gremory",
+        "Kanifous"
+      ],
+      "name": "gremory_kanifous_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 16,
+      "seed": "u13-tempo-roster-20260922:Gremory:Kanifous:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Gremory"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 9,
+        "2": 10,
+        "3": 11
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          4
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          1
+        ],
+        "personal_tears_tied": false,
+        "round": 15,
+        "souls": [
+          4,
+          9
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 39,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Deimos",
+        "Gremory"
+      ],
+      "name": "deimos_gremory_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 15,
+      "seed": "u13-tempo-roster-20260922:Deimos:Gremory:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11,
+        "2": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          13,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 20,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Deimos",
+        "Deimos"
+      ],
+      "name": "deimos_deimos_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Deimos:Deimos:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          2,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          4,
+          1
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 16,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Deimos",
+        "Humbaba"
+      ],
+      "name": "deimos_humbaba_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Deimos:Humbaba:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Humbaba"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 16,
+        "2": 18,
+        "3": 19
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 19,
+        "souls": [
+          1,
+          7
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 22,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Deimos",
+        "Kalligan"
+      ],
+      "name": "deimos_kalligan_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 19,
+      "seed": "u13-tempo-roster-20260922:Deimos:Kalligan:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          0
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          5
+        ],
+        "personal_tears_tied": false,
+        "round": 9,
+        "souls": [
+          13,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 12,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Deimos",
+        "Orias"
+      ],
+      "name": "deimos_orias_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 9,
+      "seed": "u13-tempo-roster-20260922:Deimos:Orias:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 8,
+        "2": 9,
+        "3": 10
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 11,
+        "souls": [
+          8,
+          2
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 23,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Deimos",
+        "Odradek"
+      ],
+      "name": "deimos_odradek_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 11,
+      "seed": "u13-tempo-roster-20260922:Deimos:Odradek:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 7,
+        "2": 9
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 9,
+        "souls": [
+          7,
+          4
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 18,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Deimos",
+        "Kroni"
+      ],
+      "name": "deimos_kroni_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 9,
+      "seed": "u13-tempo-roster-20260922:Deimos:Kroni:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 7,
+        "2": 8,
+        "3": 10
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 11,
+        "souls": [
+          7,
+          3
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 25,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Deimos",
+        "Valak"
+      ],
+      "name": "deimos_valak_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 11,
+      "seed": "u13-tempo-roster-20260922:Deimos:Valak:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 8,
+        "2": 10
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          2,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 11,
+        "souls": [
+          10,
+          1
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 19,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Deimos",
+        "Kanifous"
+      ],
+      "name": "deimos_kanifous_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 11,
+      "seed": "u13-tempo-roster-20260922:Deimos:Kanifous:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Kanifous"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11,
+        "2": 14,
+        "3": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 17,
+        "souls": [
+          0,
+          10
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 32,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Humbaba",
+        "Gremory"
+      ],
+      "name": "humbaba_gremory_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 17,
+      "seed": "u13-tempo-roster-20260922:Gremory:Humbaba:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Humbaba"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 7,
+        "2": 9
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 9,
+        "souls": [
+          6,
+          4
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 20,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Humbaba",
+        "Deimos"
+      ],
+      "name": "humbaba_deimos_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 9,
+      "seed": "u13-tempo-roster-20260922:Deimos:Humbaba:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 9,
+        "2": 11,
+        "3": 13
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          1,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 13,
+        "souls": [
+          0,
+          10
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 22,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Humbaba",
+        "Humbaba"
+      ],
+      "name": "humbaba_humbaba_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 13,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Humbaba:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Humbaba"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 13
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          3,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 13,
+        "souls": [
+          13,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 14,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Humbaba",
+        "Kalligan"
+      ],
+      "name": "humbaba_kalligan_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 13,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Kalligan:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Humbaba"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          6,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          4,
+          7
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 13,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Humbaba",
+        "Orias"
+      ],
+      "name": "humbaba_orias_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Orias:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Humbaba"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          0,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          5,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 15,
+        "souls": [
+          11,
+          1
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 13,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Humbaba",
+        "Odradek"
+      ],
+      "name": "humbaba_odradek_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 15,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Odradek:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 13,
+        "2": 14,
+        "3": 15
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          2,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 15,
+        "souls": [
+          0,
+          6
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 23,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Humbaba",
+        "Kroni"
+      ],
+      "name": "humbaba_kroni_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 15,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Kroni:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 12,
+        "2": 14,
+        "3": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          4
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          1
+        ],
+        "personal_tears_tied": false,
+        "round": 18,
+        "souls": [
+          5,
+          1
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 36,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Humbaba",
+        "Valak"
+      ],
+      "name": "humbaba_valak_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 18,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Valak:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Humbaba"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 12,
+        "2": 15,
+        "3": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 20,
+        "souls": [
+          5,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 38,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Humbaba",
+        "Kanifous"
+      ],
+      "name": "humbaba_kanifous_00_tempo",
+      "rejected_previews": 2,
+      "repeat": 0,
+      "rounds": 20,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Kanifous:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Kanifous"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 7,
+        "2": 10
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          0,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          5,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 10,
+        "souls": [
+          12,
+          4
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 19,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Kalligan",
+        "Gremory"
+      ],
+      "name": "kalligan_gremory_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 10,
+      "seed": "u13-tempo-roster-20260922:Gremory:Kalligan:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Kalligan"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          3
+        ],
+        "personal_tears_tied": true,
+        "round": 14,
+        "souls": [
+          0,
+          13
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 16,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Kalligan",
+        "Deimos"
+      ],
+      "name": "kalligan_deimos_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Deimos:Kalligan:00",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          0,
+          0
+        ],
+        "personal_tears_short_of_five": [
+          5,
+          5
+        ],
+        "personal_tears_tied": true,
+        "round": 8,
+        "souls": [
+          12,
+          0
+        ],
+        "veil_short_of_twelve": 5,
+        "veil_total": 7,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Kalligan",
+        "Humbaba"
+      ],
+      "name": "kalligan_humbaba_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 8,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Kalligan:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Kalligan"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 9,
+        "2": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          4
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          1
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          12,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 21,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Kalligan",
+        "Kalligan"
+      ],
+      "name": "kalligan_kalligan_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Kalligan:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Kalligan"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          0,
+          6
+        ],
+        "personal_tears_short_of_five": [
+          5,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 15,
+        "souls": [
+          10,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 13,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Kalligan",
+        "Orias"
+      ],
+      "name": "kalligan_orias_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 15,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Orias:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Orias"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 15,
+        "2": 19
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 20,
+        "souls": [
+          14,
+          1
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 21,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Kalligan",
+        "Odradek"
+      ],
+      "name": "kalligan_odradek_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 20,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Odradek:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Kalligan"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11,
+        "2": 13
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 13,
+        "souls": [
+          3,
+          4
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 22,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Kalligan",
+        "Kroni"
+      ],
+      "name": "kalligan_kroni_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 13,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Kroni:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 13
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          0,
+          13
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 17,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Kalligan",
+        "Valak"
+      ],
+      "name": "kalligan_valak_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Valak:00",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14,
+        "2": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          0,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          5,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 17,
+        "souls": [
+          0,
+          9
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 20,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Kalligan",
+        "Kanifous"
+      ],
+      "name": "kalligan_kanifous_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 17,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Kanifous:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Kanifous"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 13,
+        "2": 14,
+        "3": 15
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 16,
+        "souls": [
+          10,
+          2
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 25,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Orias",
+        "Gremory"
+      ],
+      "name": "orias_gremory_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 16,
+      "seed": "u13-tempo-roster-20260922:Gremory:Orias:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Orias"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 7,
+        "2": 8,
+        "3": 9
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          3,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          2
+        ],
+        "personal_tears_tied": true,
+        "round": 10,
+        "souls": [
+          12,
+          1
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 25,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Orias",
+        "Deimos"
+      ],
+      "name": "orias_deimos_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 10,
+      "seed": "u13-tempo-roster-20260922:Deimos:Orias:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Orias"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 12
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          2,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 13,
+        "souls": [
+          9,
+          2
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 18,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Orias",
+        "Humbaba"
+      ],
+      "name": "orias_humbaba_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 13,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Orias:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Humbaba"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 12,
+        "2": 13
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          4,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          1,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          0,
+          9
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 22,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Orias",
+        "Kalligan"
+      ],
+      "name": "orias_kalligan_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Orias:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Kalligan"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          0
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          5
+        ],
+        "personal_tears_tied": false,
+        "round": 11,
+        "souls": [
+          4,
+          13
+        ],
+        "veil_short_of_twelve": 5,
+        "veil_total": 7,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Orias",
+        "Orias"
+      ],
+      "name": "orias_orias_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 11,
+      "seed": "u13-tempo-roster-20260922:Orias:Orias:00",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Orias"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 8,
+        "souls": [
+          0,
+          13
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 12,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Orias",
+        "Odradek"
+      ],
+      "name": "orias_odradek_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 8,
+      "seed": "u13-tempo-roster-20260922:Odradek:Orias:00",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11,
+        "2": 14,
+        "3": 15
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 16,
+        "souls": [
+          7,
+          5
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 27,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Orias",
+        "Kroni"
+      ],
+      "name": "orias_kroni_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 16,
+      "seed": "u13-tempo-roster-20260922:Kroni:Orias:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14,
+        "2": 16,
+        "3": 17
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          2,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 17,
+        "souls": [
+          6,
+          2
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 22,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Orias",
+        "Valak"
+      ],
+      "name": "orias_valak_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 17,
+      "seed": "u13-tempo-roster-20260922:Orias:Valak:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          0,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          5,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 8,
+        "souls": [
+          13,
+          0
+        ],
+        "veil_short_of_twelve": 2,
+        "veil_total": 10,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Orias",
+        "Kanifous"
+      ],
+      "name": "orias_kanifous_00_tempo",
+      "rejected_previews": 2,
+      "repeat": 0,
+      "rounds": 8,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Orias:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Orias"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          0,
+          0
+        ],
+        "personal_tears_short_of_five": [
+          5,
+          5
+        ],
+        "personal_tears_tied": true,
+        "round": 11,
+        "souls": [
+          0,
+          13
+        ],
+        "veil_short_of_twelve": 3,
+        "veil_total": 9,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Odradek",
+        "Gremory"
+      ],
+      "name": "odradek_gremory_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 11,
+      "seed": "u13-tempo-roster-20260922:Gremory:Odradek:00",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Gremory"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 11,
+        "3": 12
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          2,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 15,
+        "souls": [
+          7,
+          2
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 29,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Odradek",
+        "Deimos"
+      ],
+      "name": "odradek_deimos_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 15,
+      "seed": "u13-tempo-roster-20260922:Deimos:Odradek:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          5,
+          2
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 16,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Odradek",
+        "Humbaba"
+      ],
+      "name": "odradek_humbaba_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Odradek:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          0
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          5
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          8,
+          1
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 14,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Odradek",
+        "Kalligan"
+      ],
+      "name": "odradek_kalligan_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Odradek:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          3,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          2,
+          14
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 21,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Odradek",
+        "Orias"
+      ],
+      "name": "odradek_orias_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Odradek:Orias:00",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Orias"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          0
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          5
+        ],
+        "personal_tears_tied": false,
+        "round": 12,
+        "souls": [
+          1,
+          14
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 13,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Odradek",
+        "Odradek"
+      ],
+      "name": "odradek_odradek_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 12,
+      "seed": "u13-tempo-roster-20260922:Odradek:Odradek:00",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 9,
+        "2": 11
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 12,
+        "souls": [
+          5,
+          8
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 21,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Odradek",
+        "Kroni"
+      ],
+      "name": "odradek_kroni_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 12,
+      "seed": "u13-tempo-roster-20260922:Kroni:Odradek:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          0,
+          0
+        ],
+        "personal_tears_short_of_five": [
+          5,
+          5
+        ],
+        "personal_tears_tied": true,
+        "round": 10,
+        "souls": [
+          12,
+          0
+        ],
+        "veil_short_of_twelve": 6,
+        "veil_total": 6,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Odradek",
+        "Valak"
+      ],
+      "name": "odradek_valak_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 10,
+      "seed": "u13-tempo-roster-20260922:Odradek:Valak:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          0,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          5,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 12,
+        "souls": [
+          12,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 12,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Odradek",
+        "Kanifous"
+      ],
+      "name": "odradek_kanifous_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 12,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Odradek:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 13
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          4
+        ],
+        "personal_tears_tied": true,
+        "round": 13,
+        "souls": [
+          14,
+          3
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 15,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Kroni",
+        "Gremory"
+      ],
+      "name": "kroni_gremory_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 13,
+      "seed": "u13-tempo-roster-20260922:Gremory:Kroni:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 13
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 13,
+        "souls": [
+          2,
+          9
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 20,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Kroni",
+        "Deimos"
+      ],
+      "name": "kroni_deimos_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 13,
+      "seed": "u13-tempo-roster-20260922:Deimos:Kroni:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 12
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          7,
+          6
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 19,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Kroni",
+        "Humbaba"
+      ],
+      "name": "kroni_humbaba_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Kroni:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Humbaba"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 11,
+        "souls": [
+          0,
+          4
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 14,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Kroni",
+        "Kalligan"
+      ],
+      "name": "kroni_kalligan_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 11,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Kroni:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11,
+        "2": 14,
+        "3": 15
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          4
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          1
+        ],
+        "personal_tears_tied": false,
+        "round": 16,
+        "souls": [
+          7,
+          1
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 25,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Kroni",
+        "Orias"
+      ],
+      "name": "kroni_orias_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 16,
+      "seed": "u13-tempo-roster-20260922:Kroni:Orias:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          4
+        ],
+        "personal_tears_tied": true,
+        "round": 9,
+        "souls": [
+          12,
+          1
+        ],
+        "veil_short_of_twelve": 5,
+        "veil_total": 7,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Kroni",
+        "Odradek"
+      ],
+      "name": "kroni_odradek_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 9,
+      "seed": "u13-tempo-roster-20260922:Kroni:Odradek:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14,
+        "2": 16,
+        "3": 17
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          4,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          1,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 18,
+        "souls": [
+          6,
+          6
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 29,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Kroni",
+        "Kroni"
+      ],
+      "name": "kroni_kroni_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 18,
+      "seed": "u13-tempo-roster-20260922:Kroni:Kroni:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 15,
+        "2": 18
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          4
+        ],
+        "personal_tears_tied": true,
+        "round": 19,
+        "souls": [
+          14,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 20,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Kroni",
+        "Valak"
+      ],
+      "name": "kroni_valak_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 19,
+      "seed": "u13-tempo-roster-20260922:Kroni:Valak:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 8,
+        "2": 10
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 11,
+        "souls": [
+          3,
+          8
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 20,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Kroni",
+        "Kanifous"
+      ],
+      "name": "kroni_kanifous_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 11,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Kroni:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11,
+        "2": 13,
+        "3": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          3,
+          5
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 25,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Valak",
+        "Gremory"
+      ],
+      "name": "valak_gremory_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Gremory:Valak:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11,
+        "2": 15
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 16,
+        "souls": [
+          0,
+          9
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 24,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Valak",
+        "Deimos"
+      ],
+      "name": "valak_deimos_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 16,
+      "seed": "u13-tempo-roster-20260922:Deimos:Valak:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          0
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          5
+        ],
+        "personal_tears_tied": false,
+        "round": 17,
+        "souls": [
+          11,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 17,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Valak",
+        "Humbaba"
+      ],
+      "name": "valak_humbaba_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 17,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Valak:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14,
+        "2": 15,
+        "3": 17
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          3,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 19,
+        "souls": [
+          12,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 26,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Valak",
+        "Kalligan"
+      ],
+      "name": "valak_kalligan_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 19,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Valak:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 12,
+        "2": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          3
+        ],
+        "personal_tears_tied": true,
+        "round": 14,
+        "souls": [
+          12,
+          1
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 18,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Valak",
+        "Orias"
+      ],
+      "name": "valak_orias_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Orias:Valak:00",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 16,
+        "2": 18,
+        "3": 20
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 22,
+        "souls": [
+          7,
+          4
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 34,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Valak",
+        "Odradek"
+      ],
+      "name": "valak_odradek_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 22,
+      "seed": "u13-tempo-roster-20260922:Odradek:Valak:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 15,
+        "2": 17
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          3,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 17,
+        "souls": [
+          0,
+          12
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 20,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Valak",
+        "Kroni"
+      ],
+      "name": "valak_kroni_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 17,
+      "seed": "u13-tempo-roster-20260922:Kroni:Valak:00",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 16,
+        "2": 17,
+        "3": 18
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          4
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          1
+        ],
+        "personal_tears_tied": false,
+        "round": 24,
+        "souls": [
+          7,
+          6
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 43,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Valak",
+        "Valak"
+      ],
+      "name": "valak_valak_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 24,
+      "seed": "u13-tempo-roster-20260922:Valak:Valak:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 11,
+        "3": 12
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          3,
+          2
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 32,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Valak",
+        "Kanifous"
+      ],
+      "name": "valak_kanifous_00_tempo",
+      "rejected_previews": 5,
+      "repeat": 0,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Valak:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 11,
+        "3": 15
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 17,
+        "souls": [
+          0,
+          11
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 31,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Kanifous",
+        "Gremory"
+      ],
+      "name": "kanifous_gremory_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 17,
+      "seed": "u13-tempo-roster-20260922:Gremory:Kanifous:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Kanifous"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          4
+        ],
+        "personal_tears_tied": true,
+        "round": 11,
+        "souls": [
+          0,
+          13
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 14,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Kanifous",
+        "Deimos"
+      ],
+      "name": "kanifous_deimos_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 11,
+      "seed": "u13-tempo-roster-20260922:Deimos:Kanifous:00",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14,
+        "2": 17,
+        "3": 19
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 22,
+        "souls": [
+          1,
+          11
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 33,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Kanifous",
+        "Humbaba"
+      ],
+      "name": "kanifous_humbaba_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 22,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Kanifous:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Kanifous"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 8,
+        "2": 9
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 9,
+        "souls": [
+          0,
+          13
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 19,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Kanifous",
+        "Kalligan"
+      ],
+      "name": "kanifous_kalligan_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 9,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Kanifous:00",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Kalligan"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 13
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          0,
+          6
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 16,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Kanifous",
+        "Orias"
+      ],
+      "name": "kanifous_orias_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Orias:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Kanifous"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 12,
+        "2": 14,
+        "3": 15
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 19,
+        "souls": [
+          9,
+          3
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 34,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Kanifous",
+        "Odradek"
+      ],
+      "name": "kanifous_odradek_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 19,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Odradek:00",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          4
+        ],
+        "personal_tears_tied": true,
+        "round": 10,
+        "souls": [
+          3,
+          13
+        ],
+        "veil_short_of_twelve": 4,
+        "veil_total": 8,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Kanifous",
+        "Kroni"
+      ],
+      "name": "kanifous_kroni_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 10,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Kroni:00",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          4
+        ],
+        "personal_tears_tied": true,
+        "round": 9,
+        "souls": [
+          0,
+          12
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 12,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Kanifous",
+        "Valak"
+      ],
+      "name": "kanifous_valak_00_tempo",
+      "rejected_previews": 0,
+      "repeat": 0,
+      "rounds": 9,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Valak:00",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "3": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 15,
+        "souls": [
+          1,
+          1
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 27,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Kanifous",
+        "Kanifous"
+      ],
+      "name": "kanifous_kanifous_00_tempo",
+      "rejected_previews": 3,
+      "repeat": 0,
+      "rounds": 15,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Kanifous:00",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Kanifous"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 9,
+        "2": 10,
+        "3": 12
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 17,
+        "souls": [
+          1,
+          9
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 47,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Gremory",
+        "Gremory"
+      ],
+      "name": "gremory_gremory_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 17,
+      "seed": "u13-tempo-roster-20260922:Gremory:Gremory:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Gremory"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 8,
+        "2": 10,
+        "3": 11
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 12,
+        "souls": [
+          10,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 28,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Gremory",
+        "Deimos"
+      ],
+      "name": "gremory_deimos_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 12,
+      "seed": "u13-tempo-roster-20260922:Deimos:Gremory:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14,
+        "3": 15
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 17,
+        "souls": [
+          12,
+          1
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 27,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Gremory",
+        "Humbaba"
+      ],
+      "name": "gremory_humbaba_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 17,
+      "seed": "u13-tempo-roster-20260922:Gremory:Humbaba:01",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Gremory"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 13
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          4
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          1
+        ],
+        "personal_tears_tied": false,
+        "round": 13,
+        "souls": [
+          0,
+          13
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 18,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Gremory",
+        "Kalligan"
+      ],
+      "name": "gremory_kalligan_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 13,
+      "seed": "u13-tempo-roster-20260922:Gremory:Kalligan:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Kalligan"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14,
+        "2": 15,
+        "3": 17
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          3,
+          0
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          5
+        ],
+        "personal_tears_tied": false,
+        "round": 17,
+        "souls": [
+          3,
+          14
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 25,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Gremory",
+        "Orias"
+      ],
+      "name": "gremory_orias_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 17,
+      "seed": "u13-tempo-roster-20260922:Gremory:Orias:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Orias"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 11,
+        "3": 12
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          2,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 13,
+        "souls": [
+          6,
+          5
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 26,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Gremory",
+        "Odradek"
+      ],
+      "name": "gremory_odradek_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 13,
+      "seed": "u13-tempo-roster-20260922:Gremory:Odradek:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 12,
+        "2": 13
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          1,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 16,
+        "souls": [
+          9,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 23,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Gremory",
+        "Kroni"
+      ],
+      "name": "gremory_kroni_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 16,
+      "seed": "u13-tempo-roster-20260922:Gremory:Kroni:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11,
+        "2": 12,
+        "3": 13
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          2,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          7,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 28,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Gremory",
+        "Valak"
+      ],
+      "name": "gremory_valak_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Gremory:Valak:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 8,
+        "2": 9,
+        "3": 10
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 13,
+        "souls": [
+          9,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 32,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Gremory",
+        "Kanifous"
+      ],
+      "name": "gremory_kanifous_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 13,
+      "seed": "u13-tempo-roster-20260922:Gremory:Kanifous:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Gremory"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          0
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          5
+        ],
+        "personal_tears_tied": false,
+        "round": 9,
+        "souls": [
+          12,
+          2
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 12,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Deimos",
+        "Gremory"
+      ],
+      "name": "deimos_gremory_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 9,
+      "seed": "u13-tempo-roster-20260922:Deimos:Gremory:01",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 8,
+        "2": 9,
+        "3": 11
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 11,
+        "souls": [
+          5,
+          10
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 25,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Deimos",
+        "Deimos"
+      ],
+      "name": "deimos_deimos_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 11,
+      "seed": "u13-tempo-roster-20260922:Deimos:Deimos:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 11
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          4
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          1
+        ],
+        "personal_tears_tied": false,
+        "round": 11,
+        "souls": [
+          14,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 17,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Deimos",
+        "Humbaba"
+      ],
+      "name": "deimos_humbaba_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 11,
+      "seed": "u13-tempo-roster-20260922:Deimos:Humbaba:01",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 15,
+        "2": 16,
+        "3": 18
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          3,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 20,
+        "souls": [
+          4,
+          13
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 30,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Deimos",
+        "Kalligan"
+      ],
+      "name": "deimos_kalligan_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 20,
+      "seed": "u13-tempo-roster-20260922:Deimos:Kalligan:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Kalligan"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 9,
+        "2": 11,
+        "3": 12
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          4
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          1
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          7,
+          1
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 28,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Deimos",
+        "Orias"
+      ],
+      "name": "deimos_orias_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Deimos:Orias:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 12,
+        "3": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          15,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 24,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Deimos",
+        "Odradek"
+      ],
+      "name": "deimos_odradek_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Deimos:Odradek:01",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 9,
+        "2": 10
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 11,
+        "souls": [
+          9,
+          3
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 20,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Deimos",
+        "Kroni"
+      ],
+      "name": "deimos_kroni_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 11,
+      "seed": "u13-tempo-roster-20260922:Deimos:Kroni:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14,
+        "2": 16,
+        "3": 17
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 23,
+        "souls": [
+          8,
+          4
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 40,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Deimos",
+        "Valak"
+      ],
+      "name": "deimos_valak_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 23,
+      "seed": "u13-tempo-roster-20260922:Deimos:Valak:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14,
+        "3": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 18,
+        "souls": [
+          13,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 28,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Deimos",
+        "Kanifous"
+      ],
+      "name": "deimos_kanifous_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 18,
+      "seed": "u13-tempo-roster-20260922:Deimos:Kanifous:01",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11,
+        "2": 13
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 13,
+        "souls": [
+          1,
+          6
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 19,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Humbaba",
+        "Gremory"
+      ],
+      "name": "humbaba_gremory_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 13,
+      "seed": "u13-tempo-roster-20260922:Gremory:Humbaba:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Humbaba"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14,
+        "2": 15
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 17,
+        "souls": [
+          0,
+          13
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 21,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Humbaba",
+        "Deimos"
+      ],
+      "name": "humbaba_deimos_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 17,
+      "seed": "u13-tempo-roster-20260922:Deimos:Humbaba:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 13
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 13,
+        "souls": [
+          7,
+          2
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 14,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Humbaba",
+        "Humbaba"
+      ],
+      "name": "humbaba_humbaba_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 13,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Humbaba:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Humbaba"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 15,
+        "souls": [
+          2,
+          4
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 16,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Humbaba",
+        "Kalligan"
+      ],
+      "name": "humbaba_kalligan_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 15,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Kalligan:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Humbaba"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 12,
+        "2": 15,
+        "3": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 17,
+        "souls": [
+          7,
+          3
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 26,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Humbaba",
+        "Orias"
+      ],
+      "name": "humbaba_orias_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 17,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Orias:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Orias"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11,
+        "2": 12,
+        "3": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 15,
+        "souls": [
+          6,
+          2
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 27,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Humbaba",
+        "Odradek"
+      ],
+      "name": "humbaba_odradek_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 15,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Odradek:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14,
+        "2": 17
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 18,
+        "souls": [
+          0,
+          12
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 22,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Humbaba",
+        "Kroni"
+      ],
+      "name": "humbaba_kroni_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 18,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Kroni:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "2": 11,
+        "3": 15
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          3,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          2
+        ],
+        "personal_tears_tied": true,
+        "round": 17,
+        "souls": [
+          0,
+          13
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 29,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Humbaba",
+        "Valak"
+      ],
+      "name": "humbaba_valak_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 17,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Valak:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11,
+        "2": 14,
+        "3": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          1,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 16,
+        "souls": [
+          6,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 23,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Humbaba",
+        "Kanifous"
+      ],
+      "name": "humbaba_kanifous_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 16,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Kanifous:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Kanifous"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 12,
+        "3": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          0,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          5,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 15,
+        "souls": [
+          0,
+          12
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 26,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Kalligan",
+        "Gremory"
+      ],
+      "name": "kalligan_gremory_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 15,
+      "seed": "u13-tempo-roster-20260922:Gremory:Kalligan:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Gremory"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 7,
+        "2": 9,
+        "3": 13
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          4,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          1,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          4,
+          9
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 30,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Kalligan",
+        "Deimos"
+      ],
+      "name": "kalligan_deimos_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Deimos:Kalligan:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          1,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          3,
+          4
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 14,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Kalligan",
+        "Humbaba"
+      ],
+      "name": "kalligan_humbaba_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Kalligan:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Humbaba"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 18,
+        "2": 19,
+        "3": 21
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          4
+        ],
+        "personal_tears_tied": true,
+        "round": 21,
+        "souls": [
+          0,
+          12
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 26,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Kalligan",
+        "Kalligan"
+      ],
+      "name": "kalligan_kalligan_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 21,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Kalligan:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Kalligan"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 9,
+        "2": 12,
+        "3": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 17,
+        "souls": [
+          8,
+          7
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 35,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Kalligan",
+        "Orias"
+      ],
+      "name": "kalligan_orias_01_tempo",
+      "rejected_previews": 2,
+      "repeat": 1,
+      "rounds": 17,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Orias:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Orias"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 7,
+        "2": 12,
+        "3": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          4
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          1
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          12,
+          3
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 22,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Kalligan",
+        "Odradek"
+      ],
+      "name": "kalligan_odradek_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Odradek:01",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Kalligan"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          3,
+          13
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 16,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Kalligan",
+        "Kroni"
+      ],
+      "name": "kalligan_kroni_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Kroni:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 12,
+        "3": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 15,
+        "souls": [
+          3,
+          9
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 26,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Kalligan",
+        "Valak"
+      ],
+      "name": "kalligan_valak_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 15,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Valak:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Kalligan"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 13,
+        "2": 16,
+        "3": 18
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          0,
+          0
+        ],
+        "personal_tears_short_of_five": [
+          5,
+          5
+        ],
+        "personal_tears_tied": true,
+        "round": 23,
+        "souls": [
+          13,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 32,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Kalligan",
+        "Kanifous"
+      ],
+      "name": "kalligan_kanifous_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 23,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Kanifous:01",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Kalligan"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 9
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          0
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          5
+        ],
+        "personal_tears_tied": false,
+        "round": 9,
+        "souls": [
+          2,
+          10
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 14,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Orias",
+        "Gremory"
+      ],
+      "name": "orias_gremory_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 9,
+      "seed": "u13-tempo-roster-20260922:Gremory:Orias:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Orias"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 11
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 12,
+        "souls": [
+          3,
+          9
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 19,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Orias",
+        "Deimos"
+      ],
+      "name": "orias_deimos_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 12,
+      "seed": "u13-tempo-roster-20260922:Deimos:Orias:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          2,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 13,
+        "souls": [
+          0,
+          3
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 17,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Orias",
+        "Humbaba"
+      ],
+      "name": "orias_humbaba_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 13,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Orias:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Humbaba"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 16,
+        "2": 17,
+        "3": 20
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          4,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          1,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 22,
+        "souls": [
+          3,
+          13
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 31,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Orias",
+        "Kalligan"
+      ],
+      "name": "orias_kalligan_01_tempo",
+      "rejected_previews": 1,
+      "repeat": 1,
+      "rounds": 22,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Orias:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Kalligan"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 15,
+        "2": 17,
+        "3": 19
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          3,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          2
+        ],
+        "personal_tears_tied": true,
+        "round": 19,
+        "souls": [
+          14,
+          3
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 23,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Orias",
+        "Orias"
+      ],
+      "name": "orias_orias_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 19,
+      "seed": "u13-tempo-roster-20260922:Orias:Orias:01",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Orias"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          0,
+          6
+        ],
+        "personal_tears_short_of_five": [
+          5,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          9,
+          1
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 12,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Orias",
+        "Odradek"
+      ],
+      "name": "orias_odradek_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Odradek:Orias:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          1,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 14,
+        "souls": [
+          3,
+          1
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 14,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Orias",
+        "Kroni"
+      ],
+      "name": "orias_kroni_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 14,
+      "seed": "u13-tempo-roster-20260922:Kroni:Orias:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 13,
+        "3": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          3,
+          4
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          1
+        ],
+        "personal_tears_tied": false,
+        "round": 17,
+        "souls": [
+          12,
+          2
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 30,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Orias",
+        "Valak"
+      ],
+      "name": "orias_valak_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 17,
+      "seed": "u13-tempo-roster-20260922:Orias:Valak:01",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Orias"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 15,
+        "2": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          4
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          1
+        ],
+        "personal_tears_tied": false,
+        "round": 16,
+        "souls": [
+          12,
+          3
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 18,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Orias",
+        "Kanifous"
+      ],
+      "name": "orias_kanifous_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 16,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Orias:01",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Orias"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 9,
+        "2": 10,
+        "3": 11
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 12,
+        "souls": [
+          0,
+          10
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 27,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Odradek",
+        "Gremory"
+      ],
+      "name": "odradek_gremory_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 12,
+      "seed": "u13-tempo-roster-20260922:Gremory:Odradek:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          4
+        ],
+        "personal_tears_tied": true,
+        "round": 11,
+        "souls": [
+          1,
+          12
+        ],
+        "veil_short_of_twelve": 1,
+        "veil_total": 11,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Odradek",
+        "Deimos"
+      ],
+      "name": "odradek_deimos_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 11,
+      "seed": "u13-tempo-roster-20260922:Deimos:Odradek:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 12,
+        "2": 15,
+        "3": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 16,
+        "souls": [
+          8,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 22,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Odradek",
+        "Humbaba"
+      ],
+      "name": "odradek_humbaba_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 16,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Odradek:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 9,
+        "2": 11,
+        "3": 12
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 13,
+        "souls": [
+          4,
+          9
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 24,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Odradek",
+        "Kalligan"
+      ],
+      "name": "odradek_kalligan_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 13,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Odradek:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          1,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 11,
+        "souls": [
+          9,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 14,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Odradek",
+        "Orias"
+      ],
+      "name": "odradek_orias_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 11,
+      "seed": "u13-tempo-roster-20260922:Odradek:Orias:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Orias"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 13,
+        "2": 15,
+        "3": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 20,
+        "souls": [
+          7,
+          3
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 38,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Odradek",
+        "Odradek"
+      ],
+      "name": "odradek_odradek_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 20,
+      "seed": "u13-tempo-roster-20260922:Odradek:Odradek:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 10,
+        "souls": [
+          0,
+          12
+        ],
+        "veil_short_of_twelve": 3,
+        "veil_total": 9,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Odradek",
+        "Kroni"
+      ],
+      "name": "odradek_kroni_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 10,
+      "seed": "u13-tempo-roster-20260922:Kroni:Odradek:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 14,
+        "3": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          3
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          2
+        ],
+        "personal_tears_tied": false,
+        "round": 17,
+        "souls": [
+          4,
+          5
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 27,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Odradek",
+        "Valak"
+      ],
+      "name": "odradek_valak_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 17,
+      "seed": "u13-tempo-roster-20260922:Odradek:Valak:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14,
+        "2": 15,
+        "3": 17
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          3
+        ],
+        "personal_tears_tied": true,
+        "round": 23,
+        "souls": [
+          12,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 39,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Odradek",
+        "Kanifous"
+      ],
+      "name": "odradek_kanifous_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 23,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Odradek:01",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11,
+        "2": 13,
+        "3": 15
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          3,
+          4
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          1
+        ],
+        "personal_tears_tied": false,
+        "round": 21,
+        "souls": [
+          13,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 39,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Kroni",
+        "Gremory"
+      ],
+      "name": "kroni_gremory_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 21,
+      "seed": "u13-tempo-roster-20260922:Gremory:Kroni:01",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          4
+        ],
+        "personal_tears_tied": true,
+        "round": 9,
+        "souls": [
+          13,
+          2
+        ],
+        "veil_short_of_twelve": 3,
+        "veil_total": 9,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Kroni",
+        "Deimos"
+      ],
+      "name": "kroni_deimos_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 9,
+      "seed": "u13-tempo-roster-20260922:Deimos:Kroni:01",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 15,
+        "2": 17,
+        "3": 18
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 18,
+        "souls": [
+          5,
+          4
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 22,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Kroni",
+        "Humbaba"
+      ],
+      "name": "kroni_humbaba_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 18,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Kroni:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14,
+        "2": 15,
+        "3": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 16,
+        "souls": [
+          3,
+          6
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 23,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Kroni",
+        "Kalligan"
+      ],
+      "name": "kroni_kalligan_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 16,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Kroni:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 15,
+        "2": 18,
+        "3": 19
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 20,
+        "souls": [
+          3,
+          12
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 29,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Kroni",
+        "Orias"
+      ],
+      "name": "kroni_orias_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 20,
+      "seed": "u13-tempo-roster-20260922:Kroni:Orias:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Orias"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 13,
+        "2": 14
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 15,
+        "souls": [
+          6,
+          5
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 20,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Kroni",
+        "Odradek"
+      ],
+      "name": "kroni_odradek_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 15,
+      "seed": "u13-tempo-roster-20260922:Kroni:Odradek:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 9,
+        "2": 11
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          4,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          1,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 11,
+        "souls": [
+          5,
+          8
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 21,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Kroni",
+        "Kroni"
+      ],
+      "name": "kroni_kroni_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 11,
+      "seed": "u13-tempo-roster-20260922:Kroni:Kroni:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 12,
+        "2": 16,
+        "3": 17
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 18,
+        "souls": [
+          5,
+          4
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 27,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Kroni",
+        "Valak"
+      ],
+      "name": "kroni_valak_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 18,
+      "seed": "u13-tempo-roster-20260922:Kroni:Valak:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 15,
+        "2": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          4
+        ],
+        "personal_tears_tied": true,
+        "round": 16,
+        "souls": [
+          12,
+          6
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 20,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Kroni",
+        "Kanifous"
+      ],
+      "name": "kroni_kanifous_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 16,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Kroni:01",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11,
+        "2": 13,
+        "3": 15
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 15,
+        "souls": [
+          6,
+          4
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 27,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Valak",
+        "Gremory"
+      ],
+      "name": "valak_gremory_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 15,
+      "seed": "u13-tempo-roster-20260922:Gremory:Valak:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          1,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 12,
+        "souls": [
+          9,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 14,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Valak",
+        "Deimos"
+      ],
+      "name": "valak_deimos_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 12,
+      "seed": "u13-tempo-roster-20260922:Deimos:Valak:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 12
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          0
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          5
+        ],
+        "personal_tears_tied": false,
+        "round": 13,
+        "souls": [
+          0,
+          3
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 18,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Valak",
+        "Humbaba"
+      ],
+      "name": "valak_humbaba_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 13,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Valak:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14,
+        "2": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 16,
+        "souls": [
+          10,
+          2
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 20,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Valak",
+        "Kalligan"
+      ],
+      "name": "valak_kalligan_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 16,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Valak:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 16,
+        "2": 18
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 19,
+        "souls": [
+          1,
+          7
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 21,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Valak",
+        "Orias"
+      ],
+      "name": "valak_orias_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 19,
+      "seed": "u13-tempo-roster-20260922:Orias:Valak:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          2,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 13,
+        "souls": [
+          6,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 17,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Valak",
+        "Odradek"
+      ],
+      "name": "valak_odradek_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 13,
+      "seed": "u13-tempo-roster-20260922:Odradek:Valak:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Odradek"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 13
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          3
+        ],
+        "personal_tears_tied": true,
+        "round": 13,
+        "souls": [
+          1,
+          12
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 16,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Valak",
+        "Kroni"
+      ],
+      "name": "valak_kroni_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 13,
+      "seed": "u13-tempo-roster-20260922:Kroni:Valak:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 13,
+        "3": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 20,
+        "souls": [
+          5,
+          3
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 34,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Valak",
+        "Valak"
+      ],
+      "name": "valak_valak_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 20,
+      "seed": "u13-tempo-roster-20260922:Valak:Valak:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 12,
+        "3": 13
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 15,
+        "souls": [
+          5,
+          2
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 32,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Valak",
+        "Kanifous"
+      ],
+      "name": "valak_kanifous_01_tempo",
+      "rejected_previews": 3,
+      "repeat": 1,
+      "rounds": 15,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Valak:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 12
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          0
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          5
+        ],
+        "personal_tears_tied": false,
+        "round": 13,
+        "souls": [
+          5,
+          3
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 19,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Kanifous",
+        "Gremory"
+      ],
+      "name": "kanifous_gremory_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 13,
+      "seed": "u13-tempo-roster-20260922:Gremory:Kanifous:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Kanifous"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          3,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 12,
+        "souls": [
+          0,
+          13
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 16,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Kanifous",
+        "Deimos"
+      ],
+      "name": "kanifous_deimos_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 12,
+      "seed": "u13-tempo-roster-20260922:Deimos:Kanifous:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Deimos"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 14,
+        "2": 15,
+        "3": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 16,
+        "souls": [
+          12,
+          5
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 24,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Kanifous",
+        "Humbaba"
+      ],
+      "name": "kanifous_humbaba_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 16,
+      "seed": "u13-tempo-roster-20260922:Humbaba:Kanifous:01",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Kanifous"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 10,
+        "2": 11
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          0
+        ],
+        "personal_tears": [
+          5,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          0,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 12,
+        "souls": [
+          0,
+          10
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 20,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      "lords": [
+        "Kanifous",
+        "Kalligan"
+      ],
+      "name": "kanifous_kalligan_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 12,
+      "seed": "u13-tempo-roster-20260922:Kalligan:Kanifous:01",
+      "win_by": "Dominion",
+      "winner": 0,
+      "winner_lord": "Kanifous"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11,
+        "2": 12
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          0
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          5
+        ],
+        "personal_tears_tied": false,
+        "round": 12,
+        "souls": [
+          3,
+          12
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 17,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Kanifous",
+        "Orias"
+      ],
+      "name": "kanifous_orias_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 12,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Orias:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Orias"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 16
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          0,
+          2
+        ],
+        "personal_tears_short_of_five": [
+          5,
+          3
+        ],
+        "personal_tears_tied": false,
+        "round": 16,
+        "souls": [
+          12,
+          0
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 14,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      "lords": [
+        "Kanifous",
+        "Odradek"
+      ],
+      "name": "kanifous_odradek_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 16,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Odradek:01",
+      "win_by": "Ritual",
+      "winner": 0,
+      "winner_lord": "Kanifous"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          1,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          4,
+          4
+        ],
+        "personal_tears_tied": true,
+        "round": 12,
+        "souls": [
+          0,
+          12
+        ],
+        "veil_short_of_twelve": 1,
+        "veil_total": 11,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Kanifous",
+        "Kroni"
+      ],
+      "name": "kanifous_kroni_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 12,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Kroni:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Kroni"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11,
+        "2": 15
+      },
+      "finish": {
+        "dominion_qualified_players": [],
+        "personal_tears": [
+          2,
+          1
+        ],
+        "personal_tears_short_of_five": [
+          3,
+          4
+        ],
+        "personal_tears_tied": false,
+        "round": 15,
+        "souls": [
+          1,
+          13
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 19,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      "lords": [
+        "Kanifous",
+        "Valak"
+      ],
+      "name": "kanifous_valak_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 15,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Valak:01",
+      "win_by": "Ritual",
+      "winner": 1,
+      "winner_lord": "Valak"
+    },
+    {
+      "attack_escalation_first_round": {
+        "0": 1,
+        "1": 11,
+        "2": 14,
+        "3": 15
+      },
+      "finish": {
+        "dominion_qualified_players": [
+          1
+        ],
+        "personal_tears": [
+          3,
+          5
+        ],
+        "personal_tears_short_of_five": [
+          2,
+          0
+        ],
+        "personal_tears_tied": false,
+        "round": 22,
+        "souls": [
+          1,
+          6
+        ],
+        "veil_short_of_twelve": 0,
+        "veil_total": 46,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      "lords": [
+        "Kanifous",
+        "Kanifous"
+      ],
+      "name": "kanifous_kanifous_01_tempo",
+      "rejected_previews": 0,
+      "repeat": 1,
+      "rounds": 22,
+      "seed": "u13-tempo-roster-20260922:Kanifous:Kanifous:01",
+      "win_by": "Dominion",
+      "winner": 1,
+      "winner_lord": "Kanifous"
+    }
+  ],
+  "lord_balance": {
+    "failures": [],
+    "lords": {
+      "Deimos": {
+        "decisions": 464,
+        "games": 32,
+        "losses": 11,
+        "march_commands": 451,
+        "mean_rounds": 12.94,
+        "powers": {
+          "BreachWishDeath": 18,
+          "BreachWishPower": 12,
+          "Rout": 87,
+          "WarMachine": 143
+        },
+        "rejected_previews": 0,
+        "reserve_body_decisions": 3254,
+        "seats": {
+          "0": {
+            "games": 16,
+            "wins": 8
+          },
+          "1": {
+            "games": 16,
+            "wins": 13
+          }
+        },
+        "unresolved": 0,
+        "win_rate": 0.65625,
+        "wins": 21
+      },
+      "Gremory": {
+        "decisions": 506,
+        "games": 32,
+        "losses": 26,
+        "march_commands": 507,
+        "mean_rounds": 13.81,
+        "powers": {
+          "BreachWishDeath": 24,
+          "BreachWishPower": 13,
+          "InevitableRuin": 150,
+          "PredatorOfRuin": 238
+        },
+        "rejected_previews": 0,
+        "reserve_body_decisions": 3623,
+        "seats": {
+          "0": {
+            "games": 16,
+            "wins": 4
+          },
+          "1": {
+            "games": 16,
+            "wins": 2
+          }
+        },
+        "unresolved": 0,
+        "win_rate": 0.1875,
+        "wins": 6
+      },
+      "Humbaba": {
+        "decisions": 535,
+        "games": 32,
+        "losses": 20,
+        "march_commands": 542,
+        "mean_rounds": 15.09,
+        "powers": {
+          "BreachWishDeath": 22,
+          "BreachWishPower": 5,
+          "BreathOfLife": 120,
+          "MusterTheFaithful": 258
+        },
+        "rejected_previews": 0,
+        "reserve_body_decisions": 3502,
+        "seats": {
+          "0": {
+            "games": 16,
+            "wins": 6
+          },
+          "1": {
+            "games": 16,
+            "wins": 6
+          }
+        },
+        "unresolved": 0,
+        "win_rate": 0.375,
+        "wins": 12
+      },
+      "Kalligan": {
+        "decisions": 548,
+        "games": 32,
+        "losses": 21,
+        "march_commands": 549,
+        "mean_rounds": 14.94,
+        "powers": {
+          "BreachWishDeath": 27,
+          "BreachWishPower": 16,
+          "BreachWishResurrection": 2,
+          "Inferno": 159,
+          "Pyroclasm": 120
+        },
+        "rejected_previews": 3,
+        "reserve_body_decisions": 4081,
+        "seats": {
+          "0": {
+            "games": 16,
+            "wins": 6
+          },
+          "1": {
+            "games": 16,
+            "wins": 5
+          }
+        },
+        "unresolved": 0,
+        "win_rate": 0.34375,
+        "wins": 11
+      },
+      "Kanifous": {
+        "decisions": 542,
+        "games": 32,
+        "losses": 21,
+        "march_commands": 549,
+        "mean_rounds": 14.62,
+        "powers": {
+          "BreachWishDeath": 61,
+          "BreachWishLongevity": 1,
+          "BreachWishPower": 58,
+          "BreachWishResurrection": 1,
+          "WishDeath": 140,
+          "WishLongevity": 3,
+          "WishPower": 116,
+          "WishResurrection": 99
+        },
+        "rejected_previews": 15,
+        "reserve_body_decisions": 3359,
+        "seats": {
+          "0": {
+            "games": 16,
+            "wins": 7
+          },
+          "1": {
+            "games": 16,
+            "wins": 4
+          }
+        },
+        "unresolved": 0,
+        "win_rate": 0.34375,
+        "wins": 11
+      },
+      "Kroni": {
+        "decisions": 511,
+        "games": 32,
+        "losses": 3,
+        "march_commands": 528,
+        "mean_rounds": 14.16,
+        "powers": {
+          "BreachWishDeath": 17,
+          "BreachWishPower": 8,
+          "Consume": 295,
+          "Ravenous": 87
+        },
+        "rejected_previews": 0,
+        "reserve_body_decisions": 3381,
+        "seats": {
+          "0": {
+            "games": 16,
+            "wins": 13
+          },
+          "1": {
+            "games": 16,
+            "wins": 16
+          }
+        },
+        "unresolved": 0,
+        "win_rate": 0.90625,
+        "wins": 29
+      },
+      "Odradek": {
+        "decisions": 515,
+        "games": 32,
+        "losses": 13,
+        "march_commands": 554,
+        "mean_rounds": 14.09,
+        "powers": {
+          "AllegianceShift": 103,
+          "BreachWishDeath": 29,
+          "BreachWishPower": 6,
+          "BreachWishResurrection": 1,
+          "FalseOrders": 13,
+          "Inversion": 1,
+          "Redirect": 60
+        },
+        "rejected_previews": 0,
+        "reserve_body_decisions": 3634,
+        "seats": {
+          "0": {
+            "games": 16,
+            "wins": 9
+          },
+          "1": {
+            "games": 16,
+            "wins": 10
+          }
+        },
+        "unresolved": 0,
+        "win_rate": 0.59375,
+        "wins": 19
+      },
+      "Orias": {
+        "decisions": 512,
+        "games": 32,
+        "losses": 17,
+        "march_commands": 484,
+        "mean_rounds": 14.12,
+        "powers": {
+          "BreachWishDeath": 20,
+          "BreachWishLongevity": 1,
+          "BreachWishPower": 8,
+          "Snare": 144,
+          "Web": 151
+        },
+        "rejected_previews": 0,
+        "reserve_body_decisions": 3694,
+        "seats": {
+          "0": {
+            "games": 16,
+            "wins": 6
+          },
+          "1": {
+            "games": 16,
+            "wins": 9
+          }
+        },
+        "unresolved": 0,
+        "win_rate": 0.46875,
+        "wins": 15
+      },
+      "Valak": {
+        "decisions": 583,
+        "games": 32,
+        "losses": 12,
+        "march_commands": 642,
+        "mean_rounds": 15.47,
+        "powers": {
+          "BreachWishDeath": 32,
+          "BreachWishLongevity": 2,
+          "BreachWishPower": 16,
+          "BreachWishResurrection": 2,
+          "GravityOrb": 127,
+          "Projection": 122
+        },
+        "rejected_previews": 0,
+        "reserve_body_decisions": 4097,
+        "seats": {
+          "0": {
+            "games": 16,
+            "wins": 11
+          },
+          "1": {
+            "games": 16,
+            "wins": 9
+          }
+        },
+        "unresolved": 0,
+        "win_rate": 0.625,
+        "wins": 20
+      }
+    },
+    "matchups": {
+      "Deimos:Gremory": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 4
+      },
+      "Deimos:Humbaba": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      },
+      "Deimos:Kalligan": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      },
+      "Deimos:Kanifous": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      },
+      "Deimos:Kroni": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 0
+      },
+      "Deimos:Odradek": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      },
+      "Deimos:Orias": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      },
+      "Deimos:Valak": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 2
+      },
+      "Gremory:Deimos": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 0
+      },
+      "Gremory:Humbaba": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Gremory:Kalligan": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 2
+      },
+      "Gremory:Kanifous": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 2
+      },
+      "Gremory:Kroni": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 0
+      },
+      "Gremory:Odradek": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Gremory:Orias": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 0
+      },
+      "Gremory:Valak": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 0
+      },
+      "Humbaba:Deimos": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Humbaba:Gremory": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      },
+      "Humbaba:Kalligan": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      },
+      "Humbaba:Kanifous": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 0
+      },
+      "Humbaba:Kroni": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Humbaba:Odradek": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 0
+      },
+      "Humbaba:Orias": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      },
+      "Humbaba:Valak": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Kalligan:Deimos": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Kalligan:Gremory": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 2
+      },
+      "Kalligan:Humbaba": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Kalligan:Kanifous": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 2
+      },
+      "Kalligan:Kroni": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 0
+      },
+      "Kalligan:Odradek": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 2
+      },
+      "Kalligan:Orias": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 2
+      },
+      "Kalligan:Valak": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Kanifous:Deimos": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Kanifous:Gremory": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 2
+      },
+      "Kanifous:Humbaba": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 4
+      },
+      "Kanifous:Kalligan": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 2
+      },
+      "Kanifous:Kroni": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 0
+      },
+      "Kanifous:Odradek": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Kanifous:Orias": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Kanifous:Valak": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 0
+      },
+      "Kroni:Deimos": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 4
+      },
+      "Kroni:Gremory": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 4
+      },
+      "Kroni:Humbaba": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      },
+      "Kroni:Kalligan": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 4
+      },
+      "Kroni:Kanifous": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 4
+      },
+      "Kroni:Odradek": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      },
+      "Kroni:Orias": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      },
+      "Kroni:Valak": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 4
+      },
+      "Odradek:Deimos": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Odradek:Gremory": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      },
+      "Odradek:Humbaba": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 4
+      },
+      "Odradek:Kalligan": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 2
+      },
+      "Odradek:Kanifous": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      },
+      "Odradek:Kroni": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Odradek:Orias": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 2
+      },
+      "Odradek:Valak": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      },
+      "Orias:Deimos": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Orias:Gremory": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 4
+      },
+      "Orias:Humbaba": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Orias:Kalligan": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 2
+      },
+      "Orias:Kanifous": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      },
+      "Orias:Kroni": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Orias:Odradek": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 2
+      },
+      "Orias:Valak": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Valak:Deimos": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 2
+      },
+      "Valak:Gremory": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 4
+      },
+      "Valak:Humbaba": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      },
+      "Valak:Kalligan": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      },
+      "Valak:Kanifous": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 4
+      },
+      "Valak:Kroni": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 0
+      },
+      "Valak:Odradek": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 1
+      },
+      "Valak:Orias": {
+        "games": 4,
+        "unresolved": 0,
+        "wins": 3
+      }
+    },
+    "mirrors": [
+      {
+        "lord": "Gremory",
+        "rounds": 15,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      {
+        "lord": "Deimos",
+        "rounds": 14,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      {
+        "lord": "Humbaba",
+        "rounds": 13,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      {
+        "lord": "Kalligan",
+        "rounds": 14,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      {
+        "lord": "Orias",
+        "rounds": 11,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      {
+        "lord": "Odradek",
+        "rounds": 12,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      {
+        "lord": "Kroni",
+        "rounds": 18,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      {
+        "lord": "Valak",
+        "rounds": 24,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      {
+        "lord": "Kanifous",
+        "rounds": 15,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      {
+        "lord": "Gremory",
+        "rounds": 17,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      {
+        "lord": "Deimos",
+        "rounds": 11,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      {
+        "lord": "Humbaba",
+        "rounds": 13,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      {
+        "lord": "Kalligan",
+        "rounds": 21,
+        "win_by": "Ritual",
+        "winner": 1
+      },
+      {
+        "lord": "Orias",
+        "rounds": 19,
+        "win_by": "Ritual",
+        "winner": 0
+      },
+      {
+        "lord": "Odradek",
+        "rounds": 20,
+        "win_by": "Dominion",
+        "winner": 0
+      },
+      {
+        "lord": "Kroni",
+        "rounds": 11,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      {
+        "lord": "Valak",
+        "rounds": 20,
+        "win_by": "Dominion",
+        "winner": 1
+      },
+      {
+        "lord": "Kanifous",
+        "rounds": 22,
+        "win_by": "Dominion",
+        "winner": 1
+      }
+    ],
+    "non_mirror_seat_wins": {
+      "0": 70,
+      "1": 74
+    },
+    "non_mirror_win_methods": {
+      "Dominion": 84,
+      "Ritual": 60
+    },
+    "scope": "Initial self-play balance screen, not a strength ranking or balance verdict. Non-mirror results only in win rates; behavior includes mirrors. Failed/capped games are excluded and listed."
+  },
+  "manifest_sha256": "a8dcfe2dbe0677a36cbd3bd33997c134107d021297acf3ee2b87630ff42f4008",
+  "mirror_seat_wins": {
+    "0": 9,
+    "1": 9
+  },
+  "non_mirror_seat_wins": {
+    "0": 70,
+    "1": 74
+  },
+  "paired_seat_results": {
+    "both_won_by_seat_0": 15,
+    "both_won_by_seat_1": 17,
+    "same_lord_won_both_seats": 40
+  },
+  "rounds": {
+    "maximum": 24,
+    "mean": 14.555555555555555,
+    "median": 14.0,
+    "minimum": 8
+  },
+  "scope": "Current experimental tempo rules only; 162 games, two seeds per ordered matchup. Seat associations do not isolate causation.",
+  "seat_source_findings": [
+    "FullMatch._apply sets player_order=[0,1] each round; PowerMatch inherits this.",
+    "effects.resolve_due sorts same-hook effects by player_order; native U13PendingEffects calls this Reflex order.",
+    "U13GameConductor also starts and advances with [0,1]. Slaver first visitor is separately keyed and seeded.",
+    "lifecycle.evaluate returns seat 0 for simultaneous living Ritual qualifiers and equal souls at RoundLimit. Neither terminal tie occurred in this sample."
+  ],
+  "seat_terminal_audit": {
+    "games": [],
+    "replayed": 0,
+    "round_limit_soul_ties": 0,
+    "scope": "Recorded-operation replays, no new policy games; checks terminal preference only, not earlier Reflex effects.",
+    "simultaneous_rituals": 0
+  },
+  "validation": {
+    "completed_games": 162,
+    "failed_games": 0,
+    "focused_tests": 57,
+    "operation_hashes": "passed",
+    "rejected_previews": 18,
+    "source_and_record_hashes": "passed"
+  }
+}

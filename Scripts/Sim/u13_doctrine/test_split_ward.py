@@ -25,6 +25,22 @@ class SplitWardTests(unittest.TestCase):
                      monster_choice='Lemek', ward=dict(action='Ward', lane='Castle', card_ids=spare[:1]))
         return game, order
 
+    def test_roster_screen_is_fresh_balanced_and_tempo_only(self):
+        from run_u13_split_ward_experiment import specs, NAMESPACE
+        rows = list(specs(roster_screen=True))
+        self.assertEqual(len(rows), 162)
+        self.assertEqual(len({r['name'] for r in rows}), 162)
+        lookup = {(tuple(r['setup']['lords']), r['repeat']): r for r in rows}
+        for row in rows:
+            setup = row['setup']
+            self.assertEqual(row['arm'], 'tempo')
+            self.assertEqual(setup['tempo_experiment'], 'U13_VEIL_ATTACK_ROUND25_V1')
+            self.assertEqual(setup['ward_experiment'], 'U13_SPLIT_WARD_V1')
+            self.assertNotIn('decisive_soul_bonus', setup)
+            self.assertFalse(setup['seed'].startswith(NAMESPACE))
+            reverse = lookup[(tuple(reversed(setup['lords'])), row['repeat'])]
+            self.assertEqual(setup['seed'], reverse['setup']['seed'])
+
     def test_admission_and_rollback_cover_every_shared_card_budget(self):
         game, order = self.fixture()
         self.assertEqual('legal', Preview(game, 0)(dict(powers=[], order=order))['action'])

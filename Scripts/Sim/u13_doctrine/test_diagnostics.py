@@ -15,6 +15,39 @@ from .reference_probe import ReferenceObserver
 
 
 class DiagnosticsTests(unittest.TestCase):
+    def test_coordinated_ruin_outside_standalone_shortlist_is_counted(self):
+        from pathlib import Path
+        from .common import CommonSmartCore
+        fixture = json.loads((Path(__file__).parent/'fixtures/gremory_variant_diagnostics.json').read_text())
+        # Only the plan actually admitted by the original engine is accepted.
+        decision = CommonSmartCore().decide(fixture['view'], lambda plan:
+            {'action': 'legal' if plan == fixture['plan'] else 'invalid'})
+        self.assertEqual(decision['plan'], fixture['plan'])
+        self.assertEqual(decision['rejected_previews'], [])
+        recorder = Recorder('variant-regression', ('Gremory', 'Gremory'), ('test', 'test'))
+        for assessment in decision['assessments']:
+            recorder.assess(fixture['view']['round'], fixture['view']['player_id'], **assessment)
+        ruin = next(a for a in decision['assessments'] if a['term'] == 'InevitableRuin')
+        self.assertTrue(ruin['selected'])
+        self.assertGreater(ruin['retained'], 0)
+        self.assertGreaterEqual(ruin['generated'], ruin['retained'])
+
+    def test_assembled_recipe_outside_shortlist_is_counted(self):
+        from pathlib import Path
+        from .common import CommonSmartCore
+        fixture = json.loads((Path(__file__).parent/'fixtures/assembled_recipe_diagnostics.json').read_text())
+        decision = CommonSmartCore().decide(fixture['view'], lambda plan:
+            {'action': 'legal' if plan == fixture['plan'] else 'invalid'})
+        self.assertEqual(decision['plan'], fixture['plan'])
+        self.assertEqual(decision['rejected_previews'], [])
+        recorder = Recorder('recipe-regression', ('Kalligan', 'Deimos'), ('test', 'test'))
+        for assessment in decision['assessments']:
+            recorder.assess(fixture['view']['round'], fixture['view']['player_id'], **assessment)
+        recipe = next(a for a in decision['assessments'] if a['term'] == 'Lemek')
+        self.assertTrue(recipe['selected'])
+        self.assertGreater(recipe['retained'], 0)
+        self.assertGreaterEqual(recipe['generated'], recipe['retained'])
+
     def recorder(self, **kwargs):
         return Recorder("case", ("Kroni", "Orias"), ("experimental:v1", "basic:frozen"), **kwargs)
 
