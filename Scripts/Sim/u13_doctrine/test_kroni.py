@@ -29,7 +29,7 @@ class KroniTests(unittest.TestCase):
         view['board'] = [r for r in view['board'] if r['id'] != 'pair-low']
         self.assertEqual({'expensive', 'opposite-high'}, {r['id'] for r in consume_targets(Facts(view))})
 
-    def test_every_preview_respects_opposite_lane_even_under_softmax(self):
+    def test_every_preview_uses_neutral_bounce_even_under_softmax(self):
         game, _, attack = prepared('Kroni')
         world = game._state['world']
         from u13_pysim import economy
@@ -52,7 +52,7 @@ class KroniTests(unittest.TestCase):
             for shot in p['powers']:
                 if shot['power_id'] == 'Consume':
                     seen += 1
-                    self.assertNotEqual(p['order']['lane'], f.by_id[shot['target']['entity_id']]['attributes']['lane'])
+                    self.assertEqual({'mode':'guard_bounce'},shot['target'])
         self.assertGreater(seen, 0)
         self.assertEqual(before, game.snapshot())
 

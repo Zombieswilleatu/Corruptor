@@ -10,9 +10,10 @@ CONTROL = ('Consume', 'Ravenous')
 
 
 def proposals(f):
-    for row in consume_targets(f):
-        target = dict(entity_id=row['id']); value = consume_value(f, target)
-        yield power('Consume', target, value['score'], value['reason'])
+    from u13_pysim.guard_consume import TARGET
+    if any(f.guards(pid,lane) for pid in (0,1) for lane in ('Lord','Castle')):
+        value = consume_value(f,TARGET)
+        yield power('Consume',dict(TARGET),value['score'],value['reason'])
     for target in ravenous_targets(f):
         value = ravenous_value(f, target)
         yield power('Ravenous', target, value['score'], value['reason'])

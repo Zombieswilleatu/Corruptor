@@ -24,11 +24,11 @@ func _build() -> void:
 	kroni_note = _label(kroni_box, "", 14)
 	kroni_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	consume_button = _button(kroni_box, "CONSUME · NEXT ROUND", _begin_consume)
-	consume_button.tooltip_text = "Consume the selected enemy Guard next round. Fails if Kroni is banished before it fires."
-	var consume_note: Label = _label(kroni_box, "Choose an enemy Guard. At next round's start, devour that exact Guard and gain 1 Hunger. No retargeting.", 13)
+	consume_button.tooltip_text = "Launch from the neutral center next round. Bounce until one friendly or enemy Guard is eaten. Initial direction favors enemy territory 60/40."
+	var consume_note: Label = _label(kroni_box, "Next round, launch from the center and eat the first Guard touched. Enemy meal: +1 Hunger. Friendly meal: no Hunger gain. Either meal satisfies Cannibal Hunger. No target selection.", 13)
 	consume_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	ravenous_button = _button(kroni_box, "RAVENOUS", _begin_ravenous)
-	var ravenous_note: Label = _label(kroni_box, "Place his start along your bottom edge. Randomly chooses among varied routes crossing at least two current enemy positions when available; otherwise uses a random fallback. He travels toward the enemy, bouncing off outer walls. Nearby Marchers on both sides start fleeing when he approaches, moving directly away at 30% normal speed until 1.1 seconds after he leaves range. Eat 6+ for 1 Soul, 1 Hunger and 1 Neutral Tear, once per activation. Two-round cooldown.", 13)
+	var ravenous_note: Label = _label(kroni_box, "Place his start along your bottom edge. Randomly chooses among varied routes crossing at least two current enemy positions when available; otherwise uses a random fallback. He travels toward the enemy, bouncing off outer walls. Nearby Marchers on both sides start fleeing when he approaches, moving directly away at 30% normal speed until 1.1 seconds after he leaves range. Eat 11+ enemy Marchers for 1 Soul, 1 Hunger and 1 Neutral Tear, once per activation. Two-round cooldown.", 13)
 	ravenous_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	kroni_queue = VBoxContainer.new()
 	kroni_box.add_child(kroni_queue)
@@ -71,6 +71,13 @@ func _update_direct_ui() -> void:
 		var button: Button = consume_button if power == Kroni.CONSUME else ravenous_button
 		var status: Dictionary = session.power_status(power)
 		button.disabled = not _planning() or not powers_step or not _human_alive() or _queued_power(power) or int(status.remaining) > 0 or int(status.fire_round) > 0
+		if power == Kroni.CONSUME:
+			var present: bool = false
+			for side in sides:
+				for lane in ["Lord", "Castle"]:
+					for slot in range(3):
+						if not _cell_guard({"kind":"zone","owner":1-sides.find(side),"lane":lane,"slot":slot}).is_empty(): present = true
+			button.disabled = button.disabled or not present
 		button.text = ("CONSUME · NEXT ROUND" if power == Kroni.CONSUME else "RAVENOUS") + (" · QUEUED" if _queued_power(power) else (" · READY ROUND %d" % status.ready_round if int(status.remaining) > 0 else ""))
 	for child in kroni_queue.get_children():
 		kroni_queue.remove_child(child)
@@ -122,25 +129,7 @@ func _reset_direct() -> void:
 func _begin_consume() -> void:
 	if not _planning() or not powers_step or not _human_alive():
 		return
-	_intent = Kroni.CONSUME
-	_refresh()
-	_reveal_targets()
-	phase_prompt.set_presenting(false)
-	_sync_consume()
-
-
-func _target_allowed(target: Dictionary, intent: String) -> bool:
-	if intent != Kroni.CONSUME:
-		return super._target_allowed(target, intent)
-	return _planning() and powers_step and target.get("owner") == 1 and not _cell_guard(target).is_empty()
-
-
-func _guard_selected(target: Dictionary) -> void:
-	if _intent != Kroni.CONSUME:
-		super._guard_selected(target)
-		return
-	if _target_allowed(target, _intent):
-		_queue_kroni(Kroni.CONSUME, {"entity_id": _cell_guard(target).id})
+	_queue_kroni(Kroni.CONSUME, {"mode": "guard_bounce"})
 
 
 func _queue_kroni(power: String, target: Dictionary) -> void:
@@ -174,21 +163,8 @@ func _cancel_consume() -> void:
 
 
 func _sync_consume() -> void:
-	if consume_targeting == null:
-		return
-	if _intent != Kroni.CONSUME or not _planning():
-		consume_targeting.hide()
-		return
-	var markers: Array = []
-	for box in [sides[0].lord_guard_box, sides[0].castle_guard_box]:
-		for slot in box.get_children():
-			var cell: Dictionary = {"kind": "zone", "owner": 1, "lane": "Lord" if box == sides[0].lord_guard_box else "Castle", "slot": slot.get_index()}
-			if _target_allowed(cell, Kroni.CONSUME):
-				markers.append({"control": slot, "selected": false})
-	consume_targeting.heading.text = "CONSUME"
-	consume_targeting.display("Click an enemy Guard to mark Kroni's next meal.\nIt is devoured at the start of next round if it remains an enemy Guard." if not markers.is_empty() else "No enemy Guards are available. Cancel to return to powers.", false, [], markers)
-	consume_targeting.confirm_button.hide()
-	_fit_consume()
+	# Kept for existing board lifecycle callers; Consume no longer opens targeting.
+	if consume_targeting != null: consume_targeting.hide()
 
 
 func _fit_consume() -> void:

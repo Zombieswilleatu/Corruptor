@@ -235,7 +235,7 @@ class CommonSmartCore:
                 if any(p.term == 'Inferno' for p in choices): terms.add('Inferno')
             if category == 'powers' and f.kind == 'Kroni' and self.limits.retained_per_category >= 3:
                 for lane in LANES:
-                    meal = next((p for p in ranked if p.term == 'Consume' and f.by_id[p.payload['target']['entity_id']]['attributes']['lane'] == lane), None)
+                    meal = next((p for p in ranked if p.term == 'Consume' and 'entity_id' in p.payload['target'] and f.by_id[p.payload['target']['entity_id']]['attributes']['lane'] == lane), None)
                     if meal: choices.append(meal)
                 if choices: terms.add('Consume')
             for p in ranked:

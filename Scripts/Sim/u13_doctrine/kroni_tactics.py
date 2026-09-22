@@ -29,12 +29,14 @@ def consume_targets(f):
 
 
 def compatible(f, target, plan):
+    if target.get('mode')=='guard_bounce':return True
     order = plan['order']
     return (order.get('action') not in ('Hunt', 'Siege') or
             f.by_id[target['entity_id']]['attributes']['lane'] != order['lane'])
 
 
 def consume_value(f, target, plan=None):
+    if target.get('mode')=='guard_bounce':return bounce_value(f,plan)
     plan = plan or dict(powers=[], order={})
     guard = f.by_id[target['entity_id']]; pair = paired(f, guard)
     a = f.lord[f.pid]['attributes']; hunger = a['hunger']
@@ -129,3 +131,26 @@ def ravenous_value(f, target, ctx=None, plan=None):
                  timing='post_resolution_special_actors', certainty='route_exposure_not_predicted_casualties')
     f._kroni_routes[key] = value
     return copy_data(value)
+
+
+def bounce_value(f,plan=None):
+    """Enumerate public route geometry; no seed or future victim knowledge."""
+    from u13_pysim.guard_consume import guards,route,VELOCITIES
+    cache=getattr(f,'_consume_bounce',None)
+    if cache is None:
+        rows=guards(f.world);by_id={r['id']:r for r in rows};score=enemy=own=0
+        for side,weight in ((f.enemy,60),(f.pid,40)):
+            for vx,vy in VELOCITIES:
+                for sign in (-1,1):
+                    choice=route(rows,sign*vx,vy if side==0 else -vy)
+                    r=by_id.get(choice['victim_id'])
+                    if r is None:continue
+                    value=12+4*r['attributes']['value']+32*int(paired(f,r))
+                    if r['owner']==f.enemy:score+=weight*(value+8);enemy+=weight
+                    else:score-=weight*value;own+=weight
+        cache=dict(base=score//1200,enemy_percent=enemy//12,friendly_percent=own//12)
+        f._consume_bounce=cache
+    protection=6 if any(f.guards(f.pid,lane) for lane in LANES) else 3
+    return dict(score=cache['base']+protection,reason='neutral_bounce_expected_meal',
+                enemy_percent=cache['enemy_percent'],friendly_percent=cache['friendly_percent'],
+                timing='next_round_start',certainty='current_layout_route_samples_not_future_victim')
