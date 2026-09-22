@@ -116,12 +116,12 @@ func on_hook(context: Dictionary) -> Dictionary:
 			result.events.append(Hunger.event("INSATIABLE_HUNGER_MANIFESTED", {"actor": actor, "round": context.round}, "Insatiable Hunger manifests in the field."))
 	elif context.hook == Timeline.MARCHING:
 		for actor in world.data.kroni_actors:
-			if not actor.breach and actor.consumed >= 6 and not actor.rewarded:
+			if not actor.breach and actor.get("enemy_consumed", 0) >= 11 and not actor.rewarded:
 				actor.rewarded = true
 				world.players[actor.owner].resources.souls += 1
 				world.data.neutral_tears += 1
 				result.events.append_array(Hunger.feed(world, actor.owner, 1, context.round, RAVENOUS))
-				result.events.append(Hunger.event("RAVENOUS_REWARDED", {"actor_id": actor.id, "player_id": actor.owner, "round": context.round, "consumed": actor.consumed, "souls": 1, "hunger": 1, "neutral_tears": 1}, "Ravenous: +1 Soul, +1 Hunger, +1 Neutral Tear."))
+				result.events.append(Hunger.event("RAVENOUS_REWARDED", {"actor_id": actor.id, "player_id": actor.owner, "round": context.round, "consumed": actor.consumed, "enemy_consumed": actor.enemy_consumed, "souls": 1, "hunger": 1, "neutral_tears": 1}, "Ravenous: +1 Soul, +1 Hunger, +1 Neutral Tear."))
 	return result
 
 

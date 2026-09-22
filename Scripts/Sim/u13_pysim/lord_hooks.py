@@ -67,10 +67,10 @@ class LordRoundRules(RoundRules):
             d['kroni_actors'].append(actor);events.append(e.event('INSATIABLE_HUNGER_MANIFESTED',dict(actor=actor,round=n),'Insatiable Hunger manifests in the field.'))
         elif hook=='marching':
             for actor in d['kroni_actors']:
-                if not actor['breach'] and actor['consumed']>=6 and not actor['rewarded']:
+                if not actor['breach'] and actor.get('enemy_consumed',0)>=11 and not actor['rewarded']:
                     actor['rewarded']=True;w['players'][actor['owner']]['resources']['souls']+=1;d['neutral_tears']+=1
                     events.extend(kroni.feed(w,actor['owner'],1,n,'Ravenous'))
-                    events.append(e.event('RAVENOUS_REWARDED',dict(actor_id=actor['id'],player_id=actor['owner'],round=n,consumed=actor['consumed'],souls=1,hunger=1,neutral_tears=1),'Ravenous: +1 Soul, +1 Hunger, +1 Neutral Tear.'))
+                    events.append(e.event('RAVENOUS_REWARDED',dict(actor_id=actor['id'],player_id=actor['owner'],round=n,consumed=actor['consumed'],enemy_consumed=actor['enemy_consumed'],souls=1,hunger=1,neutral_tears=1),'Ravenous: +1 Soul, +1 Hunger, +1 Neutral Tear.'))
         if hook=='persistent_advancement':
             ids={a['effect_id'] for a in self.effects}
             d['valak_orbs']=[r for r in d['valak_orbs'] if r['id'] in ids]

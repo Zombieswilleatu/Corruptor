@@ -8,7 +8,7 @@ const RULES: Dictionary = {
 		"breach": "GRAVITATIONAL COLLAPSE\nAll Marchers move at 50% speed while Valak is in the Breach."
 	},
 	"Kroni": {
-		"passive": "HUNGER\nStarts at 0. Defense is 4 at 0 Hunger, 6 at 1–2, and 8 at 3+. Ward or Pass loses 1 Hunger. First reaching 3 each game grants 1 personal Tear.\n\nCANNIBAL HUNGER\nAfter the round-start Consume check, if Consume did not feed Kroni, devour your lowest-value Guard. If none exists, lose 1 Hunger. Eating your own Guard does not increase Hunger.",
+		"passive": "HUNGER\nStarts at 0. Defense is 4 at 0 Hunger, 6 at 1–2, and 8 at 3+. Ward or Pass loses 1 Hunger. First reaching 3 each game grants 1 personal Tear.\n\nCANNIBAL HUNGER\nAfter the round-start Consume check, if Consume did not feed Kroni, devour your lowest-value Guard. If none exists, lose 1 Hunger. Eating your own Guard does not increase Hunger.\n\nRAVENOUS REWARD\nDevour at least 11 enemy Marchers in one Ravenous use to gain 1 Soul, 1 Hunger and 1 Neutral Tear, once per use. Friendly Marchers do not count. Monster bodies count as Marchers.",
 		"breach": "INSATIABLE HUNGER\nOnce each Marching phase, manifest at a random field point and move briefly in a random direction. Devour any friendly or enemy Marchers touched, then disappear. This grants no Hunger, Souls, Tears or Ravenous progress."
 	},
 	"Odradek": {

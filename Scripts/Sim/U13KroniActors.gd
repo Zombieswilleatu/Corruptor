@@ -24,7 +24,7 @@ static func radius(hunger: int) -> int:
 
 
 static func create(identity: String, pid: int, round_number: int, hunger: int, breach: bool = false, seed_value: String = "kroni-actor-fixture", start: Dictionary = {}, units: Array = []) -> Dictionary:
-	var actor: Dictionary = {"id": identity, "owner": pid, "round": round_number, "breach": breach, "x_fp": 0 if pid == 0 else LENGTH, "y_fp": 300, "vx_fp": FORWARD if pid == 0 else -FORWARD, "vy_fp": LATERAL_MIN, "radius_fp": radius(hunger), "hunger": hunger, "age": 0, "active": true, "consumed": 0, "rewarded": false, "fleeing": {}, "nearby": [], "fled_this_tick": [], "launch_mode": "breach" if breach else "random"}
+	var actor: Dictionary = {"id": identity, "owner": pid, "round": round_number, "breach": breach, "x_fp": 0 if pid == 0 else LENGTH, "y_fp": 300, "vx_fp": FORWARD if pid == 0 else -FORWARD, "vy_fp": LATERAL_MIN, "radius_fp": radius(hunger), "hunger": hunger, "age": 0, "active": true, "consumed": 0, "enemy_consumed": 0, "rewarded": false, "fleeing": {}, "nearby": [], "fled_this_tick": [], "launch_mode": "breach" if breach else "random"}
 	if not breach:
 		if not start.is_empty():
 			actor.y_fp = int(start.field_position.y_fp) + (600 if start.lane == "Castle" else 0)
@@ -170,6 +170,7 @@ static func step(actors: Array, entities, round_number: int, tick: int, collapse
 			if hit:
 				entities.retire(unit.id)
 				actor.consumed += 1
+				actor.enemy_consumed = actor.get("enemy_consumed", 0) + int(not actor.breach and unit.owner == 1 - actor.owner)
 				actor.fleeing.erase(unit.id)
 				var bite_actor: Dictionary = actor.duplicate(true)
 				var fleeing: Array = flee(actor, entities, CHOMP_MS, collapse)
@@ -313,6 +314,9 @@ static func valid(actors) -> bool:
 			if typeof(a.get(field)) != TYPE_BOOL:
 				return false
 		if a.owner not in [-1, 0, 1] or (not a.breach and a.owner == -1) or a.round < 1 or a.x_fp < 0 or a.x_fp > LENGTH or a.y_fp < 0 or a.y_fp > WIDTH or a.age < 0 or a.age > 200 or a.consumed < 0 or a.hunger < 0 or a.radius_fp != radius(a.hunger):
+			return false
+		# Older snapshots lack the enemy counter; never credit unknown kills.
+		if not Data.is_integer(a.get("enemy_consumed", 0)) or a.get("enemy_consumed", 0) < 0 or a.get("enemy_consumed", 0) > a.consumed or (a.breach and a.get("enemy_consumed", 0) != 0):
 			return false
 		if absi(a.vx_fp) > 24 or absi(a.vy_fp) > 24 or (a.vx_fp == 0 and a.vy_fp == 0):
 			return false

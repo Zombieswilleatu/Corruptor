@@ -65,7 +65,7 @@ def favored(actor,units):
 def create(identity,pid,n,hunger,breach=False,seed='kroni-actor-fixture',start=None,units=()):
     actor=dict(id=identity,owner=pid,round=n,breach=breach,x_fp=0 if pid==0 else 2400,y_fp=300,
                vx_fp=16 if pid==0 else -16,vy_fp=1,radius_fp=half_away(220*[1.0,1.1,1.2,1.35][max(0,min(3,hunger))]),
-               hunger=hunger,age=0,active=True,consumed=0,rewarded=False,fleeing={},nearby=[],fled_this_tick=[],launch_mode='breach' if breach else 'random')
+               hunger=hunger,age=0,active=True,consumed=0,enemy_consumed=0,rewarded=False,fleeing={},nearby=[],fled_this_tick=[],launch_mode='breach' if breach else 'random')
     if not breach:
         if start: actor['y_fp']=start['field_position']['y_fp']+(600 if start['lane']=='Castle' else 0)
         key=instance_id(identity,str(n),'ravenous_launch')
@@ -143,7 +143,9 @@ def step(actors,buffer,n,tick,collapse,immune=(False,False)):
             if actor['breach'] and immune[unit['owner']]:continue
             a=unit['attributes'];lateral=a['y_fp']+(600 if a['lane']=='Castle' else 0)
             if any(touches(*s,a['x_fp'],lateral,actor['radius_fp']) for s in segments):
-                buffer.retire_id(unit['id']);actor['consumed']+=1;actor['fleeing'].pop(unit['id'],None);bite=copy_data(actor)
+                buffer.retire_id(unit['id']);actor['consumed']+=1
+                actor['enemy_consumed']=actor.get('enemy_consumed',0)+int(not actor['breach'] and unit['owner']==1-actor['owner'])
+                actor['fleeing'].pop(unit['id'],None);bite=copy_data(actor)
                 fled=flee(actor,buffer,550,collapse)
                 events.append(e.event('MARCHER_DEVOURED',dict(actor_id=actor['id'],actor=bite,before=unit,round=n,tick=tick,breach=actor['breach'],flee=fled,chomp_ms=550),'Insatiable Hunger devours a Marcher.' if actor['breach'] else 'Ravenous devours a Marcher.'));break
         if actor['breach']:

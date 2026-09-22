@@ -112,8 +112,8 @@ def ravenous_value(f, target, ctx=None, plan=None):
         enemy_value = sum(8+min(4, (r['attributes']['hp']+r['attributes']['armor'])//4) for r in foes)
         friendly_cost = sum(12+min(6, (r['attributes']['hp']+r['attributes']['armor'])//3) for r in allies)
         # Half material credit: one bite at a time and fleeing break dense
-        # static intersections. Six intersections are NOT six assured meals.
-        reward = 6 if len(foes) >= 6 else 0
+        # static intersections. Eleven intersections are NOT eleven assured enemy meals.
+        reward = 6 if len(foes) >= 11 else 0
         rows.append(dict(angle=angle, weight=16+angle*angle, enemies=len(foes), allies=len(allies),
                          material=(enemy_value-friendly_cost)//2, control=min(8, pressure), reward=reward))
     favored = [r for r in rows if r['enemies'] >= 2]
