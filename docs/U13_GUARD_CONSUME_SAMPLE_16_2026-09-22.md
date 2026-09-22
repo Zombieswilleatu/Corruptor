@@ -307,3 +307,17 @@ invalid actual submissions occurred.
 This strongly implicates the combined Hunger package in these matchups but
 does not identify one benefit, establish balance, or make it a playable change.
 See [the Hunger-only ablation report](U13_NO_HUNGER_SAMPLE_16_2026-09-22.md).
+
+
+## Follow-up: Hunger-aware opponent Hunt valuation
+
+With Kroni's entire kit unchanged, a bounded bot bonus for banishing hungry
+Kroni or removing his Lord guards reduced his wins from **13/16 to 9/16**.
+Opponent Hunts rose **21 → 73** and banishments **8 → 27**. Hunt selection
+against living Hunger-3+ Kroni rose **8.9% → 46.9%**. This supports opponent
+doctrine contributing to his advantage, without proving the chosen scores
+optimal. Mean duration was 15.25 rounds, but only 3/16 landed in rounds 15–20.
+
+This remains a process-local experiment. See
+[the Hunt-doctrine report](U13_HUNGER_HUNT_DOCTRINE_SAMPLE_16_2026-09-22.md)
+for coefficients, per-match outcomes, validation and limitations.
