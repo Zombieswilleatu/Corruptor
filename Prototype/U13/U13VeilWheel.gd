@@ -189,7 +189,7 @@ func _milestone(value: int) -> Dictionary:
 			"tooltip": "Invocation unlocks at Veil %d. Once per game, pay uncommitted cards totaling at least %d printed value." % [Rites.INVOCATION_GATE, Rites.INVOCATION_COST]}
 	if value == Victory.DOMINION_VEIL:
 		return {"label": "DOMINION", "planned": false, "detail": "Dominion · %d+ Personal Tears and a strict Tear lead" % Victory.DOMINION_TEARS,
-			"tooltip": "Dominion becomes eligible at Veil %d: at least %d Personal Tears and strictly more than the opponent, subject to round-end victory checks. A fifth Tear earns the Dominion stamp, not extra Breach protection." % [Victory.DOMINION_VEIL, Victory.DOMINION_TEARS]}
+			"tooltip": "Dominion becomes eligible at Veil %d: at least %d Personal Tears and strictly more than the opponent, subject to round-end victory checks. Reaching the personal Tear requirement earns the Dominion stamp, not extra Breach protection." % [Victory.DOMINION_VEIL, Victory.DOMINION_TEARS]}
 	if value == 21:
 		var cascade: Array = arrivals.filter(func(row): return row.threshold == 21)
 		var names: String = ", ".join(cascade.map(func(row): return row.lord_id))

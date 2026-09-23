@@ -3,6 +3,7 @@ import unittest
 
 from u13_pysim import full_match_inputs, power_components
 from u13_pysim.copying import copy_data
+from u13_pysim.lifecycle import RITUAL_SOULS
 from .closing import judgment
 from .common import CommonSmartCore, Weights
 from .facts import Facts
@@ -42,7 +43,7 @@ class ClosingTests(unittest.TestCase):
 
     def test_enemy_ritual_reward_flags_fragility_without_discarding_closing_chance(self):
         game = closing_game()
-        power_components.prepare(game, [dict(kind='fixture_resources', player_id=1, resources=dict(souls=9))])
+        power_components.prepare(game, [dict(kind='fixture_resources', player_id=1, resources=dict(souls=RITUAL_SOULS-3))])
         view = observe(game, 0); plan = invocation(view)
         self.assertEqual('legal', Preview(game, 0)(plan)['action'])
         projection = settlement_projection(Facts(view), plan)
@@ -90,7 +91,7 @@ class ClosingTests(unittest.TestCase):
         lord['attributes']['alive'] = False
         plan = invocation(view); f = Facts(view)
         self.assertEqual('resilient', judgment(f, plan, settlement_projection(f, plan))['status'])
-        view['players'][0]['resources'].update(personal_tears=0, souls=12)
+        view['players'][0]['resources'].update(personal_tears=0, souls=RITUAL_SOULS)
         view['players'][1]['resources']['personal_tears'] = 0
         lord['attributes']['alive'] = True
         plan = dict(powers=[], order={}); f = Facts(view)

@@ -2,6 +2,7 @@
 import unittest
 
 from u13_pysim import full_match_inputs
+from u13_pysim.lifecycle import RITUAL_SOULS
 from .budget import Limits
 from .common import CommonSmartCore
 from .diagnostics import fingerprint
@@ -71,7 +72,7 @@ class RitePlanTests(unittest.TestCase):
         result = self.decision(game)
         self.assertFalse(result['veil']['hard_veto'])
         self.assertEqual('hidden_orders_prevent_proof', result['veil']['reason'])
-        view['players'][1]['resources']['souls'] = 12
+        view['players'][1]['resources']['souls'] = RITUAL_SOULS
         self.assertEqual(dict(winner=1, win_by='Ritual'), settlement_projection(Facts(view), result['plan']))
 
     def test_observer_records_actual_policy_ids_and_plan_scoring_denominators(self):

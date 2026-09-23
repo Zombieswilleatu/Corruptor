@@ -12,6 +12,12 @@ from .development import _deploy_owned, draw_pairs, reconcile, work
 from .resolution import HOOKS, Ordinary
 
 
+# Keep aligned with U13Victory.gd. Baseline adopted 2026-09-23.
+RITUAL_SOULS = 15
+DOMINION_TEARS = 7
+DOMINION_VEIL = 12
+
+
 def alive(world, pid):
     return e.entity(world, world["players"][pid]["lord_entity_id"])["attributes"]["alive"]
 
@@ -19,15 +25,15 @@ def alive(world, pid):
 def evaluate(world, number=None):
     players = world["players"]
     for pid in (0, 1):
-        if alive(world, pid) and players[pid]["resources"]["souls"] >= 12:
+        if alive(world, pid) and players[pid]["resources"]["souls"] >= RITUAL_SOULS:
             return dict(winner=pid, win_by="Ritual")
     veil = world["data"]["neutral_tears"] + sum(p["resources"]["personal_tears"] for p in players)
     if veil >= 26 and not split_ward.tempo_enabled(world):
         return dict(winner=int(players[1]["resources"]["souls"] > players[0]["resources"]["souls"]), win_by="FinalCollapse")
-    if veil >= 12:
+    if veil >= DOMINION_VEIL:
         for pid in (0, 1):
             tears = players[pid]["resources"]["personal_tears"]
-            if tears >= 5 and tears > players[1-pid]["resources"]["personal_tears"]:
+            if tears >= DOMINION_TEARS and tears > players[1-pid]["resources"]["personal_tears"]:
                 return dict(winner=pid, win_by="Dominion")
     if split_ward.tempo_enabled(world):
         e.require(type(number) is int, "tempo_settlement_round_required")

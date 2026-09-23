@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Victory = preload("res://Scripts/Sim/U13Victory.gd")
+
 # Policy input is exclusively the public/own-hand projection. No match state,
 # opponent hand, sealed orders, seed forecasts, or presentation nodes live here.
 const Development = preload("res://Scripts/Sim/U13GameDevelopment.gd")
@@ -95,7 +97,7 @@ func tear_value(gain: int = 1) -> float:
 	var ours: int = int(w.personal_tears[pid]) + gain
 	if w.veil_total + gain >= 12 and ours >= 5 and ours > w.personal_tears[1 - pid]:
 		return 150.0
-	return 13.0 if w.personal_tears[pid] < 5 or w.personal_tears[pid] <= w.personal_tears[1 - pid] else 5.0
+	return 13.0 if w.personal_tears[pid] < Victory.DOMINION_TEARS or w.personal_tears[pid] <= w.personal_tears[1 - pid] else 5.0
 
 func pair_screen(owner_id: int, lane: String) -> int:
 	var result: int = 0

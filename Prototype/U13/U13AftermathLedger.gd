@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Victory = preload("res://Scripts/Sim/U13Victory.gd")
+
 # Public presentation only. Never infer an attacker from the victim's owner.
 static func render(world: Dictionary, events: Array, round_number: int, before: Dictionary = {}, pending: Array = []) -> String:
 	var groups: Array = [{}, {}, {}]
@@ -72,8 +74,8 @@ static func result_summary(world: Dictionary, outcome: Dictionary) -> String:
 	var souls: Array = world.get("souls", [0, 0])
 	var veil: int = int(world.get("veil_total", int(world.get("neutral_tears", 0)) + int(tears[0]) + int(tears[1])))
 	match method:
-		"Dominion": return "%s\n%s won with %d Personal Tears to %d. Veil reached %d.\nRequires Veil 12+, at least 5 Personal Tears and more than the opponent." % [title, lord, tears[winner], tears[1 - winner], veil]
-		"Ritual": return "%s\n%s won with %d Souls and their Lord present.\nRequires 12 Souls and a present Lord." % [title, lord, souls[winner]]
+		"Dominion": return "%s\n%s won with %d Personal Tears to %d. Veil reached %d.\nRequires Veil %d+, at least %d Personal Tears and more than the opponent." % [title, lord, tears[winner], tears[1 - winner], veil, Victory.DOMINION_VEIL, Victory.DOMINION_TEARS]
+		"Ritual": return "%s\n%s won with %d Souls and their Lord present.\nRequires %d Souls and a present Lord." % [title, lord, souls[winner], Victory.RITUAL_SOULS]
 		"RoundLimit": return "%s\nRound 25 reached. %s won with %d Souls to %d.%s" % [title, lord, souls[winner], souls[1 - winner], " Seat 0 wins a tied Soul count." if souls[0] == souls[1] else ""]
 		"FinalCollapse": return "%s\nVeil reached %d. %s won with %d Souls to %d.%s" % [title, veil, lord, souls[winner], souls[1 - winner], " Seat 0 wins a tied Soul count." if souls[0] == souls[1] else ""]
 	return title

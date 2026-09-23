@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Victory = preload("res://Scripts/Sim/U13Victory.gd")
+
 # Bounded public estimates; deployed Guard faces are public.
 # Enemy hand cards and simultaneous orders are never inspected.
 static func threat_penalty(value: int) -> int:
@@ -58,7 +60,7 @@ static func hunt(c, order: Dictionary, strength: int) -> float:
 	if banish:
 		var souls: int = 4 if orias and projected_threat >= 3 else 2
 		score += 28.0 + (12.0 if souls == 4 else 0.0)
-		if c.w.souls[c.pid] + souls >= 12:
+		if c.w.souls[c.pid] + souls >= Victory.RITUAL_SOULS:
 			score += 120.0
 	elif orias and (removed > 0 or keep_damage > 0):
 		# Hunting setup is Orias's strategic identity; compare it against the

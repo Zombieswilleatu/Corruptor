@@ -6,6 +6,7 @@ from u13_pysim import economy as e, full_match_inputs, split_ward, recruitment, 
 from u13_pysim.copying import copy_data
 from u13_pysim.lord_hooks import LordRoundRules
 from u13_pysim.power_match import PowerMatch
+from u13_pysim.lifecycle import RITUAL_SOULS, DOMINION_TEARS
 from .common import CommonSmartCore
 from .facts import Facts
 from .observation import observe, Preview
@@ -243,9 +244,9 @@ class SplitWardTests(unittest.TestCase):
         self.assertEqual('RoundLimit', evaluate(w, 25)['win_by'])
         w['players'][1]['resources']['souls'] = 7
         self.assertEqual(1, evaluate(w, 25)['winner'])
-        w['players'][0]['resources']['personal_tears'] = 5
+        w['players'][0]['resources']['personal_tears'] = DOMINION_TEARS
         self.assertEqual('Dominion', evaluate(w, 25)['win_by'])
-        w['players'][1]['resources']['souls'] = 12
+        w['players'][1]['resources']['souls'] = RITUAL_SOULS
         self.assertEqual('Ritual', evaluate(w, 25)['win_by'])
 
     def test_tempo_bonus_starts_round20_and_planner_knows_new_settlement(self):
@@ -281,7 +282,7 @@ class TempoClosingTests(unittest.TestCase):
         game._state['world']['data']['tempo_experiment'] = split_ward.TEMPO
         view = observe(game, 0)
         for player in view['players']: player['resources'].update(souls=0, personal_tears=0)
-        view['players'][0]['resources']['souls'] = 12
+        view['players'][0]['resources']['souls'] = RITUAL_SOULS
         view['data']['neutral_tears'] = 30
         plan = dict(powers=[], order={})
         for number in (19, 25):

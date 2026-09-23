@@ -14,6 +14,7 @@ import time
 import traceback
 
 from run_u13_lord_balance import freeze, verify_frozen, package
+from u13_pysim.lifecycle import RITUAL_SOULS, DOMINION_TEARS, DOMINION_VEIL
 from u13_pysim.split_ward import VERSION, TEMPO, TEMPO_SOUL_START_ROUND
 from u13_doctrine.common import Weights
 from u13_doctrine.diagnostics import fingerprint
@@ -89,8 +90,11 @@ class Observer(PlannerObserver):
         if kind == 'MATCH_FINISHED':
             self.finish = dict(data)
             tears = data['personal_tears']
+            self.finish['ritual_souls_required'] = RITUAL_SOULS
+            self.finish['dominion_tears_required'] = DOMINION_TEARS
+            self.finish['personal_tears_short_of_dominion'] = [max(0, DOMINION_TEARS-t) for t in tears]
             self.finish['dominion_qualified_players'] = [pid for pid in (0, 1)
-                if data['veil_total'] >= 12 and tears[pid] >= 5 and tears[pid] > tears[1-pid]]
+                if data['veil_total'] >= DOMINION_VEIL and tears[pid] >= DOMINION_TEARS and tears[pid] > tears[1-pid]]
             self.finish['personal_tears_short_of_five'] = [max(0, 5-t) for t in tears]
             self.finish['veil_short_of_twelve'] = max(0, 12-data['veil_total'])
             self.finish['personal_tears_tied'] = tears[0] == tears[1]

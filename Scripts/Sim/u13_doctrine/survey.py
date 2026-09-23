@@ -116,8 +116,10 @@ def run_one(spec, manifest, directory):
 
 
 def manifest(root, namespace, weights):
+    from u13_pysim.lifecycle import RITUAL_SOULS, DOMINION_TEARS, DOMINION_VEIL
     revision, engine = source_identity(root)
     return dict(schema=SCHEMA, source_revision=revision, engine_source_sha256=engine,
+        victory_requirements=dict(ritual_souls=RITUAL_SOULS, dominion_tears=DOMINION_TEARS, dominion_veil=DOMINION_VEIL),
         harness_source_sha256=harness_hash(root), policy=VERSION, weights=asdict(weights),
         namespace=namespace, lords=LORDS, loadout=LOADOUT, round_cap=40,
         implementation=platform.python_implementation(), python=sys.version,

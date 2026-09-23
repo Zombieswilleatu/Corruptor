@@ -5,33 +5,33 @@ const Victory = preload("res://Scripts/Sim/U13Victory.gd")
 func run() -> void:
 	var world: Dictionary = prepared()
 	check(Victory.evaluate(world) == {"winner": -1, "win_by": ""}, "opening has no winner")
-	world.players[0].resources.souls = 11
-	check(Victory.evaluate(world).winner == -1, "eleven Souls is below Ritual")
-	world.players[0].resources.souls = 12
-	check(Victory.evaluate(world) == {"winner": 0, "win_by": "Ritual"}, "twelve Souls with living Lord wins Ritual")
-	world.players[1].resources.souls = 13
+	world.players[0].resources.souls = Victory.RITUAL_SOULS - 1
+	check(Victory.evaluate(world).winner == -1, "fourteen Souls is below Ritual")
+	world.players[0].resources.souls = Victory.RITUAL_SOULS
+	check(Victory.evaluate(world) == {"winner": 0, "win_by": "Ritual"}, "fifteen Souls with living Lord wins Ritual")
+	world.players[1].resources.souls = Victory.RITUAL_SOULS + 1
 	check(Victory.evaluate(world).winner == 0, "simultaneous Ritual preserves seat-zero tie priority")
 	patch(world, world.players[0].lord_entity_id, {"alive": false})
 	check(Victory.evaluate(world).winner == 1, "absent Lord cannot win Ritual")
 	patch(world, world.players[1].lord_entity_id, {"alive": false})
 	check(Victory.evaluate(world).winner == -1, "both absent prevents Ritual")
-	world.players[0].resources.personal_tears = 5
-	world.data.neutral_tears = 6
+	world.players[0].resources.personal_tears = Victory.DOMINION_TEARS
+	world.data.neutral_tears = Victory.DOMINION_VEIL - Victory.DOMINION_TEARS - 1
 	check(Victory.evaluate(world).winner == -1, "Dominion waits for total Veil twelve")
-	world.data.neutral_tears = 7
+	world.data.neutral_tears = Victory.DOMINION_VEIL - Victory.DOMINION_TEARS
 	check(Victory.evaluate(world) == {"winner": 0, "win_by": "Dominion"}, "Dominion needs no living Lord")
-	world.players[1].resources.personal_tears = 5
+	world.players[1].resources.personal_tears = Victory.DOMINION_TEARS
 	check(Victory.evaluate(world).winner == -1, "tied personal Tears do not win Dominion")
-	world.players[1].resources.personal_tears = 6
+	world.players[1].resources.personal_tears = Victory.DOMINION_TEARS + 1
 	check(Victory.evaluate(world).winner == 1, "strict personal Tear leader wins Dominion")
-	world.players[0].resources.personal_tears = 4
+	world.players[0].resources.personal_tears = Victory.DOMINION_TEARS - 1
 	world.players[1].resources.personal_tears = 3
 	world.data.neutral_tears = 5
-	check(Victory.evaluate(world).winner == -1, "four personal Tears cannot win Dominion")
-	world.players[0].resources.personal_tears = 5
+	check(Victory.evaluate(world).winner == -1, "six personal Tears cannot win Dominion")
+	world.players[0].resources.personal_tears = Victory.DOMINION_TEARS
 	world.data.neutral_tears = 18
 	check(Victory.evaluate(world) == {"winner": 1, "win_by": "FinalCollapse"}, "Final Collapse takes precedence over Dominion and uses Souls")
-	world.players[0].resources.souls = 13
+	world.players[0].resources.souls = Victory.RITUAL_SOULS + 1
 	check(Victory.evaluate(world).winner == 0, "Final Collapse Soul tie preserves seat-zero priority")
 	patch(world, world.players[1].lord_entity_id, {"alive": true})
 	check(Victory.evaluate(world) == {"winner": 1, "win_by": "Ritual"}, "Ritual takes precedence over Final Collapse")
@@ -44,10 +44,10 @@ func run() -> void:
 func live_victory(kind: String) -> void:
 	var world: Dictionary = prepared()
 	if kind == "Ritual":
-		world.players[0].resources.souls = 11
+		world.players[0].resources.souls = Victory.RITUAL_SOULS - 1
 	elif kind == "Dominion":
-		world.players[0].resources.personal_tears = 4
-		world.data.neutral_tears = 7
+		world.players[0].resources.personal_tears = Victory.DOMINION_TEARS - 1
+		world.data.neutral_tears = Victory.DOMINION_VEIL - Victory.DOMINION_TEARS
 	else:
 		world.players[0].resources.souls = 1
 		world.data.neutral_tears = 25
@@ -87,7 +87,7 @@ func live_victory(kind: String) -> void:
 func throne_reward() -> void:
 	var world: Dictionary = prepared()
 	patch(world, world.players[1].lord_entity_id, {"alive": false})
-	world.players[0].resources.souls = 11
+	world.players[0].resources.souls = Victory.RITUAL_SOULS - 1
 	for round_number in range(1, 4):
 		check(Victory.Throne.begin(world, round_number), "Throne begins grace round")
 		Victory.Throne.finish(world, round_number)

@@ -7,10 +7,10 @@ const Throne = preload("res://Scripts/Sim/U13VacantThrone.gd")
 const Rites = preload("res://Scripts/Sim/U13DominionRites.gd")
 const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 const VERSION: String = "U13_VICTORY_V2_ROUND_PRESSURE"
-# Carry forward Lab v6.5 thresholds and precedence; no legacy Humbaba Seal.
-const RITUAL_SOULS: int = 12
+# Baseline adopted 2026-09-23: 15 Souls / 7 personal Tears; precedence unchanged.
+const RITUAL_SOULS: int = 15
 const DOMINION_VEIL: int = 12
-const DOMINION_TEARS: int = 5
+const DOMINION_TEARS: int = 7
 const FINAL_COLLAPSE_VEIL: int = 26
 
 

@@ -25,9 +25,9 @@ func run() -> void:
 	wheel.bind_world(world, 3)
 	check(wheel.selected_value == 7, "board refresh preserves browsing position")
 	check(wheel.stamp_owners(5) == [0, 1] and wheel.stamp_owners(9) == [1] and wheel.stamp_owners(13).is_empty(), "public Tears stamp the covered arrivals for each player")
-	world.personal_tears = [5, 4]
+	world.personal_tears = [Wheel.Victory.DOMINION_TEARS, Wheel.Victory.DOMINION_TEARS - 1]
 	wheel.bind_world(world, 3)
-	check(wheel.stamp_owners(17) == [0, 1] and wheel.stamp_owners(12) == [0] and wheel.stamp_owners(21).is_empty(), "fifth Tear earns Dominion stamp; cascade never gets protection")
+	check(wheel.stamp_owners(17) == [0, 1] and wheel.stamp_owners(12) == [0] and wheel.stamp_owners(21).is_empty(), "seventh Tear earns Dominion stamp; cascade never gets protection")
 	wheel.select_value(0)
 	wheel._process(1)
 	check(wheel.visible_values() == [0, 1, 2, 3, 4, 5, 6] and wheel.previous_button.disabled, "start of track stays bounded with seven numbers")
