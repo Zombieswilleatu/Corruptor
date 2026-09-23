@@ -32,7 +32,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V29_HUNGER_HUNT'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V30_ORIAS_HUNT_EXPERIMENT'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -127,7 +127,14 @@ def ordinary(f, category, weights):
                 result = f.attack(action, target, minimum)
                 if result['banished'] or result['destroyed'] or result['pillage'] or result['guards'] or result['damage'] >= 3:
                     break
-            for ids in (minimum, [r['id'] for r in ordered]):
+            commitments = [minimum, [r['id'] for r in ordered]]
+            if f.kind == 'Orias' and action == 'Hunt':
+                lethal = []
+                for row in ordered:
+                    lethal.append(row['id'])
+                    if f.attack(action, target, lethal)['banished']:
+                        commitments.insert(1, lethal); break
+            for ids in commitments:
                 value = f.attack_value(action, target, ids, weights)
                 yield Proposal(category, action, dict(action=action, lane=lane, target_id=target, card_ids=ids), value,
                                'current_board_attack_unknown_enemy_orders', tuple(ids))
@@ -329,6 +336,7 @@ class CommonSmartCore:
                 baseline = f.attack(combat.term, combat.payload['target_id'], combat.cards)
                 adjusted = f.attack(combat.term, combat.payload['target_id'], combat.cards, excluded)
                 score += (adjusted.get('kroni_pressure_bonus', 0)-baseline.get('kroni_pressure_bonus', 0)
+                          +adjusted.get('orias_hunt_bonus',0)-baseline.get('orias_hunt_bonus',0)
                           +self.weights.damage*(adjusted['damage']-baseline['damage'])
                           +12*(adjusted['guards']-baseline['guards'])
                           +self.weights.banishment*(adjusted['banished']-baseline['banished'])

@@ -139,7 +139,7 @@ class Facts:
         result = self.attack(action, target, ids)
         return (weights.recruit*self.recruits(ids, action)+12*result['guards']+weights.damage*result['damage']
                 +weights.banishment*result['banished']+weights.destruction*result['destroyed']+12*result['pillage']
-                +result['kroni_pressure_bonus'])
+                +result['kroni_pressure_bonus']+result['orias_hunt_bonus'])
 
     def attack(self, action, target, ids, excluded_waiters=()):
         """Baseline layers only. Enemy orders and spatial reactions are unknown."""
@@ -170,7 +170,12 @@ class Facts:
                 remaining = max(0, remaining-(3 if operational(keep) else 0))
                 damage = min(remaining, keep['attributes']['integrity']); remaining -= damage
                 castle_hits[keep['id']] = damage
-            banished = remaining > defense(self.world, self.lord[self.enemy])
+            victim = self.lord[self.enemy]
+            # Accelerate fires on the first credited Lord-guard defeat, before
+            # the final Lord defense check. Pursuit was already fixed above.
+            if self.kind == 'Orias' and self.lord[self.pid]['attributes']['alive'] and lost and victim['attributes']['lord_id'] != 'Humbaba':
+                victim = dict(victim, attributes=dict(victim['attributes'], threat=victim['attributes'].get('threat',0)+1))
+            banished = remaining > defense(self.world, victim)
         elif not pillage:
             victim = self.by_id[target]
             bastion = next((c for c in castles if c['attributes']['castle_type'] == 'Bastion'), None)
@@ -184,4 +189,24 @@ class Facts:
                       destroyed=destroyed, pillage=pillage and remaining > 0, castle_hits=castle_hits)
         result['kroni_pressure_bonus'] = (kroni_hunt_bonus(self.lord[self.enemy]['attributes'], result)
                                             if action == 'Hunt' else 0)
+        result['orias_hunt_bonus'] = self.orias_hunt_value(result) if action == 'Hunt' else 0
         return result
+
+    def orias_hunt_value(self, result):
+        """Finite value for Orias's realized Hunt effects; no empty-attack bonus."""
+        if self.kind != 'Orias' or not self.lord[self.pid]['attributes']['alive']:
+            return 0
+        enemy = self.lord[self.enemy]['attributes']
+        if not enemy['alive']: return 0
+        keep = next((c for c in self.castles(self.enemy) if c['attributes']['castle_type']=='Keep'
+                     and targetable(c) and c['attributes']['integrity']>0),None)
+        guards = result['guards']; banished = result['banished']
+        broken = bool(keep and result['castle_hits'].get(keep['id'],0)>=keep['attributes']['integrity'])
+        threat = enemy.get('threat',0)
+        accelerates = bool(guards and enemy['lord_id']!='Humbaba')
+        marked = banished and enemy['lord_id']!='Humbaba' and threat+int(accelerates)>=3
+        # Keep destruction was represented only as damage in the shared Hunt
+        # score. Mark pays two extra Souls; repeated banishments also deny powers.
+        return (30*broken + 24*banished + 24*marked
+                +6*int(accelerates and threat<4)
+                +(8*min(2,guards) if not keep else 0))

@@ -46,7 +46,7 @@ def attack_score(f, action, lane, target, cards, result):
     from .common import Weights
     w = Weights()
     value = (w.recruit*f.recruits(cards, action)+12*result['guards']+w.damage*result['damage']
-             +w.banishment*result['banished']+w.destruction*result['destroyed']+12*result['pillage'])
+             +w.banishment*result['banished']+w.destruction*result['destroyed']+12*result['pillage']+result.get('orias_hunt_bonus',0))
     p = Proposal('combat', action, dict(action=action, lane=lane, target_id=target, card_ids=cards),
                  value, 'supported_snare_attack', tuple(cards))
     Recipes(f, w).attach(p)
