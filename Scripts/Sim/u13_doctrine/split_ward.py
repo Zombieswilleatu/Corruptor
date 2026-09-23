@@ -3,6 +3,7 @@ from copy import copy
 
 from u13_pysim.copying import copy_data
 from .facts import Proposal, LANES
+from .opponent_memory import proposal_bonus
 from .recipes import Recipes
 from .diagnostics import fingerprint
 
@@ -48,6 +49,9 @@ def proposals(f, weights, retained, budget):
                        -weights.card_cost*sum(f.by_id[k]['attributes']['value'] for k in ids))
                 p = Proposal('combat', attack.term, payload, attack.value+net,
                     'separate_paid_ward_and_attack', attack.cards+tuple(ids))
+                ward = Proposal('combat', 'Ward', payload['ward'], 0, 'history_screen', tuple(ids))
+                p.memory_bonus = proposal_bonus(f, ward, weights)
+                p.value += p.memory_bonus
                 found[fingerprint(payload)] = p
     return list(found.values())
 

@@ -18,6 +18,35 @@ static func effects(records: Array, pid: int) -> Array:
 		result.append(projected)
 	return result
 
+# Only past public reveals cross the process boundary. Reconstructing this
+# small window also makes memory survive save/load and fresh worker processes.
+static func opponent_history(rows: Array, pid: int, number: int) -> Array:
+	var first: int = maxi(1, number - 6)
+	var rounds: Dictionary = {}
+	for index in range(rows.size() - 1, -1, -1):
+		var event = rows[index].views[pid]
+		if event == null or event.type != "COMBAT_ORDER_REVEALED": continue
+		var detail: Dictionary = event.data
+		var turn: int = detail.round
+		if turn < first: break
+		if turn >= number or detail.player_id == pid: continue
+		if not rounds.has(turn):
+			rounds[turn] = {"round": turn, "action": "Pass", "lane": "", "cards": 0, "strength": 0, "ward_strength": 0}
+		var strength: int = 0
+		for card in detail.cards: strength += int(card.attributes.value)
+		if detail.order.get("action") in ["Hunt", "Siege"]:
+			rounds[turn].action = detail.order.action
+			rounds[turn].lane = detail.order.lane
+			rounds[turn].cards = detail.cards.size()
+			rounds[turn].strength = strength
+		elif detail.order.get("action") == "Ward":
+			rounds[turn].ward_strength = strength
+	var result: Array = []
+	if rounds.is_empty(): return result
+	for turn in range(first, number):
+		result.append(rounds.get(turn, {"round": turn, "action": "Pass", "lane": "", "cards": 0, "strength": 0, "ward_strength": 0}))
+	return result
+
 static func read(owner, pid: int) -> Dictionary:
 	if pid not in [0, 1]: return Data.invalid("common_bot_player_invalid")
 	var world: Dictionary = owner._presentation_world if owner.next_hook() == "submission_lock" else owner._world
@@ -44,7 +73,7 @@ static func read(owner, pid: int) -> Dictionary:
 	allowed["vacant_counts"] = data.vacant_throne.counts
 	var pending: Dictionary = data.game_economy.stockpile_pending
 	var stockpile: Array = pending.card_ids.map(func(id): return by_id[id]) if not pending.is_empty() and pending.player_id == pid else []
-	return {
+	var result: Dictionary = {
 		"player_id": pid, "round": owner.round_number(), "hook": owner.next_hook(),
 		"players": world.players, "board": public, "data": allowed,
 		"hand": zones.hands[pid].map(func(id): return by_id[id]),
@@ -52,4 +81,7 @@ static func read(owner, pid: int) -> Dictionary:
 		"cooldowns": effects(owner._cooldowns.snapshot().locks, pid),
 		"persistent": effects(owner._persistent.snapshot().active, pid),
 		"pending": effects(owner._pending.snapshot().pending, pid)
-	}.duplicate(true)
+	}
+	var history: Array = opponent_history(owner._events._rows, pid, owner.round_number())
+	if not history.is_empty(): result["opponent_history"] = history
+	return result.duplicate(true)

@@ -19,6 +19,7 @@ class Proposal:
     value: int
     reason: str
     cards: tuple = ()
+    memory_bonus: int = 0
 
 
 def power(name, target, value, reason, cards=(), **parameters):
@@ -37,6 +38,8 @@ def kroni_hunt_bonus(attributes, result):
 
 class Facts:
     def __init__(self, view):
+        from .opponent_memory import profile
+        self.opponent = profile(view)
         self.v, self.pid = view, view['player_id']
         self.enemy = 1-self.pid
         self.rows = sorted(view['board'], key=lambda r: r['id'])

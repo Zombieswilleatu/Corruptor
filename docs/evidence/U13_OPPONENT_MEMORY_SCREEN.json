@@ -1,0 +1,530 @@
+{
+  "policy": "U13_COMMON_SMART_CORE_ALPHA_V31_OPPONENT_MEMORY",
+  "base_commit": "3a93e7b5d424b5e9278035b73810af3e36446027",
+  "rules": {
+    "ritual_souls": 15,
+    "dominion_tears": 7,
+    "ward": "U13_SPLIT_WARD_V1",
+    "tempo": "U13_VEIL_ATTACK_ROUND25_V1"
+  },
+  "scope": "One seed per defender Lord; both seats; same seed memory on/off. Deimos all-in scripted attacker, not a replay of the human match. Exploratory only.",
+  "summary": {
+    "ablation": {
+      "games": 10,
+      "bot_wins": 5,
+      "mean_rounds": 11.8,
+      "counts": {
+        "ward_rounds": 32,
+        "attack_rounds": 115,
+        "tear_source:profane_ruins": 33,
+        "tear_source:waiters": 8,
+        "ward_saves": 16
+      }
+    },
+    "memory": {
+      "games": 10,
+      "bot_wins": 6,
+      "mean_rounds": 11.8,
+      "counts": {
+        "ward_rounds": 52,
+        "attack_rounds": 107,
+        "reactive_rounds": 94,
+        "tear_source:profane_ruins": 30,
+        "ward_saves": 18,
+        "tear_source:waiters": 9,
+        "tear_source:invocation": 1
+      }
+    }
+  },
+  "games": [
+    {
+      "spec": {
+        "lord": "Gremory",
+        "bot_seat": 0,
+        "memory": false,
+        "seed": "u13-aggression-v1:Gremory:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 12,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "rounds": 12,
+      "bot_won": false,
+      "counts": {
+        "ward_rounds": 2,
+        "attack_rounds": 11,
+        "reactive_rounds": 0,
+        "tear_source:profane_ruins": 4,
+        "tear_source:waiters": 2,
+        "ward_saves": 0
+      },
+      "seconds": 22.44
+    },
+    {
+      "spec": {
+        "lord": "Gremory",
+        "bot_seat": 0,
+        "memory": true,
+        "seed": "u13-aggression-v1:Gremory:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 10,
+        "winner": 0,
+        "win_by": "Ritual"
+      },
+      "rounds": 10,
+      "bot_won": true,
+      "counts": {
+        "ward_rounds": 4,
+        "attack_rounds": 9,
+        "reactive_rounds": 7,
+        "tear_source:profane_ruins": 2,
+        "ward_saves": 3,
+        "tear_source:waiters": 1
+      },
+      "seconds": 19.13
+    },
+    {
+      "spec": {
+        "lord": "Gremory",
+        "bot_seat": 1,
+        "memory": false,
+        "seed": "u13-aggression-v1:Gremory:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 6,
+        "winner": 0,
+        "win_by": "Ritual"
+      },
+      "rounds": 6,
+      "bot_won": false,
+      "counts": {
+        "ward_rounds": 0,
+        "attack_rounds": 6,
+        "reactive_rounds": 0,
+        "tear_source:profane_ruins": 2
+      },
+      "seconds": 8.415
+    },
+    {
+      "spec": {
+        "lord": "Gremory",
+        "bot_seat": 1,
+        "memory": true,
+        "seed": "u13-aggression-v1:Gremory:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 7,
+        "winner": 0,
+        "win_by": "Ritual"
+      },
+      "rounds": 7,
+      "bot_won": false,
+      "counts": {
+        "ward_rounds": 3,
+        "attack_rounds": 5,
+        "reactive_rounds": 5,
+        "ward_saves": 1,
+        "tear_source:profane_ruins": 1
+      },
+      "seconds": 7.903
+    },
+    {
+      "spec": {
+        "lord": "Humbaba",
+        "bot_seat": 0,
+        "memory": false,
+        "seed": "u13-aggression-v1:Humbaba:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 14,
+        "winner": 0,
+        "win_by": "Ritual"
+      },
+      "rounds": 14,
+      "bot_won": true,
+      "counts": {
+        "ward_rounds": 5,
+        "attack_rounds": 13,
+        "reactive_rounds": 0,
+        "ward_saves": 4,
+        "tear_source:profane_ruins": 3,
+        "tear_source:waiters": 4
+      },
+      "seconds": 36.321
+    },
+    {
+      "spec": {
+        "lord": "Humbaba",
+        "bot_seat": 0,
+        "memory": true,
+        "seed": "u13-aggression-v1:Humbaba:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 10,
+        "winner": 0,
+        "win_by": "Ritual"
+      },
+      "rounds": 10,
+      "bot_won": true,
+      "counts": {
+        "ward_rounds": 5,
+        "attack_rounds": 9,
+        "reactive_rounds": 7,
+        "ward_saves": 4,
+        "tear_source:profane_ruins": 2,
+        "tear_source:waiters": 1
+      },
+      "seconds": 35.197
+    },
+    {
+      "spec": {
+        "lord": "Humbaba",
+        "bot_seat": 1,
+        "memory": false,
+        "seed": "u13-aggression-v1:Humbaba:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 9,
+        "winner": 0,
+        "win_by": "Ritual"
+      },
+      "rounds": 9,
+      "bot_won": false,
+      "counts": {
+        "ward_rounds": 2,
+        "attack_rounds": 9,
+        "reactive_rounds": 0,
+        "tear_source:profane_ruins": 3,
+        "ward_saves": 0
+      },
+      "seconds": 24.328
+    },
+    {
+      "spec": {
+        "lord": "Humbaba",
+        "bot_seat": 1,
+        "memory": true,
+        "seed": "u13-aggression-v1:Humbaba:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 11,
+        "winner": 0,
+        "win_by": "Ritual"
+      },
+      "rounds": 11,
+      "bot_won": false,
+      "counts": {
+        "ward_rounds": 4,
+        "attack_rounds": 11,
+        "reactive_rounds": 9,
+        "tear_source:profane_ruins": 4,
+        "ward_saves": 0
+      },
+      "seconds": 47.73
+    },
+    {
+      "spec": {
+        "lord": "Kroni",
+        "bot_seat": 0,
+        "memory": false,
+        "seed": "u13-aggression-v1:Kroni:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 14,
+        "winner": 0,
+        "win_by": "Ritual"
+      },
+      "rounds": 14,
+      "bot_won": true,
+      "counts": {
+        "ward_rounds": 5,
+        "attack_rounds": 14,
+        "reactive_rounds": 0,
+        "tear_source:profane_ruins": 4,
+        "ward_saves": 1
+      },
+      "seconds": 26.894
+    },
+    {
+      "spec": {
+        "lord": "Kroni",
+        "bot_seat": 0,
+        "memory": true,
+        "seed": "u13-aggression-v1:Kroni:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 13,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "rounds": 13,
+      "bot_won": false,
+      "counts": {
+        "ward_rounds": 5,
+        "attack_rounds": 12,
+        "reactive_rounds": 11,
+        "ward_saves": 1,
+        "tear_source:profane_ruins": 4,
+        "tear_source:waiters": 1
+      },
+      "seconds": 29.307
+    },
+    {
+      "spec": {
+        "lord": "Kroni",
+        "bot_seat": 1,
+        "memory": false,
+        "seed": "u13-aggression-v1:Kroni:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 12,
+        "winner": 0,
+        "win_by": "Ritual"
+      },
+      "rounds": 12,
+      "bot_won": false,
+      "counts": {
+        "ward_rounds": 3,
+        "attack_rounds": 12,
+        "reactive_rounds": 0,
+        "tear_source:profane_ruins": 4,
+        "ward_saves": 2
+      },
+      "seconds": 24.353
+    },
+    {
+      "spec": {
+        "lord": "Kroni",
+        "bot_seat": 1,
+        "memory": true,
+        "seed": "u13-aggression-v1:Kroni:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 15,
+        "winner": 1,
+        "win_by": "Dominion"
+      },
+      "rounds": 15,
+      "bot_won": true,
+      "counts": {
+        "ward_rounds": 8,
+        "attack_rounds": 12,
+        "reactive_rounds": 13,
+        "ward_saves": 4,
+        "tear_source:profane_ruins": 4,
+        "tear_source:waiters": 2,
+        "tear_source:invocation": 1
+      },
+      "seconds": 28.213
+    },
+    {
+      "spec": {
+        "lord": "Orias",
+        "bot_seat": 0,
+        "memory": false,
+        "seed": "u13-aggression-v1:Orias:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 12,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "rounds": 12,
+      "bot_won": false,
+      "counts": {
+        "ward_rounds": 2,
+        "attack_rounds": 11,
+        "reactive_rounds": 0,
+        "tear_source:profane_ruins": 4,
+        "ward_saves": 2
+      },
+      "seconds": 24.574
+    },
+    {
+      "spec": {
+        "lord": "Orias",
+        "bot_seat": 0,
+        "memory": true,
+        "seed": "u13-aggression-v1:Orias:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 16,
+        "winner": 0,
+        "win_by": "Dominion"
+      },
+      "rounds": 16,
+      "bot_won": true,
+      "counts": {
+        "ward_rounds": 8,
+        "attack_rounds": 14,
+        "reactive_rounds": 14,
+        "ward_saves": 3,
+        "tear_source:profane_ruins": 4,
+        "tear_source:waiters": 3
+      },
+      "seconds": 34.294
+    },
+    {
+      "spec": {
+        "lord": "Orias",
+        "bot_seat": 1,
+        "memory": false,
+        "seed": "u13-aggression-v1:Orias:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 12,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "rounds": 12,
+      "bot_won": true,
+      "counts": {
+        "ward_rounds": 5,
+        "attack_rounds": 12,
+        "reactive_rounds": 0,
+        "ward_saves": 3,
+        "tear_source:profane_ruins": 3,
+        "tear_source:waiters": 1
+      },
+      "seconds": 26.872
+    },
+    {
+      "spec": {
+        "lord": "Orias",
+        "bot_seat": 1,
+        "memory": true,
+        "seed": "u13-aggression-v1:Orias:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 12,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "rounds": 12,
+      "bot_won": true,
+      "counts": {
+        "ward_rounds": 6,
+        "attack_rounds": 12,
+        "reactive_rounds": 9,
+        "ward_saves": 1,
+        "tear_source:profane_ruins": 2,
+        "tear_source:waiters": 1
+      },
+      "seconds": 26.22
+    },
+    {
+      "spec": {
+        "lord": "Valak",
+        "bot_seat": 0,
+        "memory": false,
+        "seed": "u13-aggression-v1:Valak:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 14,
+        "winner": 0,
+        "win_by": "Ritual"
+      },
+      "rounds": 14,
+      "bot_won": true,
+      "counts": {
+        "ward_rounds": 4,
+        "attack_rounds": 14,
+        "reactive_rounds": 0,
+        "tear_source:profane_ruins": 3,
+        "ward_saves": 2,
+        "tear_source:waiters": 1
+      },
+      "seconds": 55.335
+    },
+    {
+      "spec": {
+        "lord": "Valak",
+        "bot_seat": 0,
+        "memory": true,
+        "seed": "u13-aggression-v1:Valak:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 11,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "rounds": 11,
+      "bot_won": false,
+      "counts": {
+        "ward_rounds": 1,
+        "attack_rounds": 11,
+        "reactive_rounds": 8,
+        "tear_source:profane_ruins": 4
+      },
+      "seconds": 16.119
+    },
+    {
+      "spec": {
+        "lord": "Valak",
+        "bot_seat": 1,
+        "memory": false,
+        "seed": "u13-aggression-v1:Valak:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 13,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "rounds": 13,
+      "bot_won": true,
+      "counts": {
+        "ward_rounds": 4,
+        "attack_rounds": 13,
+        "reactive_rounds": 0,
+        "tear_source:profane_ruins": 3,
+        "ward_saves": 2
+      },
+      "seconds": 30.284
+    },
+    {
+      "spec": {
+        "lord": "Valak",
+        "bot_seat": 1,
+        "memory": true,
+        "seed": "u13-aggression-v1:Valak:0"
+      },
+      "outcome": {
+        "action": "game_finished",
+        "round": 13,
+        "winner": 1,
+        "win_by": "Ritual"
+      },
+      "rounds": 13,
+      "bot_won": true,
+      "counts": {
+        "ward_rounds": 8,
+        "attack_rounds": 12,
+        "reactive_rounds": 11,
+        "tear_source:profane_ruins": 3,
+        "ward_saves": 1
+      },
+      "seconds": 33.501
+    }
+  ]
+}

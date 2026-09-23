@@ -24,7 +24,7 @@ from .lords.kroni import KroniPlans, normalize as kroni_normalize
 from .lords.gremory import RuinPlans
 from .kanifous_tactics import WishPlans, PROFILES as WISH_PROFILES, DEFAULT_PROFILE
 from .budget import Budget, Limits
-from . import closing, coordination, defensive_plans
+from . import closing, coordination, defensive_plans, opponent_memory
 from .coverage import POWERS
 from .diagnostics import fingerprint
 from .facts import Facts, Proposal, LANES
@@ -32,7 +32,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V30_ORIAS_HUNT_EXPERIMENT'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V31_OPPONENT_MEMORY'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -154,19 +154,22 @@ def ordinary(f, category, weights):
 
 
 class CommonSmartCore:
-    def __init__(self, weights=None, limits=None, lord_modules=True, selector=None, wish_profile=DEFAULT_PROFILE):
+    def __init__(self, weights=None, limits=None, lord_modules=True, selector=None, wish_profile=DEFAULT_PROFILE, opponent_memory_enabled=True):
         self.weights, self.limits = weights or Weights(), limits or Limits()
         self.lord_modules = lord_modules
+        self.opponent_memory_enabled = opponent_memory_enabled
         self.selector = selector if selector is not None else PlanSelector()
         if wish_profile not in WISH_PROFILES: raise ValueError('Unknown Wish calibration profile')
         self.wish_profile = wish_profile
 
     @property
     def policy_id(self):
-        return VERSION+self.selector.policy_suffix+('' if self.wish_profile==DEFAULT_PROFILE else ':WISH_'+self.wish_profile)
+        return VERSION+('' if self.opponent_memory_enabled else ':NO_OPPONENT_MEMORY')+self.selector.policy_suffix+('' if self.wish_profile==DEFAULT_PROFILE else ':WISH_'+self.wish_profile)
 
     def decide(self, view, preview):
         f, budget = Facts(view), Budget(self.limits)
+        if not self.opponent_memory_enabled:
+            f.opponent = opponent_memory.profile(dict(round=view['round']))
         f.wish_profile = self.wish_profile
         recipes = Recipes(f, self.weights)
         initial_goal = recipes.goal(f.hand)
@@ -184,6 +187,8 @@ class CommonSmartCore:
                     exhausted[category] = True
                     break
                 if p.category == 'combat': recipes.attach(p)
+                p.memory_bonus = opponent_memory.proposal_bonus(f, p, self.weights)
+                p.value += p.memory_bonus
                 counts[(p.category, p.term)] += 1
                 opportunities[(p.category, p.term)] = opportunities.get((p.category, p.term), False) or p.value > 0
                 if category == 'powers':
@@ -277,7 +282,8 @@ class CommonSmartCore:
         kanifous_reserve = min(4, self.limits.complete_plans//4) if kanifous.enabled else 0
         valak_reserve = min(4, self.limits.complete_plans//4) if valak.enabled else 0
         kroni_reserve = min(4, self.limits.complete_plans//4) if kroni.enabled else 0
-        assembly_limit = max(1, self.limits.complete_plans-len(split)-omission_reserve-defense_reserve-artillery_reserve-support_reserve-rout_reserve-orias_reserve-gremory_reserve-kanifous_reserve-valak_reserve-kroni_reserve)
+        memory_reserve = min(4, self.limits.complete_plans//4) if f.opponent['aggression'] else 0
+        assembly_limit = max(1, self.limits.complete_plans-memory_reserve-len(split)-omission_reserve-defense_reserve-artillery_reserve-support_reserve-rout_reserve-orias_reserve-gremory_reserve-kanifous_reserve-valak_reserve-kroni_reserve)
         def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False, support_variant=False, rout_variant=False, orias_variant=False, gremory_variant=False, kanifous_variant=False, valak_variant=False, kroni_variant=False, split_variant=False):
             if not split_variant and not omitted and not defense_variant and not artillery_variant and not support_variant and not rout_variant and not orias_variant and not gremory_variant and not kanifous_variant and not valak_variant and not kroni_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
             if not budget.take('complete_plans'): return
@@ -317,7 +323,7 @@ class CommonSmartCore:
             enforced_omissions = []
             if f.kind == 'Kroni':
                 selected, enforced_omissions = kroni_normalize(f, plan, selected, retained['powers'])
-            score = sum(p.value for p in selected)
+            score = sum(p.value-p.memory_bonus for p in selected)
             # Shared Veil risk is a score, never a hard veto under hidden orders.
             # Current board, known round pressure and explicit own Rite additions
             # can flag risk; future combat/Resummon/random effects cannot prove it.
@@ -381,7 +387,14 @@ class CommonSmartCore:
         if len(positive) > 1: assemble(positive[:2], base)
         for p in split:
             assemble([p], ('resummon', 'powers', 'work', 'guards', 'rites'), split_variant=True)
+        # Reserve real Ward alternatives before variant slots are consumed.
+        memory_wards = sorted((p for p in generated['combat'] if p.term == 'Ward'),
+                              key=lambda p: (-p.value, key(p)))
         defensive_variants = []
+        for p in memory_wards[:memory_reserve]:
+            before = len(complete)
+            assemble([p], ('resummon', 'powers', 'work', 'guards'), defense_variant='opponent_memory')
+            if len(complete) > before: defensive_variants.append('opponent_memory')
         variants = defensive_plans.alternatives(f, complete, retained)
         for _ in range(defense_reserve):
             try: anchors, reason = next(variants)
@@ -544,6 +557,7 @@ class CommonSmartCore:
                                               source_category=category, monster=p.payload.get('monster_choice', ''),
                                               candidate_sha256=key(p)) for category in categories for p in retained[category]],
                     budget=budget.report(), rejected_previews=rejected, rite_plans=rite_plans,
+                    opponent_memory=copy_data(f.opponent),
                     closing=closing.report(unique, chosen),
                     coordination=coordination.report(unique, chosen, omissions),
                     resource_horizon=horizon.report(unique, chosen, resource_omissions),

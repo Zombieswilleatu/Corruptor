@@ -4,6 +4,7 @@ from copy import copy
 from u13_pysim import economy as e
 from u13_pysim.copying import copy_data
 from u13_pysim.power_match import PowerMatch
+from .opponent_memory import project
 
 
 def observe(match, seat):
@@ -12,7 +13,7 @@ def observe(match, seat):
     rows = w['entities']['entities']
     public = [r for r in rows if (r['kind'] != 'card' or r['attributes'].get('role') == 'guard') and (r['owner']==seat or not r['attributes'].get('hidden',False))]
     # Explicit allowlist: no deck/discard order, opponent hand, sealed orders,
-    # simulation seed, event history, RNG or future random outcomes.
+    # simulation seed, raw event history, RNG or future random outcomes.
     data = {k: d[k] for k in ('neutral_tears', 'breach_lord', 'sigils', 'guard_public_limits',
                               'orias_marks', 'kanifous_prices', 'kanifous_losses')}
     if 'ward_experiment' in d:
@@ -54,6 +55,9 @@ def observe(match, seat):
     pending = d['game_economy']['stockpile_pending']
     result['stockpile'] = ([e.entity(w, key) for key in pending['card_ids']]
                           if pending and pending['player_id'] == seat else [])
+    history = project(s['events']['rows'], seat, match.clock.round)
+    if history:
+        result['opponent_history'] = history
     return copy_data(result)
 
 

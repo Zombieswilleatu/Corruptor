@@ -1,7 +1,8 @@
 """Bounded public defense scenarios, not predictions of sealed enemy orders.
 
 Three fixed card-strength probes in each lane measure structural exposure.
-They are equally weighted stress cases, not estimated attack probabilities.
+A separate bounded score adapts to previously revealed heavy commitments.
+Neither scenario set has access to the opponent's current sealed orders.
 No hidden hand, simulation RNG, movement, artillery or enemy declaration enters
 the calculation. Work and fresh bonds are projected from this own plan only.
 """
@@ -14,8 +15,9 @@ from u13_pysim.copying import copy_data
 from u13_pysim.development import commission_eligible, eligible, intact, wright_pair_work
 from .diagnostics import fingerprint
 from .facts import LANES
+from . import opponent_memory
 
-VERSION = 'U13_DEFENSIVE_PLANS_V1'
+VERSION = 'U13_DEFENSIVE_PLANS_V2_PUBLIC_MEMORY'
 CARD_PRESSURES = (9, 15, 21)
 
 
@@ -78,8 +80,6 @@ def exposure(f, world, plan, lane, card_pressure):
     if lane == 'Lord' and not lord['attributes']['alive']:
         return dict(castles_lost=0, banished=False)
     castles = sorted((r for r in own if targetable(r)), key=lambda r: (r['attributes']['castle_slot'], r['id']))
-    if lane == 'Castle' and not castles:
-        return dict(castles_lost=0, banished=False)
     pressure = split_ward.attack_bonus(world)+card_pressure+sum(r['attributes']['waiting'] for r in f.units(f.enemy, lane))
     if lane == 'Lord' and f.lord[f.enemy]['attributes']['alive'] and f.lord[f.enemy]['attributes']['lord_id'] == 'Orias':
         pressure += 1+int(lord['attributes'].get('threat', 0) >= 2)
@@ -97,26 +97,34 @@ def exposure(f, world, plan, lane, card_pressure):
         pressure = max(0, pressure-max(0, f.resources['life_essence']-reserved))
     guards = sorted((r for r in own if r['kind'] == 'card' and r['attributes']['lane'] == lane),
                     key=lambda r: (-r['attributes']['value'], r['attributes']['slot'], r['id']))
+    guards_lost = 0
     for guard in guards:
+        guards_lost += pressure > guard['attributes']['value']
         pressure = max(0, pressure-guard['attributes']['value'])
     sigil = '' if split_ward.enabled(world) else f.v['data']['sigils'][f.pid][lane]
     pressure = max(0, pressure-(2 if sigil == 'fresh' else 1 if sigil else 0))
-    losses = 0
+    losses = damage = 0
     if lane == 'Lord':
         keep = next((r for r in castles if r['attributes']['castle_type'] == 'Keep'), None)
         if keep:
             pressure = max(0, pressure-(3 if operational(keep) else 0))
+            damage += min(pressure, keep['attributes']['integrity'])
             losses += pressure > 0 and pressure >= keep['attributes']['integrity']
             pressure = max(0, pressure-keep['attributes']['integrity'])
         # Humbaba's defense depends on surviving targetable infrastructure.
         current_defense = defense(world, lord)-(losses if f.kind == 'Humbaba' else 0)
-        return dict(castles_lost=int(losses), banished=pressure > current_defense)
+        return dict(castles_lost=int(losses), banished=pressure > current_defense,
+                    guards_lost=guards_lost, castle_damage=damage)
+    if not castles:
+        return dict(castles_lost=0, banished=False, guards_lost=guards_lost,
+                    castle_damage=0, pillage=pressure > 0)
     target = min(castles, key=lambda r: (r['attributes']['integrity'], r['attributes']['castle_slot'], r['id']))
     bastion = next((r for r in castles if r['attributes']['castle_type'] == 'Bastion' and r['id'] != target['id']), None)
     for row in ([bastion] if bastion else [])+[target]:
+        damage += min(pressure, row['attributes']['integrity'])
         losses += pressure > 0 and pressure >= row['attributes']['integrity']
         pressure = max(0, pressure-row['attributes']['integrity'])
-    return dict(castles_lost=int(losses), banished=False)
+    return dict(castles_lost=int(losses), banished=False, guards_lost=guards_lost, castle_damage=damage)
 
 
 class Defense:
@@ -125,6 +133,7 @@ class Defense:
         empty = dict(powers=[], order={})
         self.baseline_world, self.baseline_work = development(f, empty)
         self.baseline = self.scenarios(self.baseline_world, empty)
+        self.history_risk = opponent_memory.risk(f, self.baseline_world, empty, weights)
 
     def scenarios(self, world, plan):
         return [dict(lane=lane, card_pressure=pressure, **exposure(self.f, world, plan, lane, pressure))
@@ -148,7 +157,10 @@ class Defense:
         # completion. This is utility, not a predicted survival probability.
         work_score = 30*(len(work['activated'])-len(self.baseline_work['activated']))
         work_score += self.weights.damage*(work['gain']-self.baseline_work['gain'])
-        return dict(enabled=True, score_delta=structure_score+work_score-old_work,
+        risk = opponent_memory.risk(self.f, world, plan, self.weights)
+        history_score = self.history_risk-risk
+        return dict(enabled=True, score_delta=structure_score+work_score-old_work+history_score,
+                    history_score=history_score, history_risk=risk,
                     structure_score=structure_score, work_score=work_score, replaced_work_score=old_work,
                     work=work, scenarios=scenarios)
 
@@ -187,5 +199,5 @@ def report(candidates, chosen, variants):
     return dict(version=VERSION, card_pressures=list(CARD_PRESSURES),
                 scenarios_per_plan=2*len(CARD_PRESSURES), evaluated_plans=sum(c['defense']['enabled'] for c in candidates),
                 alternative_plans=dict(sorted(Counter(variants).items())), selected=copy_data(chosen['defense']),
-                scope='fixed public stress cases, not enemy-hand estimates; Work before combat; enemy powers, artillery and movement unmodeled',
+                scope='fixed stress cases plus bounded public commitment history; Work before combat; enemy powers, artillery and movement unmodeled',
                 hard_veto=False)
