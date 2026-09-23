@@ -1,5 +1,7 @@
 extends RefCounted
 
+# Explicit preload: a new worktree has no editor-generated global class cache.
+const BoardSession = preload("res://Scripts/Sim/U13BoardSession.gd")
 const Playback = preload("res://Prototype/U13/U13SmokePlayback.gd")
 const Feedback = preload("res://Prototype/U13/U13MarcherFeedback.gd")
 const Timeline = preload("res://Scripts/Sim/U13RoundTimeline.gd")
@@ -111,7 +113,7 @@ func _run(candidate, operation: String, powers: Array, order: Dictionary) -> Dic
 		"operation": operation,
 		"session": candidate,
 		"playback": playback,
-		"resolution": candidate.resolution_presentation if operation == "marching" and candidate is U13BoardSession else {},
+		"resolution": candidate.resolution_presentation if operation == "marching" and candidate is BoardSession else {},
 		"artillery_events": candidate.artillery_events() if operation == "marching" else [],
 		"presented": presented,
 		"worker_ms": float(Time.get_ticks_usec() - started) / 1000.0
