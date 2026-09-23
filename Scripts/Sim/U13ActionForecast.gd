@@ -56,7 +56,7 @@ static func evaluate(public_view: Dictionary, order: Dictionary) -> Dictionary:
 		var own_lords: Array = c.select("lord", c.pid)
 		if not own_lords.is_empty(): pursuit = Stats.relentless_pursuit(own_lords[0], target)
 	var veil: int = int(c.w.get("veil_total", 0))
-	var bonus: int = int(veil >= 13) + int(veil >= 17) + int(veil >= 21) if c.w.get("tempo_experiment") == "U13_VEIL_ATTACK_ROUND25_V1" else 0
+	var bonus: int = int(veil >= 15) + int(veil >= 19) + int(veil >= 23) if c.w.get("tempo_experiment") == "U13_VEIL_ATTACK_ROUND25_V1" else 0
 	strength += support + pursuit + bonus
 	if bonus > 0: result.lines.append("Veil adds +%d attack strength." % bonus)
 	if order.has("ward"):

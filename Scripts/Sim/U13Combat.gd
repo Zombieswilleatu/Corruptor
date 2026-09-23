@@ -645,17 +645,22 @@ static func _siege_castle(world: Dictionary, context: Dictionary, player_id: int
 	return {"action": "resolved", "world": world, "events": events, "integrity_before": integrity_before, "damage": damage, "destroyed": destroyed, "overflow": maxi(0, remaining - damage)}
 
 
-static func _card_strength(entities, cards: Array, exempt: String, pair_bonus: bool = true) -> int:
+static func _card_strength(entities, cards: Array, exempt: String, legacy_suit_rules: bool = false) -> int:
 	var strength: int = 0
 	var suited: int = 0
 	for card_id in cards:
 		var a: Dictionary = entities.get_entity(card_id).attributes
+		# Guard formations replaced commitment suit rules. Current games use
+		# printed value for every suit; the legacy branch preserves old fixtures.
+		if not legacy_suit_rules:
+			strength += int(a.value)
+			continue
 		if a.suit == exempt:
 			strength += int(a.value)
 			suited += 1
 		else:
 			strength += maxi(1, int(a.value) - 1)
-	return strength + (1 if pair_bonus and suited >= 2 else 0)
+	return strength + (1 if legacy_suit_rules and suited >= 2 else 0)
 
 
 static func _fact(

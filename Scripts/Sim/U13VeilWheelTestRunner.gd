@@ -68,6 +68,17 @@ func run() -> void:
 		wheel.size = Vector2(width, 104)
 		wheel._layout()
 		check(wheel.current_button.get_rect().end.x <= wheel.neutral_label.position.x and wheel.detail.get_rect().end.y <= wheel.size.y, "wheel text and controls fit banner width " + str(width))
+	world["tempo_experiment"] = "U13_VEIL_ATTACK_ROUND25_V1"
+	wheel.bind_world(world, 21)
+	for i in range(3):
+		var threshold: int = [15, 19, 23][i]
+		var mark: Dictionary = wheel.milestone(threshold)
+		check(mark.label == "ATTACK" and mark.detail.contains("attack +%d" % (i + 1)), "new attack milestone exists at Veil %d" % threshold)
+	for threshold in [13, 17, 21]:
+		check(not wheel.milestone(threshold).tooltip.contains("committed attack strength"), "Breach milestone stays separate at Veil %d" % threshold)
+	wheel.select_value(14)
+	wheel._update_controls()
+	check(wheel.detail.text.contains("ATTACK at 15"), "next milestone includes the new attack threshold")
 	wheel.free()
 	print("U13 Veil wheel failures: ", failures)
 	quit(1 if failures else 0)

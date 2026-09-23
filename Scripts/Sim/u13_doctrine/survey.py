@@ -117,9 +117,12 @@ def run_one(spec, manifest, directory):
 
 def manifest(root, namespace, weights):
     from u13_pysim.lifecycle import RITUAL_SOULS, DOMINION_TEARS, DOMINION_VEIL
+    from u13_pysim.split_ward import TEMPO_SOUL_START_ROUND
     revision, engine = source_identity(root)
     return dict(schema=SCHEMA, source_revision=revision, engine_source_sha256=engine,
         victory_requirements=dict(ritual_souls=RITUAL_SOULS, dominion_tears=DOMINION_TEARS, dominion_veil=DOMINION_VEIL),
+        shared_balance=dict(commitment_values="printed", tempo_attack_veil=[15, 19, 23],
+                            tempo_bonus_soul_round=TEMPO_SOUL_START_ROUND),
         harness_source_sha256=harness_hash(root), policy=VERSION, weights=asdict(weights),
         namespace=namespace, lords=LORDS, loadout=LOADOUT, round_cap=40,
         implementation=platform.python_implementation(), python=sys.version,
@@ -203,15 +206,18 @@ def pooled_results(specs, identity, directory, workers, worker_batch_size=12, ta
 
 
 def run(root, directory, repeats=2, workers=8, namespace='u13-common-v3-survey-2026-09-17', weights=None,
-        worker_batch_size=12):
+        worker_batch_size=12, case_list=None):
     directory = Path(directory); directory.mkdir(parents=True, exist_ok=True)
     (directory/'games').mkdir(exist_ok=True)
     identity = manifest(root, namespace, weights or Weights())
+    specs = list(cases(repeats, namespace) if case_list is None else case_list)
+    if case_list is not None:
+        identity["case_list_sha256"] = fingerprint(specs)
     path = directory/'manifest.json'
     if path.exists() and json.loads(path.read_text()) != identity:
         raise ValueError('Existing directory contains a different survey; use a new directory.')
     atomic_json(path, identity)
-    specs = list(cases(repeats, namespace)); pending = []
+    pending = []
     for spec in specs:
         path = directory/'games'/(spec['name']+'.json.gz')
         if path.exists(): read_record(path, identity, spec)

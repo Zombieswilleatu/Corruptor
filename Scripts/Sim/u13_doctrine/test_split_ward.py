@@ -234,7 +234,7 @@ class SplitWardTests(unittest.TestCase):
         w = rules.w; w['data']['tempo_experiment'] = split_ward.TEMPO
         for player in w['players']:
             player['resources'].update(souls=0, personal_tears=0)
-        for value, expected in ((12, 0), (13, 1), (16, 1), (17, 2), (20, 2), (21, 3), (40, 3)):
+        for value, expected in ((13, 0), (14, 0), (15, 1), (18, 1), (19, 2), (22, 2), (23, 3), (40, 3)):
             w['data']['neutral_tears'] = value
             self.assertEqual(expected, split_ward.attack_bonus(w))
             # No waiters/pursuit: one flat increase, regardless of printed strength.

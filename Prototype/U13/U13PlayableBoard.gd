@@ -450,7 +450,7 @@ func _open_game_menu() -> void:
 		game_menu.button("SAVE FINISHED GAME", _save_game)
 		return
 	var tempo: bool = _visible_world.get("tempo_experiment") == "U13_VEIL_ATTACK_ROUND25_V1"
-	game_menu.present("GAME / TEAR RITES", ("Ritual: %d Souls with your Lord present. Dominion: Veil %d+, at least %d Personal Tears and more than your opponent. " % [VictoryRules.RITUAL_SOULS, VictoryRules.DOMINION_VEIL, VictoryRules.DOMINION_TEARS]) + ("Round 25 ends the game after normal victories; most Souls wins (seat 0 wins a tie). Veil 13/17/21 adds +1/+2/+3 committed attack strength. From round 20, a Hunt banishment or Siege destruction earns +1 Soul, once per player per round. Reserve one paid Ward alongside Hunt or Siege. Ward protects only its chosen lane; no Sigils." if tempo else "Final Collapse: Veil 26; most Souls wins (seat 0 wins a tie)."))
+	game_menu.present("GAME / TEAR RITES", ("Ritual: %d Souls with your Lord present. Dominion: Veil %d+, at least %d Personal Tears and more than your opponent. " % [VictoryRules.RITUAL_SOULS, VictoryRules.DOMINION_VEIL, VictoryRules.DOMINION_TEARS]) + ("Round 25 ends the game after normal victories; most Souls wins (seat 0 wins a tie). Veil 15/19/23 adds +1/+2/+3 committed attack strength. From round 20, a Hunt banishment or Siege destruction earns +1 Soul, once per player per round. Reserve one paid Ward alongside Hunt or Siege. Ward protects only its chosen lane; no Sigils." if tempo else "Final Collapse: Veil 26; most Souls wins (seat 0 wins a tie)."))
 	if not _planning():
 		game_menu.label("Round resolved. Return to the board and continue to the next round.")
 		return

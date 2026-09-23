@@ -38,7 +38,7 @@ static func attack_bonus(world: Dictionary) -> int:
 	if not tempo_enabled(world): return 0
 	var veil: int = world.data.neutral_tears
 	for player in world.players: veil += int(player.resources.personal_tears)
-	return int(veil >= 13) + int(veil >= 17) + int(veil >= 21)
+	return int(veil >= 15) + int(veil >= 19) + int(veil >= 23)
 
 static func succeeded(events: Array) -> bool:
 	for i in range(events.size() - 1, -1, -1):

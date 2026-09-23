@@ -6,7 +6,7 @@ Adopted by Jeremiah on 2026-09-23, until explicitly changed.
 - Dominion: at least 7 personal Tears, strictly more than the opponent, and total Veil at least 12. No living Lord required.
 - Existing victory precedence, tempo round-25 settlement, and legacy Final Collapse remain unchanged.
 - Godot authority: Scripts/Sim/U13Victory.gd. Python authority: Scripts/Sim/u13_pysim/lifecycle.py.
-- New Lord surveys record these requirements in their manifest. Start a fresh run from the updated checkout. Resuming an old frozen run intentionally retains its old rules.
+- Fresh Lord balance runs explicitly enable the tested split-Ward/tempo setup, and record these requirements and shared balance values in their manifest. Start a fresh run from the updated checkout. Resuming an old frozen run intentionally retains its old rules.
 
 ## Evidence
 
@@ -24,14 +24,16 @@ At 15/7, 28/81 games continued after both sides had no nonruined castles, ending
 
 Evidence used frozen V29 doctrine, printed commitment values, Veil attack bonuses 15/19/23, and Dominion Veil gate 12. It does not certify subsequent Lord tuning.
 
-This commit changes victory requirements on the current remote branch. That branch still has the commitment suit penalty and attack thresholds 13/17/21. Preserve the separate local printed-value and 15/19/23 patches when assembling the next balance build; do not overwrite newer work with the frozen test snapshot.
+The shared balance baseline also uses full printed card values for Hunt, Siege and Ward, with no commitment suit penalty or pair bonus in GuardWork games. Tempo attack bonuses are +1/+2/+3 at Veil 15/19/23. Breach arrivals and their protection thresholds remain separate and unchanged. Existing split Ward, Ward recruitment at 2:1 without monster summons, castle/pair rules, round-20 decisive Souls and round-25 settlement already match the tested source. Individual Lord tuning is preserved separately; this integration does not revert newer doctrine to the frozen V29 snapshot.
 
 ## Verification
 
 From the repository root:
 
 ```bash
-PYTHONPATH=Scripts/Sim python -m unittest u13_pysim.test_victory_baseline u13_doctrine.test_closing u13_doctrine.test_rites
+PYTHONPATH=Scripts/Sim python -m unittest u13_pysim.test_victory_baseline u13_pysim.test_shared_balance u13_doctrine.test_closing u13_doctrine.test_rites
 ```
 
 Native boundary and UI fixtures updated: U13VictoryTestRunner, U13VeilWheelTestRunner, U13UIFeedbackTestRunner. Godot execution requires a local Godot installation.
+
+Shared-balance integration validation: 60 local Python tests passed, including all four suits at values 1–5 through real Hunt/Siege/Ward resolution and bot payments, pair-bonus removal, victory and tempo boundaries, Lord-runner setup flags, and existing Orias/closing/rite regressions. Godot execution was unavailable; native printed-commitment and Veil-wheel tests are supplied. No new full balance games were run for this integration.

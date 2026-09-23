@@ -107,8 +107,7 @@ def metrics(match, trace):
         hand = view['hand']
         first.append(dict(seat=view['player_id'], cards=len(hand),
             face_value=sum(r['attributes']['value'] for r in hand),
-            full_hand_attack_strength=sum(r['attributes']['value'] if r['attributes']['suit']=='Butcher'
-                                         else max(1, r['attributes']['value']-1) for r in hand),
+            full_hand_attack_strength=sum(r['attributes']['value'] for r in hand),
             action=plan['order'].get('action', 'Pass'),
             combat_cards=len(plan['order'].get('card_ids', [])),
             guard_cards=len(plan['order'].get('guard_moves', []))))

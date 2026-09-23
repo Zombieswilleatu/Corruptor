@@ -167,8 +167,10 @@ func stamp_owners(value: int) -> Array:
 
 func milestone(value: int) -> Dictionary:
 	var result: Dictionary = _milestone(value)
-	if tempo_rules and value in [13, 17, 21]:
-		var bonus: int = [13, 17, 21].find(value) + 1
+	if tempo_rules and value in [15, 19, 23]:
+		var bonus: int = [15, 19, 23].find(value) + 1
+		if result.is_empty():
+			result = {"label": "ATTACK", "planned": false, "detail": "Veil %d" % value, "tooltip": "Shared attack escalation."}
 		result.detail += " · attack +%d" % bonus
 		result.tooltip += "\nHunt and Siege gain +%d committed attack strength from this Veil threshold." % bonus
 	return result
@@ -209,7 +211,7 @@ func _update_controls() -> void:
 	if not is_instance_valid(detail):
 		return
 	round_label.text = ("R %d / 25" if tempo_rules else "ROUND %d") % round_number
-	round_label.tooltip_text = "From round 20: +1 Soul for Hunt banishment or Siege destruction, once per round. Veil 13/17/21 adds +1/+2/+3 committed attack strength." if tempo_rules else ""
+	round_label.tooltip_text = "From round 20: +1 Soul for Hunt banishment or Siege destruction, once per round. Veil 15/19/23 adds +1/+2/+3 committed attack strength." if tempo_rules else ""
 	neutral_label.text = "NEUTRAL %d" % neutral_tears
 	current_button.text = ("VEIL %d%s" % [current_value, "" if following_current else "  ↩"]) if tempo_rules else ("VEIL %d / %d%s" % [current_value, LIMIT, "" if following_current else "  ↩"])
 	previous_button.disabled = _target_center <= HALF_WINDOW
@@ -220,7 +222,11 @@ func _update_controls() -> void:
 		detail.text = mark.detail
 	else:
 		var next_mark: int = LIMIT
-		for value in [5, Rites.INVOCATION_GATE, 9, Victory.DOMINION_VEIL, 13, 17, 21, LIMIT]:
+		var milestones: Array = [5, Rites.INVOCATION_GATE, 9, Victory.DOMINION_VEIL, 13, 17, 21, LIMIT]
+		if tempo_rules:
+			milestones.append_array([15, 19, 23])
+			milestones.sort()
+		for value in milestones:
 			if value > inspected:
 				next_mark = value
 				break

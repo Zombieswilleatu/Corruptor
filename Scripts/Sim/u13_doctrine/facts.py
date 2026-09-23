@@ -106,20 +106,17 @@ class Facts:
     def payment(self, minimum, exempt=None):
         # Linear ordered prefix, never all hand subsets. The full-budget and
         # minimum-sufficient proposals give conservation an explicit candidate.
-        ordered = sorted(self.hand, key=lambda r: (-(r['attributes']['value'] if exempt is None else
-            r['attributes']['value'] if r['attributes']['suit'] == exempt else max(1, r['attributes']['value']-1)), r['id']))
+        ordered = sorted(self.hand, key=lambda r: (-r['attributes']['value'], r['id']))
         selected, total = [], 0
         for r in ordered:
             if total >= minimum: break
             selected.append(r['id'])
             a = r['attributes']
-            total += a['value'] if exempt is None or a['suit'] == exempt else max(1, a['value']-1)
+            total += a['value']
         return selected if total >= minimum else []
 
     def strength(self, ids, action):
-        exempt = 'Penitent' if action == 'Ward' else 'Butcher'
-        return sum(self.by_id[k]['attributes']['value'] if self.by_id[k]['attributes']['suit'] == exempt
-                   else max(1, self.by_id[k]['attributes']['value']-1) for k in ids)
+        return sum(self.by_id[k]['attributes']['value'] for k in ids)
 
     def recruits(self, ids, action):
         suits = Counter()

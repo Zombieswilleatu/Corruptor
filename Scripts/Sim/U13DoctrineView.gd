@@ -57,6 +57,7 @@ func printed(ids: Array) -> int:
 	return total
 
 func strength(ids: Array, exempt: String = "Butcher") -> int:
+	if w.has("guard_work"): return printed(ids)
 	var total: int = 0
 	var suited: int = 0
 	for id in ids:
@@ -95,7 +96,7 @@ func payments(powers: Array, order: Dictionary, exempt: String = "Butcher") -> A
 
 func tear_value(gain: int = 1) -> float:
 	var ours: int = int(w.personal_tears[pid]) + gain
-	if w.veil_total + gain >= 12 and ours >= 5 and ours > w.personal_tears[1 - pid]:
+	if w.veil_total + gain >= Victory.DOMINION_VEIL and ours >= Victory.DOMINION_TEARS and ours > w.personal_tears[1 - pid]:
 		return 150.0
 	return 13.0 if w.personal_tears[pid] < Victory.DOMINION_TEARS or w.personal_tears[pid] <= w.personal_tears[1 - pid] else 5.0
 

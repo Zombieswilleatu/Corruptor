@@ -21,7 +21,7 @@ def tempo_enabled(world):
 def attack_bonus(world):
     if not tempo_enabled(world): return 0
     total = world['data']['neutral_tears'] + sum(p['resources']['personal_tears'] for p in world['players'])
-    return sum(total >= threshold for threshold in (13, 17, 21))
+    return sum(total >= threshold for threshold in (15, 19, 23))
 
 
 

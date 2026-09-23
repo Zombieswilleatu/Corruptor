@@ -54,14 +54,26 @@ class Tee:
     def flush(self): self.terminal.flush(); self.log.flush()
 
 
+def balance_cases(repeats, namespace):
+    """Fresh Lord tests use the same split-Ward/tempo profile as live games."""
+    from u13_doctrine.survey import cases
+    from u13_pysim.split_ward import VERSION, TEMPO
+    return [dict(spec, setup=dict(spec['setup'], ward_experiment=VERSION,
+                                 tempo_experiment=TEMPO))
+            for spec in cases(repeats, namespace)]
+
+
 def execute(args):
-    from u13_doctrine.lord_balance import NAMESPACE, summarize, markdown
-    from u13_doctrine.survey import run, cases, read_record, atomic_json
+    from u13_doctrine.lord_balance import summarize, markdown
+    from u13_doctrine.survey import run, read_record, atomic_json
     verify_frozen(args.output)
+    config = json.loads((args.output/"balance-config.json").read_text())
+    case_list = config["cases"]
     result = run(Path(__file__).resolve().parents[2], args.output, repeats=args.repeats,
-                 workers=args.workers, namespace=NAMESPACE, worker_batch_size=args.worker_batch_size)
+                 workers=args.workers, namespace=config["namespace"], worker_batch_size=args.worker_batch_size,
+                 case_list=case_list)
     records = (read_record(args.output/'games'/(spec['name']+'.json.gz'), result['manifest'], spec)
-               for spec in cases(args.repeats, NAMESPACE))
+               for spec in case_list)
     report = summarize(records)
     atomic_json(args.output/'lord-balance.json', report)
     (args.output/'lord-balance.md').write_text(markdown(report), encoding='utf-8')
@@ -115,8 +127,7 @@ def main():
         args.output.mkdir(parents=True, exist_ok=False)
         frozen = freeze(root, args.output)
         from u13_doctrine.lord_balance import NAMESPACE
-        from u13_doctrine.survey import cases
-        case_list = list(cases(args.repeats, NAMESPACE))
+        case_list = balance_cases(args.repeats, NAMESPACE)
         (args.output/'balance-config.json').write_text(json.dumps(dict(repeats=args.repeats, namespace=NAMESPACE,
             cases=case_list, games=len(case_list), round_cap=40), indent=2)+'\n', encoding='utf-8')
     print(f'Frozen build ready: {81*args.repeats} games, {args.workers} workers. Reports: {args.output}', flush=True)

@@ -166,8 +166,9 @@ class Ordinary(Battle):
         return events
 
     def strength(self, ids, exempt):
-        return sum(c["attributes"]["value"] if c["attributes"]["suit"] == exempt else max(1, c["attributes"]["value"]-1)
-                   for c in (e.entity(self.w, identity) for identity in ids))
+        # This runtime implements GuardWork games: all commitment suits use
+        # printed value. Suit benefits live in Guards and marcher abilities.
+        return sum(e.entity(self.w, identity)["attributes"]["value"] for identity in ids)
 
     def pairs(self, pid, lane):
         reconcile(self.w)
