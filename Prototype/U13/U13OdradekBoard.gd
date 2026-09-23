@@ -455,6 +455,10 @@ func _process(delta: float) -> void:
 			if not artillery_view.active():
 				_restore_artillery_castles()
 			return
+		if resolution_view.active():
+			resolution_view.advance(delta)
+			return
+		_finish_resolution_presentation()
 		if gem_dagger_view.active():
 			gem_dagger_view.advance(delta)
 			if not gem_dagger_view.active():

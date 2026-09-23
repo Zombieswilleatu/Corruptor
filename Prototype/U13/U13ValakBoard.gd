@@ -191,7 +191,7 @@ func _complete_job() -> void:
 
 
 func _process(delta: float) -> void:
-	if _job == null and valak_effects != null and valak_effects.active() and not artillery_view.active() and not gem_dagger_view.active() and not odradek_effects.active():
+	if _job == null and valak_effects != null and valak_effects.active() and not _resolution_pending() and not artillery_view.active() and not gem_dagger_view.active() and not odradek_effects.active():
 		valak_effects.advance(delta)
 		phase_prompt.set_presenting(false)
 		_busy_label.text = "Valak…"

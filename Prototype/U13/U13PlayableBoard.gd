@@ -734,6 +734,8 @@ func _load_game(path: String) -> void:
 	staged_order = {}
 	payment = []
 	playing = false
+	resolution_view.clear()
+	_resolution_final_view = {}
 	gem_dagger_view.clear()
 	artillery_view.clear()
 	_install_impacts([])

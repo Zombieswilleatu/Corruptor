@@ -58,19 +58,20 @@ func active() -> bool:
 
 # Return a presentation copy with pending rewards and their triggering Guard
 # held until impact. This never changes the match or reconstructs hidden cards.
-func mask_view(view: Dictionary) -> Dictionary:
+func mask_view(view: Dictionary, restore_guards: bool = true) -> Dictionary:
 	var result: Dictionary = view.duplicate(true)
 	for index in range(_index, _shots.size()):
 		if index == _index and _impacted:
 			continue
 		var shot: Dictionary = _shots[index]
 		var guard: Dictionary = shot.guard
-		var visible: Array = []
-		for entity in result.world.entities:
-			if entity.id != guard.id:
-				visible.append(entity)
-		visible.append(guard.duplicate(true))
-		result.world.entities = visible
+		if restore_guards:
+			var visible: Array = []
+			for entity in result.world.entities:
+				if entity.id != guard.id:
+					visible.append(entity)
+			visible.append(guard.duplicate(true))
+			result.world.entities = visible
 		for reward in shot.rewards:
 			if not reward.data.get("drawn", false):
 				continue

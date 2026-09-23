@@ -200,11 +200,11 @@ func _process(delta: float) -> void:
 		kroni_visual.advance_bite(delta)
 		return
 	var adjusted: float = delta
-	if playing and kroni_visual != null:
+	if playing and kroni_visual != null and not _resolution_pending() and not artillery_view.active():
 		adjusted = kroni_visual.limit_delta(clock, delta)
 	super._process(adjusted)
 	if playing and kroni_visual != null:
-		kroni_visual.visible = not artillery_view.active() and not gem_dagger_view.active() and not odradek_effects.active()
+		kroni_visual.visible = not _resolution_pending() and not artillery_view.active() and not gem_dagger_view.active() and not odradek_effects.active()
 		kroni_visual.show_time(clock)
 	_fit_consume()
 

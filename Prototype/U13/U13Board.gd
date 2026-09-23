@@ -74,6 +74,10 @@ var rout_state: Label
 var session = Session.new()
 const ArtilleryView = preload("res://Prototype/U13/U13ArtilleryView.gd")
 const GemDaggerView = preload("res://Prototype/U13/U13GemDaggerView.gd")
+const ResolutionView = preload("res://Prototype/U13/U13ResolutionView.gd")
+var resolution_view
+var _resolution_final_view: Dictionary = {}
+var _gem_restore_guards: bool = true
 var gem_dagger_view
 var _gem_final_view: Dictionary = {}
 var artillery_view
@@ -172,6 +176,8 @@ func restart() -> void:
 	if not _runtime_ok:
 		return
 	playing = false
+	resolution_view.clear()
+	_resolution_final_view = {}
 	artillery_view.clear()
 	gem_dagger_view.clear()
 	_gem_final_view = {}
@@ -196,6 +202,8 @@ func restart() -> void:
 
 
 func _build() -> void:
+	resolution_view = ResolutionView.new()
+	add_child(resolution_view)
 	gem_dagger_view = GemDaggerView.new()
 	add_child(gem_dagger_view)
 	gem_dagger_view.impact.connect(_gem_dagger_impact)
@@ -667,6 +675,10 @@ func _process(delta: float) -> void:
 		_busy_label.text = "Siege Engine fire…"
 		return
 	_restore_artillery_castles()
+	if resolution_view.advance(delta):
+		_busy_label.text = "Resolving attacks…"
+		return
+	_finish_resolution_presentation()
 	if gem_dagger_view.advance(delta):
 		_busy_label.text = "Gem Dagger…"
 		return
@@ -708,6 +720,7 @@ func _complete_job() -> void:
 	# Publish only a complete successful transaction; failures leave session intact.
 	session = result.session
 	status.text = ""
+	_gem_restore_guards = true
 	gem_dagger_view.play_events(result.get("gem_dagger_events", []), sides)
 	_gem_final_view = result.presented.duplicate(true) if gem_dagger_view.active() else {}
 	_install_impacts(result.get("feedback", []))
@@ -719,7 +732,10 @@ func _complete_job() -> void:
 		playing = true
 		artillery_view.play_shots(result.get("artillery_events", []), sides)
 		var initial: Dictionary = artillery_view.initial_castles()
-		var shown: Dictionary = gem_dagger_view.mask_view(result.presented)
+		resolution_view.play(result.get("resolution", {}), sides)
+		_resolution_final_view = result.presented.duplicate(true) if resolution_view.active() else {}
+		_gem_restore_guards = not resolution_view.active()
+		var shown: Dictionary = (result.resolution.before.duplicate(true) if resolution_view.active() else gem_dagger_view.mask_view(result.presented))
 		_artillery_final_castles = {}
 		for entity in shown.world.entities:
 			if initial.has(entity.id):
@@ -749,6 +765,18 @@ func _complete_job() -> void:
 		run_dense_round()
 
 
+func _resolution_pending() -> bool:
+	return resolution_view != null and (resolution_view.active() or not _resolution_final_view.is_empty())
+
+
+func _finish_resolution_presentation() -> void:
+	if _resolution_final_view.is_empty() or resolution_view.active():
+		return
+	var shown: Dictionary = _resolution_final_view
+	_resolution_final_view = {}
+	_refresh(gem_dagger_view.mask_view(shown, false))
+
+
 func _artillery_impact(shot: Dictionary) -> void:
 	if shot.get("target_after", {}).is_empty():
 		return
@@ -775,6 +803,8 @@ func finish_playback(skipped: bool = true) -> void:
 		_finish_gem_presentation()
 		return
 	_restore_artillery_castles()
+	resolution_view.clear()
+	_finish_resolution_presentation()
 	gem_dagger_view.clear()
 	_finish_gem_presentation()
 	artillery_view.clear()
@@ -1137,6 +1167,8 @@ func start_loadout(lords: Array, castles: Array, quick: bool) -> void:
 	_ledger_before = {}
 	_ledger_round = -1
 	session = candidate
+	resolution_view.clear()
+	_resolution_final_view = {}
 	gem_dagger_view.clear()
 	_gem_final_view = {}
 	_install_impacts([])
@@ -1676,7 +1708,7 @@ func _advance_impacts(delta: float) -> bool:
 
 func _gem_dagger_impact(_shot: Dictionary) -> void:
 	if not _gem_final_view.is_empty():
-		_refresh(gem_dagger_view.mask_view(_gem_final_view))
+		_refresh(gem_dagger_view.mask_view(_gem_final_view, _gem_restore_guards))
 
 
 func _finish_gem_presentation() -> void:

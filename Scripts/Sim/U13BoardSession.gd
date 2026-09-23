@@ -5,6 +5,9 @@ extends "res://Scripts/Sim/U13SmokeSession.gd"
 const RandomLegal = preload("res://Scripts/Sim/U13RandomLegal.gd")
 const Candidates = preload("res://Scripts/Sim/U13GremoryCandidates.gd")
 var _artillery_events: Array = []
+# Presentation-only public snapshots; never saved or applied to the match.
+var resolution_presentation: Dictionary = {}
+var _resolution_cursor: int = 0
 var _powers: Array = []
 var _order: Dictionary = {}
 var _opponent: Dictionary = {}
@@ -118,13 +121,20 @@ func _fork_for_job():
 
 func run_to_marching() -> Dictionary:
 	_artillery_events = []
+	resolution_presentation = {}
+	_resolution_cursor = _owner._event_cursor()
 	return super.run_to_marching()
 
 
 func step() -> Dictionary:
+	var combat: bool = next_hook() == Timeline.COMBAT_RESOLUTION
+	if combat:
+		resolution_presentation["before"] = board_view().duplicate(true)
 	var capture: bool = next_hook() == Timeline.POST_REPAIR_ARTILLERY
 	var cursor: int = _owner._event_cursor() if capture else 0
 	var result: Dictionary = super.step()
+	if combat and result.action != "invalid":
+		resolution_presentation["events"] = _owner._player_events_since(0, _resolution_cursor)
 	if capture and result.action != "invalid":
 		for event in _owner._player_events_since(0, cursor):
 			if event.type == "ARTILLERY_FIRED":

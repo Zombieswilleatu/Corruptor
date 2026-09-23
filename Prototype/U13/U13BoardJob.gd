@@ -111,6 +111,7 @@ func _run(candidate, operation: String, powers: Array, order: Dictionary) -> Dic
 		"operation": operation,
 		"session": candidate,
 		"playback": playback,
+		"resolution": candidate.resolution_presentation if operation == "marching" and candidate is U13BoardSession else {},
 		"artillery_events": candidate.artillery_events() if operation == "marching" else [],
 		"presented": presented,
 		"worker_ms": float(Time.get_ticks_usec() - started) / 1000.0

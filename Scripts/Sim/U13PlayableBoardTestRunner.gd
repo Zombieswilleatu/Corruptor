@@ -71,6 +71,18 @@ func run() -> void:
 	board.resolve_round()
 	await job_done()
 	if check(board.playing, "human plan starts animated Marching"):
+		check(board.resolution_view.active(), "real Hunt starts board resolution theater")
+		var resolved: Dictionary = board.session.checkpoint()
+		var guard: int = 0
+		while board.resolution_view.active() and guard < 30:
+			board._process(0.25)
+			check(board.clock == 0.0, "marching waits for theater")
+			guard += 1
+			await process_frame
+		check(not board.resolution_view.active(), "theater hands off without blocking")
+		check(board.session.checkpoint() == resolved, "theater playback does not change resolved match")
+		board._finish_resolution_presentation()
+		check(board._resolution_final_view.is_empty(), "final combat picture installed")
 		board.finish_playback()
 		await job_done()
 		check(board.session.next_hook().is_empty(), "skip animation completes actual Aftermath")
@@ -186,7 +198,7 @@ func special_actions() -> void:
 	var world: Dictionary = Game.Economy.initialize(Game.Scenario.loadout_world(["Gremory", "Deimos"], [Slots.TYPES, Slots.TYPES]), "playable-rites").world
 	world.data.neutral_tears = 7
 	world.players[0].resources.souls = 3
-	world.players[0].resources.personal_tears = 1
+	world.players[0].resources.personal_tears = preload("res://Scripts/Sim/U13Victory.gd").DOMINION_TEARS - 4
 	var ids = Ids.new()
 	ids.restore(world.entities)
 	for row in world.entities.entities:

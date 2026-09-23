@@ -183,7 +183,7 @@ func _complete_job() -> void:
 		lanes.queue_redraw()
 
 func _process(delta: float) -> void:
-	if death_wish_visual != null and death_wish_visual.active():
+	if death_wish_visual != null and death_wish_visual.active() and not _resolution_pending() and not artillery_view.active():
 		death_wish_visual.advance(delta)
 		return
 	super._process(delta)
