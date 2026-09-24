@@ -32,6 +32,15 @@ static func speed(a: Dictionary, round_number: int, clock: int) -> int:
 	return ((base >> 1) + ((base & 1) * (clock & 1))) if recovering(a, round_number) else base
 
 
+# Apply after aura/field speed modifiers, matching the shared Python runner.
+static func flee_step(step: int, clock: int) -> int:
+	@warning_ignore("integer_division")
+	var next_distance: int = step * 85 * (clock + 1) / 100
+	@warning_ignore("integer_division")
+	var previous_distance: int = step * 85 * clock / 100
+	return next_distance - previous_distance
+
+
 static func apply(record: Dictionary, context: Dictionary) -> Dictionary:
 	var world: Dictionary = context.world.duplicate(true)
 	var source: Dictionary = record.declaration

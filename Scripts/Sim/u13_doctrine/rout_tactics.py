@@ -1,6 +1,6 @@
 """Bounded public Rout estimates, not Marching rollouts or outcome promises.
 
-Count stationary firing/contact windows along the enemy's full-speed retreat.
+Count stationary firing/contact windows along the enemy's 85%-speed retreat.
 A faster pursuer can earn one additional intercept, without assuming repeated
 swings while chasing. New recruits sample the public spawn band and can attack
 immediately, while birth readiness limits movement only. Exact placement, paths
@@ -30,15 +30,15 @@ def _window(row, target, number, world):
     a, b = row['attributes'], target['attributes']
     tower = row['kind'] == 'fortification'
     ranged = tower or a.get('suit') == 'Vulture' and not fort.in_melee(row, target)
-    radius = (marching_spatial.tower_range(world) if tower else marching_spatial.vulture_range(world)) if ranged else fort.CONTACT
-    lateral = radius if ranged else fort.LATERAL_CONTACT
+    radius = 100 * (marching_spatial.tower_range(world) if tower else marching_spatial.vulture_range(world)) if ranged else 100 * fort.CONTACT
+    lateral = radius if ranged else 100 * fort.LATERAL_CONTACT
     interval = field_combat.RANGED_INTERVAL if ranged else field_combat.MELEE_INTERVAL
     ready = max(0, a.get('ranged_next_tick' if ranged else 'melee_next_tick', 0)-number*200)
     direction = 1 if row['owner'] == 0 else -1
-    ax = a['x_fp'] if direction == 1 else 2400-a['x_fp']
-    bx = b['x_fp'] if direction == 1 else 2400-b['x_fp']
-    dy = abs(a['y_fp']-b['y_fp'])
-    enemy_speed = _speed(b, number)  # Rout releases waiting units to retreat.
+    ax = 100 * (a['x_fp'] if direction == 1 else 2400-a['x_fp'])
+    bx = 100 * (b['x_fp'] if direction == 1 else 2400-b['x_fp'])
+    dy = 100 * abs(a['y_fp']-b['y_fp'])
+    enemy_speed = 85 * _speed(b, number)  # Rout releases waiting units to retreat.
     first, last = ready, -1
     if dy <= lateral:
         reach = isqrt(radius*radius*(lateral*lateral-dy*dy)//(lateral*lateral))
@@ -46,20 +46,20 @@ def _window(row, target, number, world):
         if enemy_speed:
             # Movement precedes attacks at tick zero; clamp at the enemy home.
             first = max(ready, (low-bx+enemy_speed-1)//enemy_speed-1, 0)
-            last = 199 if high >= 2400 else min(199, (high-bx)//enemy_speed-1)
-            if min(2400, bx+enemy_speed*(first+1)) < low: last = -1
+            last = 199 if high >= 240000 else min(199, (high-bx)//enemy_speed-1)
+            if min(240000, bx+enemy_speed*(first+1)) < low: last = -1
         elif low <= bx <= high:
             last = 199
     hits = max(0, 1+(last-first)//interval) if first <= last else 0
     first_tick = first if hits else None
     # Once a shooter/striker loses range, equal-speed chasing cannot close it.
     # Charge a full lateral alignment and one movement tick of lost ground.
-    own_speed = 0 if tower else _speed(a, number, chase=True)
+    own_speed = 0 if tower else 100 * _speed(a, number, chase=True)
     if own_speed > 0 and ready < 200:
         start = max(0, last+1) if hits else 0
         align = (dy+own_speed-1)//own_speed
         at = start+align
-        target_x = min(2400, bx+enemy_speed*(at+1))
+        target_x = min(240000, bx+enemy_speed*(at+1))
         closing = own_speed-enemy_speed if target_x >= ax else own_speed+enemy_speed
         if closing > 0:
             gap = max(0, abs(target_x-ax)-radius)+enemy_speed

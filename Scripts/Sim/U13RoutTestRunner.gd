@@ -165,6 +165,11 @@ func _membership() -> void:
 
 
 func _movement() -> void:
+	for base_step in range(1, 21):
+		var total: int = 0
+		for clock in range(200, 400):
+			total += Rout.flee_step(base_step, clock)
+		_check(total == base_step * 170, "rout_exact_85_percent_step_" + str(base_step))
 	for player_id in [0, 1]:
 		var world: Dictionary = _small_world()
 		var id: String = _add(world, str(player_id), player_id, 1200)
@@ -172,10 +177,10 @@ func _movement() -> void:
 		var result: Dictionary = _march(world, 1)
 		if result.action != "resolved":
 			return
-		var expected: int = 600 if player_id == 0 else 1800
+		var expected: int = 690 if player_id == 0 else 1710
 		_check(
 			_entity(result.world, id).attributes.x_fp == expected,
-			"rout_full_speed_reverse_owner_" + str(player_id)
+			"rout_85_percent_reverse_owner_" + str(player_id)
 		)
 		world = _advance(result.world, 2)
 		result = _march(world, 2)

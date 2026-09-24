@@ -25,15 +25,15 @@ def recruit_plan(f, suit='Vulture', lane='Castle'):
 
 
 class RoutTacticsTests(unittest.TestCase):
-    def test_equal_speed_chase_is_not_a_punish_window(self):
+    def test_slow_retreat_allows_nearby_chase_but_not_distant_chase(self):
         v = view(); ally = unit(v, 'own', x_fp=900)
         enemy = unit(v, 'enemy', 1, x_fp=1600)
         f = Facts(v)
         self.assertEqual(0, _window(ally, enemy, 1, f.world)['hits'])
         self.assertEqual(0, rout_value(f, 'Castle')['score'])
         enemy['attributes']['x_fp'] = 960
-        self.assertEqual(1, _window(ally, enemy, 1, f.world)['hits'])
-        self.assertEqual(0, rout_value(Facts(v), 'Castle')['offense_score'])
+        self.assertEqual(2, _window(ally, enemy, 1, f.world)['hits'])
+        self.assertGreater(rout_value(Facts(v), 'Castle')['offense_score'], 0)
 
     def test_faster_pursuer_gets_one_intercept_not_six_free_swings(self):
         v = view(); ally = unit(v, 'own', x_fp=900, step_fp=8)
@@ -43,14 +43,14 @@ class RoutTacticsTests(unittest.TestCase):
         ally['attributes']['movement_ready_round'] = 2
         self.assertEqual(0, _window(ally, enemy, 1, Facts(v).world)['hits'])
 
-    def test_full_retreat_speed_and_cooldown_limit_ranged_coverage(self):
+    def test_slow_retreat_extends_ranged_coverage_but_respects_cooldown(self):
         v = view(); ally = unit(v, 'own', x_fp=900)
         ally['attributes'].update(recruitment.profile('Vulture', 'Castle', 0, 0, 1), x_fp=900)
         enemy = unit(v, 'enemy', 1, x_fp=1050)
         f = Facts(v)
-        self.assertEqual(2, _window(ally, enemy, 1, f.world)['hits'])
+        self.assertEqual(3, _window(ally, enemy, 1, f.world)['hits'])
         ally['attributes']['ranged_next_tick'] = 300
-        self.assertEqual(0, _window(ally, enemy, 1, f.world)['hits'])
+        self.assertEqual(1, _window(ally, enemy, 1, f.world)['hits'])
         ally['attributes']['ranged_next_tick'] = 400
         self.assertEqual(0, _window(ally, enemy, 1, f.world)['hits'])
 

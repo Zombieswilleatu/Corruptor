@@ -20,6 +20,11 @@ from .marching_spatial import (LANES, CONTACT2, GAP2, RANGE2, RANGED, ROUT, WEB,
                                distance, scaled, ceil_sqrt, speed, compile_effects, gravity)
 from .primitives import entity_id, instance_id, draw
 
+def rout_flee_step(step, clock):
+    """85% retreat movement, retaining sub-unit progress over 100 ticks."""
+    return (step * 85 * (clock + 1)) // 100 - (step * 85 * clock) // 100
+
+
 VERSION = "U13_PYSIM_MARCHING_SPIKE_V2_RANGE_SENTINEL"
 MODEL = "U13_MARCHING_SPATIAL_V2"
 TICKS = 200
@@ -274,6 +279,7 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
             continue
         if ranged and not retreat[i] and i not in taunted and not gate_advancing:
             step = support_pacing.speed(moving_rows[i], target_rows, step, clock, number, fleeing)
+        if retreat[i]: step = rout_flee_step(step, clock)
         dx, dy = s.direction[i] * step * (-1 if retreat[i] else 1), 0
         j = nearest[i]
         destination = dict(x_fp=xs[j],y_fp=ys[j]) if j is not None else None

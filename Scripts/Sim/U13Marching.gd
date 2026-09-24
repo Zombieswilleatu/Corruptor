@@ -877,6 +877,7 @@ static func _move(
 		if modern and not taunted and Navigation.avoided(unit, preferred, clock): preferred = {}
 		if not preferred.is_empty(): nearest = preferred
 		var best: int = int(nearby.distance) if preferred.is_empty() else _distance(a, preferred.attributes)
+		if retreat: step = Rout.flee_step(step, clock)
 		var dx: int = int(a.direction) * step * (-1 if retreat else 1)
 		var dy: int = 0
 		var destination: Dictionary = (Fort.point(a, nearest) if modern else nearest.attributes) if not nearest.is_empty() else {}

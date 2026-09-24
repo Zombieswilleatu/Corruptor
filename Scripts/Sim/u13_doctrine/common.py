@@ -17,7 +17,7 @@ from u13_pysim.power_rules import RULES, declaration
 from u13_pysim.powers import WISHES
 from . import lords
 from .lords.odradek import ResourceHorizon, RECONFIGURATION, SAVING_GOALS
-from .lords.deimos import ArtilleryPlans, RoutPlans
+from .lords.deimos import ArtilleryPlans, RoutPlans, developing_engine, engine_progress
 from .lords.humbaba import SupportPlans
 from .lords.orias import OriasPlans
 from .lords.valak import ValakPlans
@@ -33,7 +33,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V31_OPPONENT_MEMORY'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V33_DEIMOS_ROUT85'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -71,6 +71,7 @@ def ordinary(f, category, weights):
                 term = 'Activate' if activate else 'Work'
                 value = 30 if activate else 9 if a['construction_state'] != 'active' else 3
                 if rekindle.eligible(f, row): value += 40
+                if developing_engine(f, row): value += 60
                 if a.get('repair_lock_until_round', 0) >= f.v['round'] and not activate:
                     value = 0
                 yield Proposal(category, term, dict(castle_action=dict(action=term, target_id=row['id'], card_ids=[], use_repair_token=False)),
@@ -84,6 +85,7 @@ def ordinary(f, category, weights):
                 if len(cards) == 2 and len(free) >= 2 and limit >= 2:
                     pair = dict(Penitent=15, Vulture=16, Wright=8, Butcher=9)[suit]
                     if suit == 'Wright' and any(rekindle.eligible(f,c) for c in f.castles(pid)): pair += 18
+                    if suit == 'Wright' and any(developing_engine(f,c) for c in f.castles(pid)): pair += 18
                     value = weights.guard*sum(r['attributes']['value'] for r in cards)+pair+5*f.lane_need(lane)
                     yield Proposal(category, 'Deploy', dict(guard_moves=[dict(card_id=r['id'], lane=lane, slot=slot) for r, slot in zip(cards, free)]),
                                    value, 'fresh_'+suit.lower()+'_pair', tuple(r['id'] for r in cards))
@@ -274,6 +276,9 @@ class CommonSmartCore:
         valak = ValakPlans(f, self.lord_modules)
         kroni = KroniPlans(f, self.lord_modules)
         complete = []
+        mandatory_machine = next((p for p in generated['powers']
+            if f.kind == 'Deimos' and p.term == 'WarMachine'
+            and p.reason == 'operational_extra_artillery'), None)
         omission_reserve = (min(4, self.limits.complete_plans//4)
             if any(p.term in coordination.TERMS for p in retained['powers']) else 0)
         defense_reserve = min(4, self.limits.complete_plans//4) if retained['guards'] or len(retained['work']) > 1 else 0
@@ -318,6 +323,11 @@ class CommonSmartCore:
                 return True
             for p in anchors:
                 if not add(p): return
+            # A free, legal extra artillery shot is mandatory in every bundle,
+            # including conservation and omission variants, before preview.
+            if mandatory_machine is not None:
+                add(mandatory_machine)
+                omitted = tuple(term for term in omitted if term != 'WarMachine')
             for category in priorities:
                 for p in sorted(retained[category], key=lambda p: (-p.value, key(p))):
                     if p.value > 0 and add(p): break
@@ -357,6 +367,7 @@ class CommonSmartCore:
             score += resource['score']
             defensive = defense.evaluate(plan, selected, projected)
             score += defensive['score_delta']
+            score += engine_progress(f, plan) if projected['winner'] == -1 else 0
             artillery_score = artillery.evaluate(plan)
             score += artillery_score['score_delta']
             complete.append(dict(plan=plan, score=score, selected=selected, veil_risk=risk, projected=projected,

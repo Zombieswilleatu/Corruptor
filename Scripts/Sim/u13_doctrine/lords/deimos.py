@@ -75,7 +75,7 @@ class RoutPlans:
     def report(self, chosen, alternatives):
         return dict(enabled=self.enabled, alternatives=alternatives,
                     selected=[copy_data(r) for r in chosen['coordination']['powers'] if r['power'] == 'Rout'],
-                    scope='full-speed retreat attack windows and emergency delay; no seed, special damage, enemy orders or promised pathing')
+                    scope='85%-speed retreat attack windows and emergency delay; no seed, special damage, enemy orders or promised pathing')
 
 
 def attack_value(result, weights):
@@ -206,3 +206,26 @@ class ArtilleryPlans:
             alternatives=alternatives, selected=copy_data(chosen['artillery']),
             selected_retarget=chosen.get('artillery_variant', False), hard_veto=False,
             scope='conditional own Work and locked/singleton artillery targets; enemy orders, reactions and random acquisitions unknown')
+
+
+def developing_engine(f, row):
+    """Only invest while artillery still has an enemy structure to shoot."""
+    return (f.kind == LORD and row['attributes'].get('combat_profile') == 'siege_engine'
+            and not operational(row) and any(targetable(c) for c in f.castles(f.enemy)))
+
+
+def engine_progress(f, plan):
+    """Reward actual progress to operational artillery, including fresh Wrights.
+
+    Compare with passive development without this order. No credit for selecting
+    a locked repair, surplus health above the operational floor, or empty work.
+    """
+    engines = [c for c in f.castles(f.pid) if developing_engine(f, c)]
+    if not engines: return 0
+    before, _ = development(f, dict(powers=[], order={}))
+    after, _ = development(f, plan)
+    def value(world):
+        rows = {r['id']: r for r in world['entities']['entities']}
+        return sum(8 * min(7, rows[c['id']]['attributes']['integrity'])
+                   + 50 * operational(rows[c['id']]) for c in engines)
+    return value(after)-value(before)
