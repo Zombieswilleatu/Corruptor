@@ -3,6 +3,7 @@ extends Control
 # Each collected Price remains readable until acknowledged, including multiple
 # debts falling due together. Presentation consumes only public outcome events.
 var pending: Array = []
+var seen: Dictionary = {}
 var current: Dictionary = {}
 var side_center: Vector2 = Vector2.ZERO
 var clock: float = 0.0
@@ -45,12 +46,24 @@ func present(events: Array, sides: Array) -> void:
 	for event in events:
 		if event.type not in ["KANIFOUS_PRICE_RESOLVED", "KANIFOUS_PRICE_DEFERRED"]:
 			continue
+		# Session jobs retain earlier events through Stockpile/Market choices.
+		# A later retry of a deferred debt is a NEW collection, hence the round.
+		var key: String = "%s:%s:%s:%s" % [event.data.player_id, event.data.id, event.data.round, event.type]
+		if seen.has(key):
+			continue
+		seen[key] = true
 		var row: Dictionary = event.data.duplicate(true)
 		var side = sides[1 if int(row.player_id) == 0 else 0]
 		row["center"] = get_global_transform().affine_inverse() * side.get_global_rect().get_center()
 		pending.append(row)
 	if not visible and not pending.is_empty():
 		_next()
+
+func clear() -> void:
+	pending.clear()
+	current.clear()
+	seen.clear()
+	hide()
 
 static func description(row: Dictionary) -> String:
 	var amount: int = row.get("targets", []).size()

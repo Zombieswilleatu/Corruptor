@@ -39,7 +39,7 @@ def ward(order):
 
 
 def accept(match, world, pid, order, reserve, ordinary_accept):
-    """Reserve the separate Ward first so every other payment sees fewer cards."""
+    """Keep cards in valid zones while admitting disjoint attack/Ward payments."""
     part = order['ward']
     e.require(order.get('action') in ('Hunt', 'Siege'), 'ward_requires_attack')
     e.require(type(part) is dict and part.get('action') == 'Ward'
@@ -47,11 +47,28 @@ def accept(match, world, pid, order, reserve, ordinary_accept):
     staged = world if reserve else copy_data(world)
     zones = e.zones(staged)
     e.require(e.selection(zones['hands'][pid], part['card_ids']), 'ward_cards_unavailable')
-    for identity in part['card_ids']:
-        zones['hands'][pid].remove(identity)
     attack = {k: v for k, v in order.items() if k != 'ward'}
+    # Paid Rites/Resummon validate the whole deck. Removing Ward cards before
+    # their reservation breaks that invariant; committing them early also makes
+    # ordinary combat admission think an order was already committed.
+    def references(value):
+        if type(value) is dict:
+            for key, child in value.items():
+                if key == 'card_id' and type(child) is str:
+                    yield child
+                elif key == 'card_ids' and type(child) is list:
+                    yield from (item for item in child if type(item) is str)
+                else:
+                    yield from references(child)
+        elif type(value) is list:
+            for child in value:
+                yield from references(child)
+    e.require(not set(part['card_ids']).intersection(references(attack)),
+              'ward_card_already_reserved')
     events = ordinary_accept(staged, pid, attack, reserve)
     if reserve:
+        for identity in part['card_ids']:
+            zones['hands'][pid].remove(identity)
         zones['committed'][pid].extend(part['card_ids'])
         events.append(e.sealed_event('WARD_ORDER_SEALED', dict(player_id=pid,
             round=match.clock.round, order=part), pid))

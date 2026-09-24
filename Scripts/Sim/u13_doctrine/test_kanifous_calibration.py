@@ -42,8 +42,9 @@ class CalibrationTests(unittest.TestCase):
         value=wish_value(f,'WishResurrection',dict(lane='Castle'),EMPTY)
         self.assertEqual(240,value['raw_exposure_value'])
         self.assertEqual(39,value['speculative_credit'])
-        self.assertEqual(44,value['known_loss_value'])
-        self.assertEqual(83,value['benefit'])
+        # Current Lemek profile restores material value 54, not the old 44.
+        self.assertEqual(54,value['known_loss_value'])
+        self.assertEqual(93,value['benefit'])
         self.assertEqual(['lost'],value['known_losses'])
 
     def test_wealth_shortage_bonus_is_bounded_after_commitments(self):

@@ -62,6 +62,22 @@ class SplitWardTests(unittest.TestCase):
                 plan=dict(powers=[], order=altered)))['action'], altered)
             self.assertEqual(before, game.snapshot())
 
+    def test_split_ward_resummon_preserves_card_zones_and_preview(self):
+        from u13_pysim import paid_development as paid
+        game, order = self.fixture()
+        world = game._state['world']
+        lord = e.entity(world, world['players'][0]['lord_entity_id'])
+        lord['attributes'].update(alive=False, lord_id='Kanifous')
+        order['summon'] = dict(card_ids=[])
+        self.assertEqual('legal', paid.summon_quote(world, 0, [])['action'])
+        before = game.snapshot()
+        self.assertEqual('legal', Preview(game, 0)(dict(powers=[], order=order))['action'])
+        self.assertEqual(before, game.snapshot())
+        game._accept_order(world, 0, order)
+        self.assertTrue(e.cards_valid(world))
+        self.assertEqual(set(order['card_ids'] + order['ward']['card_ids']),
+                         set(e.zones(world)['committed'][0]))
+
     def test_split_recruitment_unique_ids_no_sigils_and_only_attack_monster(self):
         game, order = self.fixture()
         f = Facts(observe(game, 0))

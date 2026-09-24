@@ -105,6 +105,24 @@ func _run() -> void:
 		var price_state: Dictionary = board.session.checkpoint()
 		board.price_visual._next()
 		_check(not board.price_visual.visible and board.session.checkpoint() == price_state, "acknowledging Price changes no game state")
+		board.price_visual.present(board.session.kanifous_events, board.sides)
+		_check(not board.price_visual.visible, "retained session events do not reopen acknowledged Price")
+		board.price_visual.clear()
+		var debt: Dictionary = {"type": "KANIFOUS_PRICE_DEFERRED", "data": {"id": "test-debt", "player_id": 0, "round": 1, "outcome": "Deferred", "due_round": 2}}
+		var other_debt: Dictionary = debt.duplicate(true)
+		other_debt.data.id = "other-debt"
+		board.price_visual.present([debt, debt, other_debt], board.sides)
+		_check(board.price_visual.pending.size() == 1, "duplicate suppressed but distinct same-round debts retained")
+		board.price_visual._next()
+		board.price_visual._next()
+		debt.data.round = 2
+		debt.data.due_round = 3
+		board.price_visual.present([debt], board.sides)
+		_check(board.price_visual.visible, "deferred debt retry in a new round remains visible")
+		board.price_visual.clear()
+		board.price_visual.present([debt], board.sides)
+		_check(board.price_visual.visible, "new match clears presentation history")
+		board.price_visual.clear()
 		_check(board.wish_visual.lamp_texture != null, "provided lamp art loaded")
 		var before: Dictionary = board.session.checkpoint()
 		var obscured: Dictionary = board.session.board_view()

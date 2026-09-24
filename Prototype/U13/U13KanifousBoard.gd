@@ -61,7 +61,7 @@ func _build() -> void:
 
 func _wish_targets() -> void:
 	wish_castles = _visible_world.get("entities", []).filter(func(row): return Kanifous.longevity_target(row, 0))
-	wish_note.text = ["Spawn 1–3 random-suit Marchers: 70% one, 25% two, 5% three.", "Repair an active Castle up to 8 Integrity (or its maximum if lower). Castles already at or above that cannot be targeted. Protected construction and Ruined/Profaned Castles cannot be targeted.", "Choose a battlefield lane. After Marching, revive your Marchers killed there this round at full HP and Armor near where they fell. They advance next round. Guard cards and prior-round losses are excluded.", "Choose a small circle on the field. Destroy every Marcher inside, friend or enemy.", "Draw 1–3 cards: 20% one, 50% two, 30% three."][wish_choice.selected] + "\nSuccess creates a hidden Price due in 1–3 rounds."
+	wish_note.text = ["Spawn 1–3 random-suit Marchers: 25% one, 50% two, 25% three.", "Repair an active Castle up to 8 Integrity (or its maximum if lower). Castles already at or above that cannot be targeted. Protected construction and Ruined/Profaned Castles cannot be targeted.", "Choose a battlefield lane. After Marching, revive your Marchers killed there this round at full HP and Armor near where they fell. They advance next round. Guard cards and prior-round losses are excluded.", "Choose a small circle on the field. Destroy every Marcher inside, friend or enemy.", "Draw 1–3 cards: 20% one, 50% two, 30% three."][wish_choice.selected] + "\nSuccess creates a hidden Price due in 1–3 rounds."
 
 func _update_direct_ui() -> void:
 	super._update_direct_ui()
@@ -199,6 +199,8 @@ func finish_playback(skip: bool = true) -> void:
 		wish_visual.bind_world(session.board_view().world)
 
 func _reset_direct() -> void:
+	if price_visual != null:
+		price_visual.clear()
 	if death_wish_visual != null:
 		death_wish_visual.clear()
 	if wish_placement != null:
