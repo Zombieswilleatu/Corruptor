@@ -5,7 +5,7 @@ const COLOR = Color("c6b3f5")
 
 static func active(unit: Dictionary) -> bool:
 	var a: Dictionary = unit.get("attributes", {})
-	return Shroud.active(a) and a.get("visual_shrouded", true) and int(a.get("hp", 0)) > 0 and not a.get("hidden", false)
+	return Shroud.active(a) and a.get("visual_shrouded", true) and a.get("hp", 0) > 0 and not a.get("hidden", false)
 
 static func draw(view: Control, unit: Dictionary, center: Vector2, height: float, ceiling: float) -> void:
 	if not active(unit): return

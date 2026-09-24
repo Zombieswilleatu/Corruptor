@@ -11,7 +11,7 @@ from . import lords
 
 VERSION = 'U13_POWER_COORDINATION_V12_ODRADEK_FIELD'
 TERMS = frozenset(('GravityOrb', 'Projection', 'Consume', 'Ravenous', 'Redirect', 'FalseOrders', 'AllegianceShift', 'Inversion', 'Inferno', 'Pyroclasm', 'BreathOfLife', 'Rout', 'Web', 'Snare', 'InevitableRuin'))
-TERMS = TERMS | frozenset(('WishWealth','WishLongevity','WishDeath','WishResurrection','WishPower'))
+TERMS = TERMS | frozenset(('PredatorOfRuin', 'WishWealth','WishLongevity','WishDeath','WishResurrection','WishPower'))
 
 
 def context(f, plan):

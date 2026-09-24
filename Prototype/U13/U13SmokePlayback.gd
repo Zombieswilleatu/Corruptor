@@ -59,12 +59,12 @@ func build(events: Array) -> bool:
 	for event in events:
 		if event.type == "MONSTER_BANISHED": _banished_ids[event.data.unit.id] = true
 		if event.type == "MARCHER_DEFEATED" and event.data.has("hp_after"):
-			_terminal[event.data.victim.id] = int(event.data.victim.attributes.armor)
+			_terminal[event.data.victim.id] = event.data.victim.attributes.armor
 		if event.type == "MARCHER_CLASH" and not event.data.exchanges.is_empty():
 			var ending: Dictionary = event.data.exchanges.back()
 			for fighter in range(event.data.units.size()):
-				if int(ending.hp[fighter]) == 0:
-					_terminal[event.data.units[fighter].id] = int(ending.armor[fighter])
+				if ending.hp[fighter] == 0:
+					_terminal[event.data.units[fighter].id] = ending.armor[fighter]
 		if event.type == "MARCHING_STARTED":
 			started = event.data
 		elif event.type == "MARCHING_FINISHED":
@@ -184,7 +184,7 @@ func sample(seconds: float) -> Dictionary:
 	# The returned echo is saved unit state, so it survives pauses, new rounds
 	# and reloads, and disappears on the exact frame that spends the charge.
 	for unit in result:
-		if unit.attributes.get("muno_ward", false) and int(unit.attributes.hp) > 0 and not attacks.any(func(a): return a.ability == "MunoDash" and a.source_id == unit.id):
+		if unit.attributes.get("muno_ward", false) and unit.attributes.hp > 0 and not attacks.any(func(a): return a.ability == "MunoDash" and a.source_id == unit.id):
 			attacks.append({"ability": "MunoAfterimage", "source": unit.attributes, "target": unit.attributes, "source_id": unit.id, "target_id": unit.id, "source_owner": unit.owner, "target_owner": unit.owner})
 	# Charging is recorded unit state, so death, loss of targets, pause, and
 	# cross-round continuation all follow the same authoritative timeline.
@@ -194,7 +194,7 @@ func sample(seconds: float) -> Dictionary:
 			var a: Dictionary = unit.attributes
 			var ready: int = int(a.get("beam_ready_tick", 0))
 			var start: int = int(a.get("beam_charge_tick", 0))
-			if ready <= start or int(a.hp) <= 0: continue
+			if ready <= start or a.hp <= 0: continue
 			attacks.append({"ability": "BeamCharge", "source": a, "target": a, "source_id": unit.id, "source_owner": unit.owner, "weight": clampf((clock - float(start)) / float(ready - start), 0.0, 1.0)})
 	return {"units": result, "caption": left.caption, "clash": left.clash.duplicate(), "projectiles": projectiles, "monster_fields": fields, "monster_attacks": attacks, "banished_ids": _banished_ids.keys(), "field_structures": left.get("field_structures", []).duplicate(true)}
 
@@ -212,21 +212,21 @@ func _append(units: Dictionary, caption: String, clash: Array, expired_armor: Di
 		var before: Dictionary = _previous_units[entity_id]
 		var after: Dictionary = units.get(entity_id, {})
 		if _banished_ids.has(entity_id) and after.is_empty(): continue
-		if (after.is_empty() or int(after.attributes.hp) <= 0) and not _death_ids.has(entity_id):
+		if (after.is_empty() or after.attributes.hp <= 0) and not _death_ids.has(entity_id):
 			_death_ids[entity_id] = true
 			death_rows.append({"at": duration, "unit": (before if after.is_empty() else after).duplicate(true)})
-		var hp: int = int(before.attributes.hp)
-		var armor: int = int(before.attributes.armor)
+		var hp = before.attributes.hp
+		var armor = before.attributes.armor
 		if not after.is_empty():
-			hp = int(after.attributes.hp)
-			armor = int(after.attributes.armor)
+			hp = after.attributes.hp
+			armor = after.attributes.armor
 		elif _terminal.has(entity_id):
 			hp = 0
-			armor = int(_terminal[entity_id])
-		var hp_delta: int = hp - int(before.attributes.hp)
+			armor = _terminal[entity_id]
+		var hp_delta = hp - before.attributes.hp
 		# Expiring temporary Armor is not a hit. Preserve genuine damage in
 		# the same tick, including packets that consumed some of that Armor.
-		var armor_delta: int = armor - int(before.attributes.armor) + int(expired_armor.get(entity_id, 0))
+		var armor_delta = armor - before.attributes.armor + int(expired_armor.get(entity_id, 0))
 		if hp_delta != 0 or armor_delta != 0:
 			feedback_rows.append(
 				Feedback.row(

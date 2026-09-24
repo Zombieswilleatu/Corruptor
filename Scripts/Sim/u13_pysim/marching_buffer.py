@@ -1,5 +1,6 @@
 """Marcher-column adapter for the rare actor mutations and lamp spawns."""
 from .copying import copy_data
+from . import embolden
 from .marching_columns import Columns, FIELDS
 from .recruitment import create
 
@@ -19,6 +20,9 @@ class Buffer:
     def update(self,key,owner,a):
         s=self.phase.s;i=s.live(key)
         if i is None:raise ValueError('Marcher missing')
+        if '_embolden_percent' in a:
+            for field in embolden.FIELDS:
+                if field in a:a[field]=embolden.number(float(a[field]))
         s.owner[i]=owner
         for field in FIELDS:getattr(s,field)[i]=a.get(field)
         s.extra[i]=copy_data({k:v for k,v in a.items() if k not in FIELDS}) or None

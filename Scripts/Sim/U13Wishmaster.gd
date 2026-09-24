@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Embolden = preload("res://Scripts/Sim/U13Embolden.gd")
+
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
 const Ids = preload("res://Scripts/Sim/U13EntityIds.gd")
@@ -77,7 +79,7 @@ static func contact_time(a: Dictionary, b: Dictionary, point: Dictionary) -> flo
 	var t: float = (-dot - sqrt(discriminant)) / length
 	return t if t >= 0 and t <= 1 else -1.0
 
-static func claim(rows: Array, entities, before: Array, seed_value: String, round_number: int, tick: int) -> Array:
+static func claim(rows: Array, entities, before: Array, seed_value: String, round_number: int, tick: int, modern_rules: bool = false) -> Array:
 	var events: Array = []
 	var candidates: Array = []
 	for row in rows:
@@ -113,13 +115,13 @@ static func claim(rows: Array, entities, before: Array, seed_value: String, roun
 				unit.attributes["ghost_wishes"] = 2
 			"Wright":
 				var marching = load("res://Scripts/Sim/U13Marching.gd")
-				var a: Dictionary = marching.profile("Wright", unit.attributes.lane, unit.owner, round_number, round_number)
+				var a: Dictionary = marching.profile("Wright", unit.attributes.lane, unit.owner, round_number, round_number, modern_rules)
 				a.x_fp = unit.attributes.x_fp
 				a.y_fp = unit.attributes.y_fp
 				var spawn_ids = Ids.new()
 				spawn_ids.restore(entities.snapshot())
 				var clone: Dictionary = spawn_ids.create("marcher", lamp.id, 0, unit.owner, a)
-				marching.place_near_spawn(spawn_ids, clone.entity.id, a)
+				marching.place_near_spawn(spawn_ids, clone.entity.id, a, modern_rules)
 				clone.entity = spawn_ids.get_entity(clone.entity.id)
 				entities.restore(spawn_ids.snapshot())
 				events.append(event("WISHMASTER_WRIGHT_CREATED", {"lamp_id": lamp.id, "unit": clone.entity, "round": round_number, "tick": tick}))
@@ -155,10 +157,10 @@ static func bypass(entities, round_number: int, tick: int) -> Array:
 				break
 	return events
 
-static func attack_amount(a: Dictionary) -> int:
+static func attack_amount(a: Dictionary):
 	var multiplier: int = 2 if a.get("blood_wish", false) else 1
 	a.erase("blood_wish")
-	return int(a.attack) * multiplier
+	return a.attack * multiplier
 
 static func record_loss(world: Dictionary, unit: Dictionary) -> void:
 	if unit.get("kind") == "marcher" and not world.data.kanifous_losses.any(func(row): return row.id == unit.id):

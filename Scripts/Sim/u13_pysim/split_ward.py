@@ -6,7 +6,7 @@ old serializers; they have no effect in this ruleset.
 """
 from copy import copy
 
-from . import economy as e
+from . import economy as e, ward_conversion
 from .copying import copy_data
 
 VERSION = 'U13_SPLIT_WARD_V1'
@@ -125,5 +125,6 @@ events/resources are discarded. A successful Siege means its target destroyed
         rules.w['players'][1-pid]['resources']['souls'] += 1
         events.append(e.event('WARD_SOUL_GAINED', dict(player_id=1-pid,
             round=rules.number, lane=order['lane'], amount=1)))
+    if saved: events.extend(ward_conversion.convert(rules.w,pid,order,rules.number,rules.seed))
     reward_breakthrough(rules, pid, events)
     return events

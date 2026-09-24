@@ -1,6 +1,8 @@
 class_name U13Marching
 extends RefCounted
 
+const Embolden = preload("res://Scripts/Sim/U13Embolden.gd")
+
 const Charge = preload("res://Scripts/Sim/U13TumlerCharge.gd")
 const Incoming = preload("res://Scripts/Sim/U13IncomingDamage.gd")
 
@@ -108,10 +110,10 @@ static func valid(world: Dictionary) -> bool:
 			"direction",
 			"waiting_since_round"
 		]:
-			if not Data.is_integer(a.get(field)):
+			if not (Embolden.numeric(a.get(field)) if Embolden.enabled(world) and field in Embolden.FIELDS else Data.is_integer(a.get(field))):
 				return false
 		if (
-			a.hp < 1
+			a.hp <= 0
 			or a.hp > a.max_hp
 			or a.max_hp > 1000000
 			or a.attack < 1
@@ -162,14 +164,14 @@ static func regenerate(context: Dictionary) -> Dictionary:
 	for unit in world.entities.entities:
 		if unit.kind != "marcher" or unit.attributes.waiting:
 			continue
-		var before: int = unit.attributes.hp
+		var before = unit.attributes.hp
 		var bonus: int = (
 			0
 			if modifiers.is_empty()
 			else int(modifiers[unit.attributes.lane][unit.owner].regen_bonus)
 		)
-		unit.attributes.hp = mini(
-			unit.attributes.max_hp, before + int(unit.attributes.regen) + bonus
+		unit.attributes.hp = min(
+			unit.attributes.max_hp, before + unit.attributes.regen + bonus
 		)
 		entities.update(unit.id, unit.owner, unit.attributes)
 		if unit.attributes.hp != before:
@@ -272,6 +274,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 		events.append(public_event("KRONI_ACTORS_STARTED", {"round": context.round, "actors": kroni_actors.duplicate(true)}))
 	var has_monsters: bool = Monsters.enabled(world) and (not world.data.monsters.fields.is_empty() or not world.data.monsters.pending_beams.is_empty() or _units(entities).any(func(u): return u.attributes.has("monster_id") or u.attributes.has("poison_until_round") or int(u.attributes.get("poison_ticks_left", 0)) > 0))
 	for tick in range(tick_offset, tick_offset + ticks):
+		Embolden.refresh_phase(world, entities, context.round)
 		var tick_events_start: int = events.size()
 		var lamp_before: Array = _units(entities) if not lamp_objects.is_empty() else []
 		if has_wishes:
@@ -327,7 +330,7 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 					events.append_array(reacted.events)
 				if entities.restore(world.entities).action == "invalid": return Data.invalid("gravity_entities_invalid")
 		if not lamp_objects.is_empty():
-			events.append_array(Wishmaster.claim(lamp_objects, entities, lamp_before, context.seed, context.round, tick))
+			events.append_array(Wishmaster.claim(lamp_objects, entities, lamp_before, context.seed, context.round, tick, Embolden.enabled(world)))
 		if has_wishes:
 			events.append_array(Wishmaster.bypass(entities, context.round, tick))
 		if has_retreat or not gravity_orbs.is_empty() or has_wishes:
@@ -377,10 +380,10 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			var duel: Dictionary = duels[lane]
 			var left: Dictionary = entities.get_entity(duel.units[0].id)
 			var right: Dictionary = entities.get_entity(duel.units[1].id)
-			var damage_to_left: int = _attack(
+			var damage_to_left = _attack(
 				left.attributes, 0 if right.attributes.get("sprite_form") == "turret" else Wishmaster.attack_amount(right.attributes), right.attributes.armor_bypass, clock
 			)
-			var damage_to_right: int = _attack(
+			var damage_to_right = _attack(
 				right.attributes, 0 if left.attributes.get("sprite_form") == "turret" else Wishmaster.attack_amount(left.attributes), left.attributes.armor_bypass, clock
 			)
 			duel.exchanges.append(
@@ -840,6 +843,9 @@ static func _move(
 		if Veil.applies_to(context.get("gravitational_collapse", false), unit.owner):
 			var percent: int = 0 if lane_modifiers.is_empty() else int(lane_modifiers[a.lane][unit.owner].speed_percent)
 			step = LaneAuras.speed(int(a.step_fp), percent, has_rout and Rout.recovering(a, int(context.round)), clock, not spatial_fields.is_empty() and SpatialFields.slowed(spatial_fields, unit.owner, a), true)
+		if int(a.get("_embolden_percent", 0)) > 0:
+			var percent: int = 0 if lane_modifiers.is_empty() else int(lane_modifiers[a.lane][unit.owner].speed_percent)
+			step = LaneAuras.speed(int(a.step_fp), percent, has_rout and Rout.recovering(a, int(context.round)), clock, not spatial_fields.is_empty() and SpatialFields.slowed(spatial_fields, unit.owner, a), Veil.applies_to(context.get("gravitational_collapse", false), unit.owner), int(a._embolden_percent))
 		if MonsterEffects.slowed(a, context.get("monster_fields", [])):
 			step = (step >> 1) + (step & 1) * (clock & 1)
 		if not retreat and (Fort.in_melee(unit, nearby.unit) if modern else int(nearby.distance) <= CONTACT_FP * CONTACT_FP):
@@ -1094,7 +1100,7 @@ static func _valid_duels(world: Dictionary) -> bool:
 			if Ids.identity("marcher", unit.origin, int(unit.ordinal)) != unit.id:
 				return false
 			var single: Dictionary = {
-				"entities": {"entities": [unit]}, "data": {"rout_profile": Rout.VERSION}
+				"entities": {"entities": [unit]}, "data": {"rout_profile": Rout.VERSION, "embolden_experiment": world.data.get("embolden_experiment", 0)}
 			}
 			if not valid(single):
 				return false
@@ -1115,18 +1121,18 @@ static func _valid_duels(world: Dictionary) -> bool:
 				if typeof(exchange.get(key)) != TYPE_ARRAY or exchange[key].size() != 2:
 					return false
 				for value in exchange[key]:
-					if not Data.is_integer(value) or value < 0:
+					if not Embolden.numeric(value) or value < 0:
 						return false
 	return true
 
 
-static func _attack(target: Dictionary, amount: int, bypass: bool, clock: int = 0) -> int:
-	var remaining: int = Incoming.apply(target, amount, clock, true)
+static func _attack(target: Dictionary, amount, bypass: bool, clock: int = 0):
+	var remaining = Incoming.apply(target, amount, clock, true)
 	if not bypass:
-		var absorbed: int = mini(int(target.armor), remaining)
+		var absorbed = min(target.armor, remaining)
 		target.armor -= absorbed
 		remaining -= absorbed
-	target.hp = maxi(0, int(target.hp) - remaining)
+	target.hp = max(0, Embolden.clean(target.hp - remaining))
 	# Resolved HP damage, after Armor and before overkill clamping.
 	return remaining
 
@@ -1137,13 +1143,14 @@ static func public_event(kind: String, details: Dictionary) -> Dictionary:
 
 
 # Shared local-spawn placement for effects that create a fresh unit in the field.
-static func place_near_spawn(entities, id: String, origin: Dictionary) -> void:
+static func place_near_spawn(entities, id: String, origin: Dictionary, strict_space: bool = false) -> void:
 	var unit: Dictionary = entities.get_entity(id)
 	for offset in [Vector2i(0, 84), Vector2i(0, -84), Vector2i(84, 0), Vector2i(-84, 0), Vector2i(84, 84), Vector2i(-84, -84)]:
 		var a: Dictionary = unit.attributes.duplicate(true)
 		a.x_fp = clampi(int(origin.x_fp) + offset.x, 0, LANE_FP)
 		a.y_fp = clampi(int(origin.y_fp) + offset.y, 0, WIDTH_FP)
-		if _space_free(unit, a, _units(entities)):
+		var free: bool = not _units(entities).any(func(other): return other.id != id and other.owner == unit.owner and other.attributes.lane == a.lane and _distance(a, other.attributes) < CENTER_GAP_FP * CENTER_GAP_FP) if strict_space else _space_free(unit, a, _units(entities))
+		if free:
 			entities.update(id, unit.owner, a)
 			return
 	# Fully packed neighborhoods retain the valid origin; normal movement separates them.

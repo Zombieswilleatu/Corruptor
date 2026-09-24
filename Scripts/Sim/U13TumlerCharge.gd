@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Embolden = preload("res://Scripts/Sim/U13Embolden.gd")
+
 # Fixed-point combat movement shared by the lane runner and the live game.
 const Rules = preload("res://Scripts/Sim/U13MonsterRules.gd")
 const Fort = preload("res://Scripts/Sim/U13FieldFortifications.gd")
@@ -13,7 +15,7 @@ static func rank_target(unit: Dictionary) -> int:
 	return ["Sooge", "Kopita", "Fyra", "Vulture"].find(unit.attributes.get("monster_id", unit.attributes.suit)) if unit.attributes.get("monster_id", unit.attributes.suit) in ["Sooge", "Kopita", "Fyra", "Vulture"] else 4
 
 static func legal(unit: Dictionary, target: Dictionary) -> bool:
-	return not target.is_empty() and target.kind == "marcher" and target.owner != unit.owner and target.attributes.lane == unit.attributes.lane and int(target.attributes.hp) > 0 and Shroud.targetable(target.attributes)
+	return not target.is_empty() and target.kind == "marcher" and target.owner != unit.owner and target.attributes.lane == unit.attributes.lane and target.attributes.hp > 0 and Shroud.targetable(target.attributes)
 
 static func engaged_target(unit: Dictionary, rows: Array) -> Dictionary:
 	var a: Dictionary = unit.attributes
@@ -56,7 +58,7 @@ static func finish(unit: Dictionary, context: Dictionary, tick: int, reason: Str
 	# Damage already consumes the combined Armor pool through the ordinary
 	# combat paths. Temporary Armor is the top five points, spent first. Clamp
 	# to the pre-charge remainder; never subtract five from permanent Armor.
-	var removed: int = maxi(0, int(a.armor) - int(a.get("tumler_charge_base_armor", a.armor)))
+	var removed = max(0, a.armor - a.get("tumler_charge_base_armor", a.armor))
 	a.armor -= removed
 	var result: Dictionary = fact("MONSTER_CHARGE_ENDED", unit, context, tick, {"reason": reason, "armor_removed": removed})
 	if reason == "target":
@@ -113,7 +115,7 @@ static func advance(unit: Dictionary, target: Dictionary, entities, structures: 
 	# Sweep the entire movement segment. Stop at the first melee footprint;
 	# a diagonal or vertical charge must not pass through the target or wall.
 	if reason.is_empty() and scale > 0:
-		for offset in range(1, mini(scale, int(Rules.TUNING.tumler_charge_step_fp)) + 1):
+		for offset in range(1, mini(scale, preload("res://Scripts/Sim/U13LaneAuras.gd").speed(int(Rules.TUNING.tumler_charge_step_fp), 0, false, int(context.round) * 200 + tick, false, false, int(a.get("_embolden_percent", 0)))) + 1):
 			var candidate: Dictionary = {"x_fp": int(a.x_fp) + int(float(dx * offset) / scale), "y_fp": int(a.y_fp) + int(float(dy * offset) / scale)}
 			if Fort.blocked_step(unit, candidate, structures): reason = "wall"; break
 			p = candidate
@@ -174,7 +176,7 @@ static func step(entities, structures: Array, context: Dictionary, tick: int, fl
 				a["tumler_charge_owner"] = unit.owner
 				a["tumler_charge_goal_x_fp"] = int(target.attributes.x_fp)
 				a["tumler_charge_goal_y_fp"] = int(target.attributes.y_fp)
-				a["tumler_charge_base_armor"] = int(a.armor)
+				a["tumler_charge_base_armor"] = a.armor
 				a.armor += int(Rules.TUNING.tumler_charge_armor)
 				a["tumler_charge_ready_tick"] = clock + int(Rules.TUNING.tumler_charge_windup_ticks)
 				a["tumler_charge_end_tick"] = int(a.tumler_charge_ready_tick) + int(Rules.TUNING.tumler_charge_max_ticks)

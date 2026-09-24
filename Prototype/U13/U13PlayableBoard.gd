@@ -270,6 +270,8 @@ func _refresh(presented: Dictionary = {}) -> void:
 	clear_ward_button.disabled = not _planning() or powers_step
 	ward_note.visible = split
 	ward_note.text = "Ward %s reserved · %d cards. Hunt or Siege can use the remaining hand." % [ward_plan.lane, ward_plan.card_ids.size()] if not ward_plan.is_empty() else "Optional: reserve one paid Ward, then Hunt or Siege. No Sigils. A Ward that prevents a successful attack earns 1 Soul (once per round)."
+	if w.has("defensive_pressure_profile"):
+		ward_note.text += " A successful Ward also converts the attack’s surviving regular recruits; monsters stay with their owner."
 	if not ward_plan.is_empty(): plan_label.text += "\nWard %s · %d cards reserved" % [ward_plan.lane, ward_plan.card_ids.size()]
 	if staging_round != session.round_number():
 		staging_ids = {}

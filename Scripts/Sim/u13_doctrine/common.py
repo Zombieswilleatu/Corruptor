@@ -1,3 +1,4 @@
+from . import rekindle
 """Fresh bounded U13 planning alpha. Integer weights are injected, never tuned here.
 
 Generate a small set of category proposals, then assemble fixed priority bundles.
@@ -69,6 +70,7 @@ def ordinary(f, category, weights):
             if activate or eligible(f.world, pid, row):
                 term = 'Activate' if activate else 'Work'
                 value = 30 if activate else 9 if a['construction_state'] != 'active' else 3
+                if rekindle.eligible(f, row): value += 40
                 if a.get('repair_lock_until_round', 0) >= f.v['round'] and not activate:
                     value = 0
                 yield Proposal(category, term, dict(castle_action=dict(action=term, target_id=row['id'], card_ids=[], use_repair_token=False)),
@@ -81,6 +83,7 @@ def ordinary(f, category, weights):
                 cards = [r for r in f.hand if r['attributes']['suit'] == suit][:2]
                 if len(cards) == 2 and len(free) >= 2 and limit >= 2:
                     pair = dict(Penitent=15, Vulture=16, Wright=8, Butcher=9)[suit]
+                    if suit == 'Wright' and any(rekindle.eligible(f,c) for c in f.castles(pid)): pair += 18
                     value = weights.guard*sum(r['attributes']['value'] for r in cards)+pair+5*f.lane_need(lane)
                     yield Proposal(category, 'Deploy', dict(guard_moves=[dict(card_id=r['id'], lane=lane, slot=slot) for r, slot in zip(cards, free)]),
                                    value, 'fresh_'+suit.lower()+'_pair', tuple(r['id'] for r in cards))

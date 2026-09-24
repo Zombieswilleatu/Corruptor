@@ -191,18 +191,18 @@ static func _breath(record: Dictionary, context: Dictionary) -> Dictionary:
 	var source: Dictionary = record.declaration
 	var effect_id: String = Data.instance_id("persistent", source.declaration_id, source.power_id)
 	var healed: Array = []
-	var healing: int = 0
+	var healing = 0
 	for unit in world.entities.entities:
 		if (unit.kind != "marcher" or unit.owner != source.player_id
 			or unit.attributes.lane != source.target.lane or unit.attributes.waiting):
 			continue
-		var before: int = unit.attributes.hp
+		var before = unit.attributes.hp
 		if before <= 0 or before >= unit.attributes.max_hp:
 			continue
-		unit.attributes.hp = mini(unit.attributes.max_hp, before + int(rules()[BREATH].activation_heal))
+		unit.attributes.hp = min(unit.attributes.max_hp, before + int(rules()[BREATH].activation_heal))
 		entities.update(unit.id, unit.owner, unit.attributes)
 		healed.append(unit.id)
-		healing += int(unit.attributes.hp) - before
+		healing += unit.attributes.hp - before
 		result.events.append({"type": "MARCHER_REGENERATED", "text": "", "data": {
 			"entity_id": unit.id, "before": before, "after": unit.attributes.hp,
 			"round": context.round, "hook": record.fire_hook, "source": BREATH, "effect_id": effect_id}})

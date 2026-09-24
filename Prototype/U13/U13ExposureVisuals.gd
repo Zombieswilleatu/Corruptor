@@ -4,7 +4,7 @@ const COLOR = Color("e4a275")
 
 static func active(unit: Dictionary) -> bool:
 	var a: Dictionary = unit.get("attributes", {})
-	return int(a.get("dotra_exposed_until_tick", 0)) > 0 and a.get("visual_exposed", true) and int(a.get("hp", 0)) > 0 and not a.get("hidden", false)
+	return int(a.get("dotra_exposed_until_tick", 0)) > 0 and a.get("visual_exposed", true) and a.get("hp", 0) > 0 and not a.get("hidden", false)
 
 static func draw(view: Control, unit: Dictionary, center: Vector2, height: float, ceiling: float) -> void:
 	if not active(unit): return

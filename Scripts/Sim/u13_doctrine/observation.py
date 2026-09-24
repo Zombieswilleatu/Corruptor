@@ -16,10 +16,13 @@ def observe(match, seat):
     # simulation seed, raw event history, RNG or future random outcomes.
     data = {k: d[k] for k in ('neutral_tears', 'breach_lord', 'sigils', 'guard_public_limits',
                               'orias_marks', 'kanifous_prices', 'kanifous_losses')}
+    for key in ('defensive_pressure_profile','embolden_experiment','embolden_ramp_experiment','embolden_guard_history','ward_conversion_experiment'):
+        if key in d:data[key]=d[key]
     if 'ward_experiment' in d:
         data['ward_experiment'] = d['ward_experiment']
     if 'tempo_experiment' in d:
         data['tempo_experiment'] = d['tempo_experiment']
+    data['rekindle_defunct_ids'] = d.get('rekindle_defunct_ids', [])
     data['veil_breaches'] = d.get('veil_breaches', {})
     data['monsters'] = d.get('monsters', {})
     if 'game_staging' in d:

@@ -13,7 +13,7 @@ var _owner
 
 # Owns setup, round advancement and terminal outcomes. Permanent Veil arrivals
 # resolve at round start; automatic neutral pressure starts after round 12.
-func start(seed_value: String, lords: Array, castles: Array, compact_events: bool = false, promoted_rules: bool = false) -> Dictionary:
+func start(seed_value: String, lords: Array, castles: Array, compact_events: bool = false, promoted_rules: bool = false, defensive_pressure: bool = true) -> Dictionary:
 	if _owner != null:
 		return Data.invalid("game_already_started")
 	if lords.size() != 2 or castles.size() != 2:
@@ -28,7 +28,9 @@ func start(seed_value: String, lords: Array, castles: Array, compact_events: boo
 	if opening.action == "invalid":
 		return opening
 	Content.Staging.configure(opening.world)
-	if promoted_rules: Content.SplitWard.configure(opening.world)
+	if promoted_rules:
+		Content.SplitWard.configure(opening.world)
+		if defensive_pressure: preload("res://Scripts/Sim/U13Embolden.gd").configure(opening.world)
 	var candidate = Content.new().create_combat_match(compact_events)
 	var result: Dictionary = candidate.start(seed_value, opening.world, [0, 1])
 	if result.action != "invalid":

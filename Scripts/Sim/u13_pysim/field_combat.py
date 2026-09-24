@@ -1,5 +1,6 @@
 """Independent simultaneous melee and fortification-aware ranged attacks."""
 from . import dotra_shroud as shroud
+from . import embolden
 from . import incoming_damage as incoming
 from . import field_fortifications as fort, monster_effects, penitent_defense, marching_spatial
 from .copying import copy_data
@@ -88,7 +89,7 @@ def melee(phase, tick, fleeing):
                     phase.events.extend(monster_effects.intercept(target, shot['attacker'], live_rows, ctx, tick, fort.rows(phase.w)))
                 absorbed = 0 if shot['attacker']['attributes']['armor_bypass'] else min(a['armor'], amount)
                 a['armor'] -= absorbed; dealt = amount-absorbed
-                a['hp'] = max(0, a['hp']-dealt); hp_after = a['hp']
+                a['hp'] = max(0, embolden.clean_damage(a['hp']-dealt,a)); hp_after = a['hp']
                 a['movement_ready_round'] = min(a['movement_ready_round'], number)
                 if not a['hp']:
                     buffer.retire_id(target['id'])
@@ -162,7 +163,7 @@ def volley(phase, duels, tick, fleeing):
                 amount = 0 if blocked or evaded else incoming.apply(a, shot['amount'], clock, regular=True, round_number=phase.number); absorbed = min(a['armor'], amount)
                 warded = had_ward and not a.get('muno_ward', False)
                 a['armor'] -= absorbed; dealt = amount-absorbed
-                a['hp'] = max(0, a['hp']-dealt); hp_after = a['hp']
+                a['hp'] = max(0, embolden.clean_damage(a['hp']-dealt,a)); hp_after = a['hp']
                 if not a['hp']:
                     buffer.retire_id(target['id'])
                     deaths.append(dict(attacker=shot['attacker'], victim=copy_data(target), damage_dealt=dealt, hp_after=0))

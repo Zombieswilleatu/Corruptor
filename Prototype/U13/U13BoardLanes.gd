@@ -152,8 +152,10 @@ func _get_tooltip(at: Vector2) -> String:
 		var area := Rect2(center - Vector2(24, height if uses_sprite(unit) else height * 0.5), Vector2(48, height + 12))
 		if area.has_point(at):
 			var unit_name: String = unit.attributes.get("monster_id", unit.attributes.suit)
-			var hp: String = "Obscured" if void_active else "%d/%d" % [unit.attributes.hp, unit.attributes.max_hp]
-			var description: String = "%s · %s\nHP %s · Armor %d" % [unit_name, "Yours" if unit.owner == 0 else "Enemy", hp, unit.attributes.armor]
+			var hp: String = "Obscured" if void_active else "%s/%s" % [snappedf(unit.attributes.hp, 0.01), snappedf(unit.attributes.max_hp, 0.01)]
+			var description: String = "%s · %s\nHP %s · Armor %s" % [unit_name, "Yours" if unit.owner == 0 else "Enemy", hp, unit.attributes.armor]
+			if int(unit.attributes.get("_embolden_percent", 0)) > 0:
+				description += "\nEMBOLDENED +%d%% · Enemy Guard slots left empty for a full round. Boosts HP, attack, armor, regeneration and speed." % int(unit.attributes._embolden_percent)
 			if ExposureVisuals.active(unit):
 				description += "\nEXPOSED · takes +1 damage per hit before Armor. Refreshes; does not stack."
 			if ShroudVisuals.active(unit):
@@ -173,7 +175,7 @@ func _get_tooltip(at: Vector2) -> String:
 			if unit_name == "Tumler":
 				description += "\n" + MonsterRules.ROSTER.Tumler.ability
 				if unit.attributes.get("tumler_charge_phase", "") in ["windup", "charge"]:
-					description += "\n%s · Temporary Armor remaining: %d" % ["WINDING UP" if unit.attributes.tumler_charge_phase == "windup" else "CHARGING", maxi(0, int(unit.attributes.armor) - int(unit.attributes.tumler_charge_base_armor))]
+					description += "\n%s · Temporary Armor remaining: %s" % ["WINDING UP" if unit.attributes.tumler_charge_phase == "windup" else "CHARGING", max(0, unit.attributes.armor - unit.attributes.tumler_charge_base_armor)]
 			if unit_name == "Fyra":
 				description += "\n%d%% chance per hit to charm a surviving target for this round." % MonsterRules.TUNING.fyra_charm_chance
 				description += "\nPink hearts mark temporary control; ownership returns next round."
@@ -196,7 +198,7 @@ func _get_tooltip(at: Vector2) -> String:
 			return description
 	for row in field_structures:
 		if fortification_visual.footprint(self, row).has_point(at):
-			return "%s · %s\nHP %d/%d · Armor %d%s" % [row.attributes.structure, "Yours" if row.owner == 0 else "Enemy", row.attributes.hp, row.attributes.max_hp, row.attributes.armor, "\n1 attack · range %d · fires every %d ticks" % [Ranged.tower_range({"data": ranged_display_settings}), Ranged.RANGED_INTERVAL_TICKS] if row.attributes.structure == "Tower" else "\nBlocks enemies; allies can pass."]
+			return "%s · %s\nHP %s/%s · Armor %s%s" % [row.attributes.structure, "Yours" if row.owner == 0 else "Enemy", row.attributes.hp, row.attributes.max_hp, row.attributes.armor, "\n1 attack · range %d · fires every %d ticks" % [Ranged.tower_range({"data": ranged_display_settings}), Ranged.RANGED_INTERVAL_TICKS] if row.attributes.structure == "Tower" else "\nBlocks enemies; allies can pass."]
 	return ""
 
 

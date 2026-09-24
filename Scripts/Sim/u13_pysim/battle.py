@@ -3,6 +3,7 @@
 Mutates an owned world inside the caller's transaction. No spatial combat,
 active power resolver or expected Godot snapshot is used here.
 """
+from . import embolden
 
 import math
 
@@ -27,6 +28,11 @@ def note_loss(row, before, number):
     a = row["attributes"]
     if "construction_state" in a and before >= 7 and a["integrity"] < 7:
         a["repair_lock_until_round"] = max(a.get("repair_lock_until_round", 0), number + 1)
+
+
+def defunct(row):
+    """An exposed surviving castle below the operational floor, not Ruined."""
+    return targetable(row) and 0 < row['attributes']['integrity'] < 7
 
 
 def operational(row):
@@ -154,10 +160,10 @@ class Battle:
             e.require(target and target["kind"] == "marcher", "marcher_missing")
             if command.get("cause") == "combat":
                 raise e.Unsupported("Marching damage and spatial reactions are not implemented")
-            e.require(type(command.get("damage")) is int and command["damage"] >= 0 and command.get("cause") == "hazard", "damage_invalid")
+            e.require((embolden.valid_stat(command.get("damage")) if embolden.enabled(w) else type(command.get("damage")) is int) and command["damage"] >= 0 and command.get("cause") == "hazard", "damage_invalid")
             a = target["attributes"]
             details.update(victim=copy_data(target), attacker=copy_data(e.entity(w, command.get("attacker_id", ""))),
-                           cause="hazard", damage_dealt=command["damage"], hp_before=a["hp"], hp_after=max(0, a["hp"] - command["damage"]))
+                           cause="hazard", damage_dealt=command["damage"], hp_before=a["hp"], hp_after=max(0, embolden.clean_damage(a["hp"] - command["damage"], a)))
             a["hp"] = details["hp_after"]
             event_type = "MARCHER_DAMAGED" if a["hp"] else "MARCHER_DEFEATED"
             if not a["hp"]:
@@ -223,11 +229,23 @@ class Battle:
                     and detail.get("cause") == "combat" and detail.get("hook") == "marching"
                     and detail["attacker"]["owner"] == pid
                     and detail["attacker"]["attributes"].get("suit") == "Vulture"
-                    and detail["victim"]["owner"] == 1-pid and take("Bones:" + str(pid))):
-                drawn = e.draw(w, pid, self.seed, detail["event_id"] + ":bones:" + str(pid))
-                d["neutral_tears"] += 1
-                events.append(e.event("PICKING_THE_BONES", drawn, private=pid, redact=("card_id",)))
-                events.append(e.event("NEUTRAL_TEAR_CREATED", dict(player_id=pid, amount=1, source="PickingTheBones")))
+                    and detail["victim"]["owner"] == 1-pid):
+                if take("Bones:" + str(pid)):
+                    drawn = e.draw(w, pid, self.seed, detail["event_id"] + ":bones:" + str(pid))
+                    events.append(e.event("PICKING_THE_BONES", drawn, private=pid, redact=("card_id",)))
+                if detail["attacker"]["attributes"].get("source_power_id") == "PredatorOfRuin":
+                    unit_id = detail["attacker"]["id"]
+                    progress = d.setdefault("predator_bones_progress", {})
+                    tally = progress.setdefault(unit_id, dict(kills=0, rewarded=False))
+                    tally["kills"] += 1
+                    if (tally["kills"] >= 2 and not tally["rewarded"]
+                            and take("PredatorBones:" + str(pid))):
+                        tally["rewarded"] = True
+                        w["players"][pid]["resources"]["personal_tears"] += 1
+                        reward = dict(player_id=pid, amount=1, source="PredatorBones",
+                                      round=self.number, unit_id=unit_id, kills=tally["kills"])
+                        events.append(e.event("PERSONAL_TEAR_CREATED", reward))
+                        events.append(e.event("PREDATOR_BONES", reward))
         if kind == "BREACH_CHANGED":
             events.extend(self.sync_breach())
         pid = detail.get("player_id", -1)
@@ -300,7 +318,6 @@ class Battle:
                 if prior is None or prior["event_id"] != key:
                     d["orias_marks"][victim["owner"]] = dict(lord_id=victim["id"], marked_by=attacker["id"], round=self.number, event_id=key)
                     w["players"][pid]["resources"]["souls"] += 2
-                    d["neutral_tears"] += 1
                     events.extend([e.event("ORIAS_MARKED", dict(player_id=pid, lord_id=victim["id"], threat=threat(victim), bonus_souls=2, round=self.number, event_id=key)),
                                    e.event("NEUTRAL_TEAR_CREATED", dict(amount=1, source="TheMark", round=self.number))])
             target = e.entity(w, detail["lord_id"])
@@ -315,7 +332,7 @@ class Battle:
             if (victim.get("kind") == "marcher" and attacker.get("kind") == "marcher" and pid in (0,1)
                     and attacker.get("owner") == 1-pid and self.active(pid,"Odradek") and d["interlock_rounds"][pid] < self.number):
                 damage = detail.get("damage_dealt")
-                e.require(type(damage) is int and damage >= 1,"interlock_killing_damage_missing")
+                e.require((embolden.valid_stat(damage) and damage > 0 if embolden.enabled(self.w) else type(damage) is int and damage >= 1),"interlock_killing_damage_missing")
                 d["interlock_rounds"][pid] = self.number
                 target = e.entity(w,attacker["id"])
                 from .powers import odradek_event

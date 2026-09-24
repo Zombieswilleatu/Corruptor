@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Embolden = preload("res://Scripts/Sim/U13Embolden.gd")
+
 const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
 
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
@@ -107,11 +109,11 @@ static func step(orbs: Array, entities, before: Array, round_number: int, tick: 
 		if chosen.is_empty() or ((round_number - int(chosen.round)) * 200 + tick + 1) % DAMAGE_INTERVAL_TICKS != 0: continue
 		var victim: Dictionary = unit.duplicate(true)
 		var changed: Dictionary = unit.attributes.duplicate(true)
-		var amount: int = Incoming.amount(changed, 1, round_number * 200 + tick)
-		var absorbed: int = mini(int(changed.armor), amount)
-		var dealt: int = amount - absorbed
+		var amount = Incoming.amount(changed, 1, round_number * 200 + tick)
+		var absorbed = min(changed.armor, amount)
+		var dealt = amount - absorbed
 		changed.armor -= absorbed
-		changed.hp = maxi(0, int(changed.hp) - dealt)
+		changed.hp = max(0, Embolden.clean(changed.hp - dealt))
 		if changed.hp == 0: entities.retire(unit.id)
 		else: entities.update(unit.id, unit.owner, changed)
 		events.append(Events.event("GRAVITY_ORB_DAMAGED", {"effect_id": chosen.id, "player_id": chosen.owner, "target": victim, "damage_dealt": dealt, "armor_absorbed": absorbed, "hp_after": changed.hp, "round": round_number, "tick": tick}))

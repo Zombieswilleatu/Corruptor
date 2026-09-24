@@ -59,7 +59,7 @@ def balance_cases(repeats, namespace):
     from u13_doctrine.survey import cases
     from u13_pysim.split_ward import VERSION, TEMPO
     return [dict(spec, setup=dict(spec['setup'], ward_experiment=VERSION,
-                                 tempo_experiment=TEMPO))
+                                 tempo_experiment=TEMPO, defensive_pressure=True))
             for spec in cases(repeats, namespace)]
 
 

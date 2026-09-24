@@ -137,7 +137,8 @@ def valid_unit(a):
         if a['tumler_charge_phase'] and (a.get('tumler_charge_owner',-1) not in (0,1) or any(k not in a for k in ('tumler_charge_ready_tick','tumler_charge_end_tick','tumler_charge_base_armor'))):return False
     if 'monster_id' not in a:return a.get('suit')!='Monster'
     for key in ('tumler_charge_next_tick','tumler_charge_motion_tick','tumler_charge_ready_tick','tumler_charge_end_tick','tumler_charge_base_armor','muno_next_tick','sooge_root_attempts','sooge_root_round','beam_next_tick','beam_charge_tick','beam_ready_tick','dotra_concealment_round','dotra_hide_at_tick','sinodek_portal_round','kopita_pulses','kopita_last_pulse_tick'):
-        if key in a and (type(a[key]) is not int or not 0<=a[key]<=9007199254740991):return False
+        numeric = type(a.get(key)) in (int,float) if key=='tumler_charge_base_armor' and '_embolden_percent' in a else type(a.get(key)) is int
+        if key in a and (not numeric or not 0<=a[key]<=9007199254740991):return False
     return (a.get('suit')=='Monster' and a['monster_id'] in NAMES and a.get('sprite_form') in ('mobile','turret')
             and (a['sprite_form']!='turret' or a['monster_id']=='Sooge') and type(a.get('flying')) is bool)
 

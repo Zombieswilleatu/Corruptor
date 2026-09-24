@@ -6,7 +6,7 @@ var age: float = 0.0
 
 static func active(unit: Dictionary) -> bool:
 	var a: Dictionary = unit.get("attributes", {})
-	return a.has("charm_owner") and int(a.charm_owner) != int(unit.owner) and int(a.get("hp", 0)) > 0 and not a.get("hidden", false)
+	return a.has("charm_owner") and int(a.charm_owner) != int(unit.owner) and a.get("hp", 0) > 0 and not a.get("hidden", false)
 
 static func heart(center: Vector2, radius: float) -> PackedVector2Array:
 	var points := PackedVector2Array()

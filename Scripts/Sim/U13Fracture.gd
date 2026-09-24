@@ -83,15 +83,15 @@ static func resolve(raw: Dictionary, fact: Dictionary, seed: String, player_orde
 			for hit in range(mini(3 if group == "Marcher" else 1, available.size())):
 				targets.append(available.pop_at(_pick(seed, event_id, point, "victim:%d" % hit, available.size())))
 		for victim in targets:
-			var before: int = victim.attributes.hp if group == "Marcher" else (victim.attributes.integrity if group == "infrastructure" else victim.attributes.value)
-			var after: int = maxi(0 if group in ["Marcher", "infrastructure"] else 1, before - (1 if group == "Marcher" else 2))
+			var before = victim.attributes.hp if group == "Marcher" else (victim.attributes.integrity if group == "infrastructure" else victim.attributes.value)
+			var after = max(0 if group in ["Marcher", "infrastructure"] else 1, before - (1 if group == "Marcher" else 2))
 			var command: Dictionary = {"command_id": "%s:fracture:%d:%s" % [event_id, point, victim.id], "target_id": victim.id}
 			if group == "Marcher":
 				var amount: int = Incoming.apply(victim.attributes, 1, Incoming.phase_clock(world, int(detail.round)))
 				ids.restore(world.entities)
 				ids.update(victim.id, victim.owner, victim.attributes)
 				world.entities = ids.snapshot()
-				after = maxi(0, before - amount)
+				after = max(0, before - amount)
 				command.merge({"kind": "marcher_damage", "damage": amount, "cause": "hazard"})
 			elif group == "infrastructure" and after == 0:
 				command.merge({"kind": "ruin_castle_fracture", "source_id": lord.id, "cause": "fracture"})

@@ -36,6 +36,9 @@ class PlanningMatch:
             if setup["tempo_experiment"] != split_ward.TEMPO or not split_ward.enabled(self._state["world"]) or "decisive_soul_bonus" in setup:
                 raise ValueError("Tempo experiment requires split Ward without an always-on bonus")
             self._state["world"]["data"]["tempo_experiment"] = split_ward.TEMPO
+        if setup.get("defensive_pressure"):
+            from . import embolden
+            embolden.configure(self._state["world"])
         self._state_exposed = False
         self._transaction = None
         self.clock = Timeline()

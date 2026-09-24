@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Embolden = preload("res://Scripts/Sim/U13Embolden.gd")
+
 const Shroud = preload("res://Scripts/Sim/U13DotraShroud.gd")
 
 const Defense = preload("res://Scripts/Sim/U13PenitentDefense.gd")
@@ -74,15 +76,15 @@ static func resolve(world: Dictionary, entities, context: Dictionary, tick: int,
 		if not obstruction.is_empty(): target = obstruction
 		if not Fort.in_melee(unit, target): continue
 		var source: Dictionary = entities.get_entity(unit.id)
-		var amount: int = Wish.attack_amount(source.attributes) + Matchups.bonus(source, target) + Effects.hunt_bonus(source, target)
+		var amount = Wish.attack_amount(source.attributes) + Matchups.bonus(source, target) + Effects.hunt_bonus(source, target)
 		source.attributes["melee_next_tick"] = clock + INTERVAL
 		if a.suit == "Vulture": source.attributes["ranged_next_tick"] = maxi(int(a.get("ranged_next_tick", 0)), clock + INTERVAL)
 		entities.update(source.id, source.owner, source.attributes)
 		shots.append({"attacker": unit, "target": target, "amount": amount})
 	var deaths: Array = []
 	for shot in shots:
-		var dealt: int = 0
-		var hp_after: int = 0
+		var dealt = 0
+		var hp_after = 0
 		var evaded: bool = false
 		var blocked: bool = false
 		var warded: bool = false
@@ -98,13 +100,13 @@ static func resolve(world: Dictionary, entities, context: Dictionary, tick: int,
 				evaded = Effects.evades(target, shot.attacker, live_rows, context, tick, "Melee", Fort.rows(world), fleeing)
 				blocked = Defense.blocks_vulture_melee(target, shot.attacker, context.seed, context.round, tick)
 				var had_ward: bool = a.get("muno_ward", false)
-				var amount: int = 0 if blocked or evaded else Incoming.apply(a, int(shot.amount), clock, true, int(context.round))
+				var amount = 0 if blocked or evaded else Incoming.apply(a, shot.amount, clock, true, int(context.round))
 				warded = had_ward and not a.get("muno_ward", false)
 				if not blocked and not evaded and not fleeing.has(target.id): events.append_array(Effects.intercept(target, shot.attacker, live_rows, context, tick, Fort.rows(world)))
-				var absorbed: int = 0 if shot.attacker.attributes.armor_bypass else mini(int(a.armor), amount)
+				var absorbed = 0 if shot.attacker.attributes.armor_bypass else min(a.armor, amount)
 				a.armor -= absorbed
 				dealt = amount - absorbed
-				a.hp = maxi(0, int(a.hp) - dealt)
+				a.hp = max(0, Embolden.clean(a.hp - dealt))
 				hp_after = a.hp
 				a.movement_ready_round = mini(int(a.movement_ready_round), int(context.round))
 				if a.hp == 0:

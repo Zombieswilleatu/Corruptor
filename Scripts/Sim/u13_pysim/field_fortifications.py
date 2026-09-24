@@ -1,5 +1,6 @@
 """Wright construction and persistent, destructible lane objects."""
 from .copying import copy_data
+from . import embolden
 from .primitives import instance_id
 from .marching_spatial import half_away
 
@@ -277,10 +278,10 @@ def repair_nearby(world, entities, number, tick, fleeing=()):
                       and r['attributes']['hp'] < r['attributes']['max_hp'] and in_melee(unit,r)]
         if not candidates: continue
         target = min(candidates,key=lambda r:(gap(unit,r),r['id']))
-        before = target['attributes']['hp']; target['attributes']['hp'] = before+1
+        before = target['attributes']['hp']; target['attributes']['hp'] = min(target['attributes']['max_hp'], before+1)
         a['wright_repair_next_tick'] = number*200+tick+REPAIR_TICKS
         entities.update(unit['id'],unit['owner'],a)
-        events.append(event('WRIGHT_STRUCTURE_REPAIRED',dict(unit_id=unit['id'],structure=target,owner=unit['owner'],lane=a['lane'],hp_before=before,hp_after=before+1,round=number,tick=tick)))
+        events.append(event('WRIGHT_STRUCTURE_REPAIRED',dict(unit_id=unit['id'],structure=target,owner=unit['owner'],lane=a['lane'],hp_before=before,hp_after=target['attributes']['hp'],round=number,tick=tick)))
     return events
 
 
@@ -290,7 +291,7 @@ def damage(world, target_id, source, amount, bypass, number, tick):
             continue
         a = row['attributes']; absorbed = 0 if bypass else min(a['armor'], amount)
         a['armor'] -= absorbed
-        dealt = amount-absorbed; a['hp'] = max(0, a['hp']-dealt)
+        dealt = amount-absorbed; a['hp'] = max(0, round(a['hp']-dealt,8) if embolden.enabled(world) else a['hp']-dealt)
         events = []
         if a['hp'] == 0:
             events.append(event('WRIGHT_STRUCTURE_DESTROYED', dict(structure=row, attacker=source, round=number, tick=tick)))
@@ -339,7 +340,7 @@ def valid(world):
         a = row['attributes']
         if 'repair_round' in a and (type(a['repair_round']) is not int or a['repair_round'] < 0):
             return False
-        if any(type(a.get(k)) is not int for k in ('site', 'x_fp', 'y_fp', 'hp', 'max_hp', 'armor', 'max_armor', 'attack', 'ranged_next_tick')):
+        if any(not (embolden.valid_stat(a.get(k)) if embolden.enabled(world) and k in ('hp','armor') else type(a.get(k)) is int) for k in ('site', 'x_fp', 'y_fp', 'hp', 'max_hp', 'armor', 'max_armor', 'attack', 'ranged_next_tick')):
             return False
         if a['site'] not in (0, 1, 2) or a.get('lane') not in ('Lord', 'Castle') or type(a.get('builder_id')) is not str:
             return False
@@ -349,7 +350,7 @@ def valid(world):
             return False
         builders.add(a['builder_id'])
         p = site_point(row['owner'], a['site'])
-        if a['x_fp'] != p['x_fp'] or a['y_fp'] != p['y_fp'] or not 1 <= a['hp'] <= a['max_hp'] or not 0 <= a['armor'] <= a['max_armor'] or a['ranged_next_tick'] < 0:
+        if a['x_fp'] != p['x_fp'] or a['y_fp'] != p['y_fp'] or not (0 < a['hp'] <= a['max_hp'] if embolden.enabled(world) else 1 <= a['hp'] <= a['max_hp']) or not 0 <= a['armor'] <= a['max_armor'] or a['ranged_next_tick'] < 0:
             return False
         tower = a['site'] == 2
         legacy = a['max_hp'] == 6 and a['max_armor'] == (4 if tower else 2)

@@ -52,7 +52,7 @@ static func public_event(kind: String, details: Dictionary) -> Dictionary:
 	var row: Dictionary = {"type": kind, "text": "", "data": details}
 	return {"event": row, "views": [row, row]}
 
-static func reward(world: Dictionary, events: Array, pid: int, round_number: int, order: Dictionary, eligible: bool, would_succeed: bool) -> void:
+static func reward(world: Dictionary, events: Array, pid: int, round_number: int, order: Dictionary, eligible: bool, would_succeed: bool, seed_value: String = "") -> void:
 	var saved: bool = eligible and would_succeed and not succeeded(events)
 	if eligible:
 		events.append(public_event("WARD_CONTESTED", {"player_id": 1 - pid, "attacker_id": pid, "round": round_number, "lane": order.lane, "target_id": order.target_id, "would_succeed_without_ward": would_succeed, "saved": saved}))
@@ -61,6 +61,7 @@ static func reward(world: Dictionary, events: Array, pid: int, round_number: int
 		world.data.ward_reward_rounds[1 - pid] = round_number
 		world.players[1 - pid].resources.souls += 1
 		events.append(public_event("WARD_SOUL_GAINED", {"player_id": 1 - pid, "round": round_number, "lane": order.lane, "amount": 1}))
+	if saved: events.append_array(preload("res://Scripts/Sim/U13WardConversion.gd").convert(world, pid, order, round_number, seed_value))
 	if not tempo_enabled(world) or round_number < SOUL_START_ROUND: return
 	for i in range(events.size() - 1, -1, -1):
 		var row: Dictionary = events[i].event

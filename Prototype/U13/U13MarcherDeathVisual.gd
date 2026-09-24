@@ -23,7 +23,7 @@ func observe(before: Array, after: Array) -> void:
 			remaining[unit.id] = unit
 	for unit in before:
 		var next: Dictionary = remaining.get(unit.id, {})
-		if next.is_empty() or int(next.attributes.hp) <= 0:
+		if next.is_empty() or next.attributes.hp <= 0:
 			add(next if not next.is_empty() else unit)
 
 func advance(delta: float) -> void:

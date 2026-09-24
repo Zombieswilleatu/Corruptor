@@ -4,7 +4,7 @@ The accepted four-Lord FullMatch API retains its explicit historical scope.
 This adapter adds the remaining authority, using the same setup, transaction,
 ordinary rules and Marcher kernel. It never consumes expected reference state.
 """
-from . import economy as e, effects, powers
+from . import economy as e, effects, powers, embolden
 from .copying import copy_data, RollbackSnapshot
 from .full_match import FullMatch
 from .planning import PlanningMatch
@@ -61,6 +61,8 @@ class PowerMatch(FullMatch):
 
     def _hook(self):
         s,n,hook=self._state,self.clock.round,self.clock.hook
+        embolden.observe_guards(s['world'],n)
+        embolden.refresh(s['world'])
         if hook=='submission_lock':
             e.require(all(x is not None for x in s['submissions']),'both_submissions_required')
             for pid in s['player_order']:
@@ -73,6 +75,8 @@ class PowerMatch(FullMatch):
         try:events=rules.run(s['combat_orders'])
         except e.Rejected as error:raise e.Rejected('transform_contract_error') from error
         s['world']=rules.w
+        embolden.observe_guards(s['world'],n)
+        embolden.refresh(s['world'])
         # Native world installation and EventLog.append normalize integral
         # floating-point data. Raw phase probes intentionally retain float bits.
         if hook=='marching' and rules.w['data'].get('kroni_actors'):

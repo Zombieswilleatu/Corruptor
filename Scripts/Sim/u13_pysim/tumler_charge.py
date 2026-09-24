@@ -1,4 +1,5 @@
 """Fixed-point Tumler charge. Mirror of U13TumlerCharge.gd."""
+from .marching_spatial import speed as percentage_speed
 from . import monsters as rules, field_fortifications as fort, dotra_shroud as shroud
 
 GAP = 42
@@ -105,7 +106,8 @@ def advance(unit, target, buffer, structures, context, tick, live_target=True):
     reason = arrival if fort.in_melee(unit, target) else ''
     wall = fort.blocker(unit, b, structures)
     if not reason and scale > 0:
-        for offset in range(1, min(scale, rules.TUNING['tumler_charge_step_fp'])+1):
+        step_size = percentage_speed(rules.TUNING['tumler_charge_step_fp'], 0, False, context['round']*200+tick, boost=a.get('_embolden_percent',0))
+        for offset in range(1, min(scale, step_size)+1):
             candidate = dict(x_fp=a['x_fp']+int(dx*offset/scale), y_fp=a['y_fp']+int(dy*offset/scale))
             if fort.blocked_step(unit, candidate, structures): reason = 'wall'; break
             p = candidate; probe = dict(attributes=candidate)

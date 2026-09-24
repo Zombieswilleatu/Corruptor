@@ -7,7 +7,7 @@ unsupported; paid Rites and Resummon precede Guards and Work in Development.
 from . import veil, split_ward
 from .castle_balance import FORGE_REPAIR, RAPID_CONSTRUCTION_REPAIR
 from . import economy as e, marching_game, paid_development as paid
-from .battle import Battle, operational, targetable
+from .battle import defunct, Battle, operational, targetable
 from .development import _deploy_owned, draw_pairs, reconcile, work
 from .resolution import HOOKS, Ordinary
 
@@ -90,8 +90,7 @@ class RoundRules(Ordinary):
         if self.hook in HOOKS:
             return super().run(orders) + self.extra()
         hook, n, d = self.hook, self.number, self.w["data"]
-        before_defunct = [r["id"] for r in self.w["entities"]["entities"] if targetable(r)
-                          and r["attributes"]["status"] == "defunct"
+        before_defunct = [r["id"] for r in self.w["entities"]["entities"] if defunct(r)
                           and self.w["players"][r["owner"]]["lord_id"] == "Kalligan"]
         events = []
         if hook == "round_start_scheduled":
@@ -209,13 +208,13 @@ class RoundRules(Ordinary):
             if not targetable(r):
                 eligible.remove(key)
                 continue
-            if operational(r):
+            if operational(r) and r["attributes"]["integrity"] >= r["attributes"]["max_integrity"]:
                 eligible.remove(key)
                 pid = r["owner"]
-                if alive(self.w,pid) and d["rekindle_rounds"][pid] < n:
+                if alive(self.w,pid):
                     d["rekindle_rounds"][pid] = n
-                    d["neutral_tears"] += 1
-                    events.append(e.event("NEUTRAL_TEAR_CREATED", dict(source="Rekindle",amount=1,
+                    self.w["players"][pid]["resources"]["personal_tears"] += 1
+                    events.append(e.event("PERSONAL_TEAR_CREATED", dict(source="Rekindle",amount=1,
                                           player_id=pid,castle_id=key,round=n)))
         events.extend(self.extra())
         if hook == "development":

@@ -34,6 +34,7 @@ static func evaluate(public_view: Dictionary, order: Dictionary) -> Dictionary:
 		result["strength"] = strength
 		result.lines.append("Ward: %d protection in %s; %d in the other lane." % [strength, lane, (0 if split else strength >> 1)])
 		result.lines.append("Recruits: %d Marchers in %s." % [total_recruits, lane])
+		if c.w.has("defensive_pressure_profile"): result.lines.append("If this Ward stops an otherwise successful attack, its surviving regular recruits change sides and march immediately. Monsters are excluded.")
 		result.assumptions = "Protection applies this round. Recruitment is counted per suit; new Marchers hold until next round unless attacked."
 		return result
 	if action == "Profane":

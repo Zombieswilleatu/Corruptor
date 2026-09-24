@@ -7,6 +7,7 @@ No hidden hand, simulation RNG, movement, artillery or enemy declaration enters
 the calculation. Work and fresh bonds are projected from this own plan only.
 """
 from collections import Counter
+from . import rekindle
 
 from u13_pysim import split_ward
 from u13_pysim.battle import defense, operational, targetable
@@ -157,6 +158,7 @@ class Defense:
         # completion. This is utility, not a predicted survival probability.
         work_score = 30*(len(work['activated'])-len(self.baseline_work['activated']))
         work_score += self.weights.damage*(work['gain']-self.baseline_work['gain'])
+        work_score += rekindle.payoff(self.f, world)-rekindle.payoff(self.f, self.baseline_world)
         risk = opponent_memory.risk(self.f, world, plan, self.weights)
         history_score = self.history_risk-risk
         return dict(enabled=True, score_delta=structure_score+work_score-old_work+history_score,

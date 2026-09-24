@@ -43,6 +43,9 @@ func update(entity_id: String, owner: int, attributes: Dictionary) -> Dictionary
 	var row: Dictionary = _by_id[entity_id].duplicate()
 	row.owner = owner
 	row.attributes = attributes.duplicate(true)
+	if row.attributes.has("_embolden_percent"):
+		for field in preload("res://Scripts/Sim/U13Embolden.gd").FIELDS:
+			if row.attributes.has(field): row.attributes[field] = preload("res://Scripts/Sim/U13Embolden.gd").clean(row.attributes[field])
 	_by_id[entity_id] = row
 	_marcher_rows[_marcher_index[entity_id]] = row
 	return {"action": "u13_entity_updated"}

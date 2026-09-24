@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Embolden = preload("res://Scripts/Sim/U13Embolden.gd")
+
 const Buffer = preload("res://Scripts/Sim/U13MarchingBuffer.gd")
 
 # Structures are battlefield objects, not Marchers: no gate contribution,
@@ -264,23 +266,23 @@ static func repair_nearby(world: Dictionary, entities, number: int, tick: int, f
 			if d < nearest_gap or (d == nearest_gap and (target.is_empty() or structure.id < target.id)):
 				target = structure; nearest_gap = d
 		if target.is_empty(): continue
-		var before: int = int(target.attributes.hp)
-		target.attributes.hp = before + 1
+		var before = target.attributes.hp
+		target.attributes.hp = min(target.attributes.max_hp, before + 1)
 		# Borrowed rows are immutable; detach only the successful repairer.
 		a = a.duplicate(true)
 		a["wright_repair_next_tick"] = number * 200 + tick + REPAIR_TICKS
 		entities.update(unit.id, unit.owner, a)
-		events.append(event("WRIGHT_STRUCTURE_REPAIRED", {"unit_id": unit.id, "structure": target, "owner": unit.owner, "lane": a.lane, "hp_before": before, "hp_after": before + 1, "round": number, "tick": tick}))
+		events.append(event("WRIGHT_STRUCTURE_REPAIRED", {"unit_id": unit.id, "structure": target, "owner": unit.owner, "lane": a.lane, "hp_before": before, "hp_after": target.attributes.hp, "round": number, "tick": tick}))
 	return events
 
-static func damage(world: Dictionary, target_id: String, source: Dictionary, amount: int, bypass: bool, number: int, tick: int) -> Dictionary:
+static func damage(world: Dictionary, target_id: String, source: Dictionary, amount, bypass: bool, number: int, tick: int) -> Dictionary:
 	for row in rows(world):
 		if row.id != target_id: continue
 		var a: Dictionary = row.attributes
-		var absorbed: int = 0 if bypass else mini(int(a.armor), amount)
+		var absorbed = 0 if bypass else min(a.armor, amount)
 		a.armor -= absorbed
-		var dealt: int = amount - absorbed
-		a.hp = maxi(0, int(a.hp) - dealt)
+		var dealt = amount - absorbed
+		a.hp = max(0, Embolden.clean(a.hp - dealt))
 		var events: Array = []
 		if a.hp == 0:
 			events.append(event("WRIGHT_STRUCTURE_DESTROYED", {"structure": row, "attacker": source, "round": number, "tick": tick}))
@@ -322,13 +324,13 @@ static func valid(world: Dictionary) -> bool:
 		var a: Dictionary = row.attributes
 		if a.has("repair_round") and (not Data.is_integer(a.repair_round) or int(a.repair_round) < 0): return false
 		for key in ["site", "x_fp", "y_fp", "hp", "max_hp", "armor", "max_armor", "attack", "ranged_next_tick"]:
-			if not Data.is_integer(a.get(key)): return false
+			if not (Embolden.numeric(a.get(key)) if Embolden.enabled(world) and key in ["hp", "armor"] else Data.is_integer(a.get(key))): return false
 		if a.site not in [0, 1, 2] or a.get("lane") not in ["Lord", "Castle"] or typeof(a.get("builder_id")) != TYPE_STRING: return false
 		if row.get("id") != Data.instance_id("wright_structure", a.builder_id, str(a.site)): return false
 		if a.builder_id not in world.entities.get("used_ids", []) or a.builder_id in builders: return false
 		builders.append(a.builder_id)
 		var p: Dictionary = site_point(row.owner, a.site)
-		if a.x_fp != p.x_fp or a.y_fp != p.y_fp or a.hp < 1 or a.hp > a.max_hp or a.armor < 0 or a.armor > a.max_armor or a.ranged_next_tick < 0: return false
+		if a.x_fp != p.x_fp or a.y_fp != p.y_fp or a.hp <= 0 or a.hp > a.max_hp or a.armor < 0 or a.armor > a.max_armor or a.ranged_next_tick < 0: return false
 		var tower: bool = a.site == 2
 		# Keep old saves readable without silently upgrading their structures.
 		var legacy: bool = a.max_hp == 6 and a.max_armor == (4 if tower else 2)

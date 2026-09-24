@@ -2,7 +2,7 @@
 
 import math
 
-from . import veil, incoming_damage
+from . import veil, incoming_damage, embolden
 from .primitives import instance_id
 from .copying import copy_data
 
@@ -58,9 +58,12 @@ def half_away(value):
     return math.floor(value + 0.5) if value >= 0 else math.ceil(value - 0.5)
 
 
-def speed(base, percent, recovering, clock, web=False, collapse=False):
+def speed(base, percent, recovering, clock, web=False, collapse=False, boost=0):
     denominator = (200 if recovering else 100) * (2 if web else 1) * (2 if collapse else 1)
     numerator = base * (100 + percent)
+    if boost:
+        numerator *= 100+boost
+        denominator *= 100
     phase = clock % denominator
     return ((phase + 1) * numerator) // denominator - (phase * numerator) // denominator
 
@@ -157,7 +160,7 @@ def gravity(s, orbs, before, number, tick, collapse, emit):
         victim = copy_data(s.row(i))
         amount = incoming_damage.amount(victim['attributes'], 1, number * 200 + tick)
         absorbed = min(s.armor[i], amount); dealt = amount - absorbed
-        s.armor[i] -= absorbed; s.hp[i] = max(0, s.hp[i] - dealt)
+        s.armor[i] -= absorbed; s.hp[i] = max(0, embolden.clean_damage(s.hp[i] - dealt, victim['attributes']))
         if s.hp[i] == 0: s.retire(i)
         emit('GRAVITY_ORB_DAMAGED', dict(effect_id=orb['id'], player_id=orb['owner'], target=victim,
              damage_dealt=dealt, armor_absorbed=absorbed, hp_after=s.hp[i], round=number, tick=tick))

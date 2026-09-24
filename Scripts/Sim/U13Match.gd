@@ -669,6 +669,11 @@ func _accept_order(player_id: int, combat_order: Dictionary, declarations: Array
 func _dispatch(_context: Dictionary) -> Dictionary:
 	var hook: String = next_hook()
 	var round_number: int = _runtime.round_number
+	# Optional content reconciliation before scheduled effects and declarations.
+	# The transformed world uses the same transactional installation as a hook.
+	if _content_owner != null and _content_owner.has_method("before_hook_enabled") and _content_owner.before_hook_enabled(_world):
+		var reconciled: Dictionary = _apply_transform(_content_owner.before_hook({"world": _world.duplicate(true), "round": round_number, "hook": hook}))
+		if reconciled.action == "invalid": return reconciled
 	if hook == Timeline.SUBMISSION_LOCK:
 		if _submissions[0] == null or _submissions[1] == null:
 			return Data.invalid("both_submissions_required")

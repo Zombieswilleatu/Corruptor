@@ -96,6 +96,10 @@ static func note_integrity_loss(castle: Dictionary, before: int, round_number: i
 		)
 
 
+static func defunct(castle: Dictionary) -> bool:
+	return targetable(castle) and castle.attributes.integrity > 0 and castle.attributes.integrity < FLOOR
+
+
 static func operational(castle: Dictionary) -> bool:
 	return (
 		not castle.is_empty()

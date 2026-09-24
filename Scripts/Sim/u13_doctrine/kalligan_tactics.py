@@ -32,6 +32,10 @@ def bodies(f, lane, ctx=None):
     return [copy_data(r) for r in own+f.units(f.enemy, lane) if not r['attributes'].get('flying',False)]
 
 
+def effective_intensity(value, enemy=True):
+    return value[0]+(value[1] if enemy else 0) if isinstance(value,tuple) else value
+
+
 def packet(a, intensity, clock):
     """Apply only Scorch's deterministic Armor/HP packet to a local profile."""
     if a['hp'] <= 0: return dict(hp=0, armor=0, kills=0, score=0)
@@ -46,10 +50,10 @@ def _lane(f, target, stages, ctx=None, pre_pulses=()):
     rows = bodies(f, target['lane'], ctx); out = dict(score=0, hp=0, armor=0, enemy_kills=0, friendly_kills=0)
     for r in rows:
         a = r['attributes']; sign = 1 if r['owner'] == f.enemy else -1
-        for amount in pre_pulses: packet(a, amount, f.v['round']*200)
+        for amount in pre_pulses: packet(a, max(0,effective_intensity(amount,sign>0)-int(sign<0)), f.v['round']*200)
         foes = f.units(1-r['owner'], target['lane'])
         for delay, intensity in stages:
-            result = packet(a, intensity, (f.v['round']+delay)*200)
+            result = packet(a, max(0,effective_intensity(intensity,sign>0)-int(sign<0)), (f.v['round']+delay)*200)
             # Future occupancy is uncertain. Public unopposed gate-reaching
             # troops get one quarter exposure, not a promised disappearance.
             distance = a['x_fp'] if r['owner'] == 1 else 2400-a['x_fp']
@@ -74,7 +78,7 @@ def _castle(f, target, stages, ctx=None, pre_damage=0):
         # Forge follows automatic Castle Scorch, so repairs intervene between
         # future stages, but not before the next round's first Castle pulse.
         if previous and delay>previous: hp=min(cap,hp+repair*(delay-previous))
-        dealt=min(hp,intensity)
+        dealt=min(hp,effective_intensity(intensity))
         score=8*dealt+(18 if dealt==hp else 0)+(10 if hp>=7 and hp-dealt<7 else 0)
         value+=score*3**delay//4**delay
         hp-=dealt;previous=delay
@@ -83,7 +87,7 @@ def _castle(f, target, stages, ctx=None, pre_damage=0):
 
 
 def forecast(f, target, stages, ctx=None, pre_pulses=()):
-    return (_castle(f,target,stages,ctx,sum(pre_pulses)) if target['kind']=='castle'
+    return (_castle(f,target,stages,ctx,sum(effective_intensity(v) for v in pre_pulses)) if target['kind']=='castle'
             else _lane(f,target,stages,ctx,pre_pulses))
 
 
@@ -95,7 +99,7 @@ def inferno_value(f, target, ctx=None, plan=None):
     # Current lane pulse is still due. Castle's automatic pulse already fired.
     pre = [active['stages'][active['stage_index']]['intensity']] if active and current['kind']=='lane' else []
     if active and plan and any(p['power_id']=='Pyroclasm' for p in plan['powers']):
-        pre.append(active['stages'][active['stage_index']]['intensity'])
+        pre.append((active['stages'][active['stage_index']]['intensity'],1))
     stay = forecast(f,current,schedule,ctx,pre)['score'] if active else 0
     moved = forecast(f,target,schedule,ctx,pre if current==target else ())['score']
     return dict(score=moved-stay, reason='remaining_fire_relocation_gain' if active else 'delayed_fire_damage_and_losses',
@@ -111,7 +115,7 @@ def pyro_value(f, ctx=None):
     # Compare extra+automatic with automatic alone in lanes. A one-HP body
     # already due to burn is not another kill purchased by Pyroclasm.
     baseline = forecast(f,target,[(0,intensity)],ctx) if target['kind']=='lane' else dict(score=0)
-    combined = forecast(f,target,[(0,intensity)]*(2 if target['kind']=='lane' else 1),ctx)
+    combined = forecast(f,target,([(0,intensity)] if target['kind']=='lane' else [])+[(0,(intensity,1))],ctx)
     score = combined['score']-baseline['score']
     # At the low first stage, preserve the next-round intensity-two option
     # when the same public cohort would give a substantially better pulse.
@@ -120,7 +124,7 @@ def pyro_value(f, ctx=None):
         upcoming = active['stages'][active['stage_index']+1]['intensity']
         if upcoming > intensity:
             pre = (intensity,)
-            future = forecast(f,target,[(1,upcoming)]*2,ctx,pre)['score']-forecast(f,target,[(1,upcoming)],ctx,pre)['score']
+            future = forecast(f,target,[(1,upcoming),(1,(upcoming,1))],ctx,pre)['score']-forecast(f,target,[(1,upcoming)],ctx,pre)['score']
     reserve = max(0,future)
     lane = target.get('lane'); recruits = grounded_monsters = power_bodies = departed = 0
     if ctx and lane:

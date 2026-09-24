@@ -57,7 +57,7 @@ static func read(owner, pid: int) -> Dictionary:
 	for row in rows: by_id[row.id] = row
 	var public: Array = rows.filter(func(row): return (row.kind != "card" or row.attributes.get("role") == "guard") and (row.owner == pid or not row.attributes.get("hidden", false)))
 	var allowed: Dictionary = {}
-	for key in ["ward_experiment", "tempo_experiment", "neutral_tears", "breach_lord", "sigils", "guard_public_limits", "orias_marks", "kanifous_prices", "kanifous_losses"]:
+	for key in ["defensive_pressure_profile", "embolden_experiment", "embolden_ramp_experiment", "embolden_guard_history", "ward_conversion_experiment", "ward_experiment", "tempo_experiment", "neutral_tears", "breach_lord", "sigils", "guard_public_limits", "orias_marks", "kanifous_prices", "kanifous_losses"]:
 		if data.has(key): allowed[key] = data[key]
 	allowed["veil_breaches"] = data.get("veil_breaches", {})
 	allowed["monsters"] = data.get("monsters", {})
@@ -68,6 +68,7 @@ static func read(owner, pid: int) -> Dictionary:
 	if not data.get("field_structures", []).is_empty():
 		allowed["field_structures"] = data.field_structures.duplicate(true)
 		allowed.field_structures.sort_custom(func(a, b): return a.id < b.id)
+	allowed["rekindle_defunct_ids"] = data.get("rekindle_defunct_ids", [])
 	allowed["guard_work"] = {"targets": data.guard_work.targets, "pairs": data.guard_work.pairs}
 	allowed["invocation_rounds"] = data.dominion_rites.invocation_rounds
 	allowed["vacant_counts"] = data.vacant_throne.counts

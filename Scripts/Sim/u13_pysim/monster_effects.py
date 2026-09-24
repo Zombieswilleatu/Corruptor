@@ -1,4 +1,5 @@
 """Deterministic monster abilities; mirror of the native rules, not animation time."""
+from . import embolden
 from . import tumler_charge as charge
 from . import dotra_shroud as shroud
 from . import incoming_damage as incoming
@@ -204,6 +205,7 @@ def step(w,buffer,c,tick,reaction):
                     a.update(sooge_root_attempts=a.get('sooge_root_attempts',0)+1,sooge_root_round=n)
                     if draw(c['seed'],key,'ROOT',0,100)<chance:
                         a.update(sprite_form='turret',attack=3,armor=6,max_armor=6,step_fp=0)
+                        embolden.transform(a, ('attack','armor','max_armor'))
                         events.append(event('MONSTER_ROOTED',dict(unit_id=unit['id'],round=n,tick=tick)))
             buffer.update(unit['id'],unit['owner'],a)
     for original in buffer.rows():
@@ -340,7 +342,7 @@ def damage(w,buffer,hit,c,tick,reaction):
     if not evaded and not fleeing and hit['ability'] in ('Muno','Ambush'):
         events.extend(intercept(target,hit['source'],live_rows,c,tick,fort.rows(w)))
     amount=0 if blocked or evaded else incoming.apply(a, hit['amount'], c['round']*200+tick);absorbed=0 if hit['bypass'] else min(a['armor'],amount);dealt=amount-absorbed
-    a['armor']-=absorbed;a['hp']=max(0,a['hp']-dealt);a['movement_ready_round']=min(a['movement_ready_round'],c['round'])
+    a['armor']-=absorbed;a['hp']=max(0,embolden.clean_damage(a['hp']-dealt,a));a['movement_ready_round']=min(a['movement_ready_round'],c['round'])
     if a['hp']==0:buffer.retire_id(target['id'])
     else:buffer.update(target['id'],target['owner'],a)
     events.append(event('MONSTER_ATTACK',dict(attacker=hit['source'],target=before,ability=hit['ability'],blocked=blocked,evaded=evaded,warded=before['attributes'].get('muno_ward',False) and not a.get('muno_ward',False),damage_dealt=dealt,hp_after=a['hp'],round=c['round'],tick=tick)))

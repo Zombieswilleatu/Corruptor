@@ -330,6 +330,7 @@ static func _reveal(context: Dictionary) -> Dictionary:
 				{"player_id": player_id, "round": context.round, "order": order, "cards": cards}
 			)
 		)
+		var spawn_start: int = events.size()
 		# Baseline immutable commitment input, floor(printed suit total / 3).
 		for suit in Marching.SUITS:
 			var count: int = floori(float(totals.get(suit, 0)) / (2.0 if GuardWork.enabled(world) and order.action == "Ward" else 3.0))
@@ -365,6 +366,7 @@ static func _reveal(context: Dictionary) -> Dictionary:
 				bodies.append(placed.entity.id)
 				events.append(Marching.public_event("MARCHER_SPAWNED", placed.entity))
 			events.append(Marching.public_event("MONSTER_SUMMONED", {"monster_id": name, "player_id": player_id, "round": context.round, "lane": order.lane, "unit_ids": bodies}))
+		preload("res://Scripts/Sim/U13WardConversion.gd").record(world, player_id, order, context.round, events.slice(spawn_start))
 	world.entities = entities.snapshot()
 	world.data["combat_reveal_round"] = context.round
 	return {"action": "resolved", "world": world, "events": events}
@@ -411,7 +413,7 @@ static func _resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 		if result.action == "invalid":
 			return result
 		world = result.world
-		if SplitWard.enabled(world): SplitWard.reward(world, result.events, player_id, context.round, order, eligible, would_succeed)
+		if SplitWard.enabled(world): SplitWard.reward(world, result.events, player_id, context.round, order, eligible, would_succeed, context.seed)
 		events.append_array(result.events)
 	if Plunder.enabled(world):
 		events.append_array(Plunder.finish(world, context.round))

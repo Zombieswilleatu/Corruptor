@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Embolden = preload("res://Scripts/Sim/U13Embolden.gd")
+
 const Shroud = preload("res://Scripts/Sim/U13DotraShroud.gd")
 
 const Incoming = preload("res://Scripts/Sim/U13IncomingDamage.gd")
@@ -108,7 +110,7 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 				if d < best or (d == best and not target.is_empty() and other.id < target.id): target = other; best = d
 		if target.is_empty() or (not tower and not guard and Fort.in_melee(unit, target)):
 			continue
-		var amount: int = 1
+		var amount = 1
 		if tower:
 			Fort.find(Fort.rows(world), unit.owner, unit.attributes.lane, 2).attributes.ranged_next_tick = clock + RANGED_INTERVAL_TICKS
 		else:
@@ -126,11 +128,11 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 		var target: Dictionary = entities.get_entity(shot.target.id)
 		# A shot already in the volley still exists after reciprocal lethal fire;
 		# an overkilled target does not generate a second death or refund the shot.
-		var dealt: int = 0
+		var dealt = 0
 		var blocked: bool = false
 		var evaded: bool = false
 		var warded: bool = false
-		var hp_after: int = 0
+		var hp_after = 0
 		if shot.target.kind == "fortification":
 			var hit: Dictionary = Fort.damage(world, shot.target.id, shot.attacker, shot.amount, false, context.round, tick)
 			dealt = hit.damage_dealt; hp_after = hit.hp_after
@@ -140,12 +142,12 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 			blocked = Defense.blocks(target, shot.attacker.id, context.seed, context.round, tick, shot_kind)
 			evaded = MonsterEffects.evades(target, shot.attacker, entities.marchers() if target.attributes.get("monster_id") == "Tumler" else [], context, tick, shot_kind, Fort.rows(world), fleeing)
 			var had_ward: bool = target.attributes.get("muno_ward", false)
-			var amount: int = 0 if blocked or evaded else Incoming.apply(target.attributes, int(shot.amount), clock, true, int(context.round))
+			var amount = 0 if blocked or evaded else Incoming.apply(target.attributes, shot.amount, clock, true, int(context.round))
 			warded = had_ward and not target.attributes.get("muno_ward", false)
-			var absorbed: int = mini(int(target.attributes.armor), amount)
+			var absorbed = min(target.attributes.armor, amount)
 			target.attributes.armor -= absorbed
 			dealt = amount - absorbed
-			target.attributes.hp = maxi(0, int(target.attributes.hp) - dealt)
+			target.attributes.hp = max(0, Embolden.clean(target.attributes.hp - dealt))
 			hp_after = target.attributes.hp
 			if target.attributes.hp == 0:
 				entities.retire(target.id)

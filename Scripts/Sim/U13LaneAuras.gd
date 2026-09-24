@@ -80,13 +80,16 @@ static func compile(effects: Array, round_number: int) -> Dictionary:
 # Exact rational step with deterministic fractional distribution. Compose Rout
 # recovery before rounding, so (3 * 1.25 * 0.5) does not truncate to 1 per tick.
 # Clock phase is bounded before multiplication and no float or RNG is involved.
-static func speed(base: int, percent: int, recovering: bool, clock: int, web_slowed: bool = false, collapse: bool = false) -> int:
+static func speed(base: int, percent: int, recovering: bool, clock: int, web_slowed: bool = false, collapse: bool = false, boost: int = 0) -> int:
 	var denominator: int = 200 if recovering else 100
 	if collapse:
 		denominator *= 2
 	if web_slowed:
 		denominator *= 2
 	var numerator: int = base * (100 + percent)
+	if boost > 0:
+		numerator *= 100 + boost
+		denominator *= 100
 	var phase: int = posmod(clock, denominator)
 	# Suppress each intentional division at its statement, not the function.
 	@warning_ignore("integer_division")

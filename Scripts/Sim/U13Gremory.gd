@@ -94,8 +94,8 @@ func valid_world(world: Dictionary) -> bool:
 				return false
 		if entity.kind == "marcher":
 			if (
-				not Data.is_integer(attributes.get("hp"))
-				or attributes.hp < 1
+				not (preload("res://Scripts/Sim/U13Embolden.gd").numeric(attributes.get("hp")) if preload("res://Scripts/Sim/U13Embolden.gd").enabled(world) else Data.is_integer(attributes.get("hp")))
+				or attributes.hp <= 0
 				or attributes.get("lane") not in ["Lord", "Castle"]
 				or (attributes.get("suit") not in ["Butcher", "Vulture", "Wright", "Penitent", "Monster"] or not preload("res://Scripts/Sim/U13MonsterRules.gd").valid_unit(attributes))
 			):
@@ -164,6 +164,7 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 				"Vulture", source.target.lane, source.player_id, context.round, context.round, Marching.Ranged.enabled(world)
 			)
 			attributes["source_effect_id"] = record.effect_id
+			attributes["source_power_id"] = PREDATOR
 			var created: Dictionary = entities.create(
 				"marcher", record.effect_id, ordinal, source.player_id, attributes
 			)
@@ -276,21 +277,32 @@ static func react(
 				attacker.get("owner") == player_id
 				and attacker.attributes.get("suit") == "Vulture"
 				and details.victim.owner == 1 - player_id
-				and _take_trigger(ledger, "Bones:" + str(player_id), round_number)
 			):
-				var drawn: Dictionary = Cards.draw(
-					world, player_id, seed_value, details.event_id + ":bones:" + str(player_id)
-				)
-				if drawn.action == "invalid":
-					return drawn
-				world.data.neutral_tears += 1
-				events.append(_draw_event("PICKING_THE_BONES", drawn))
-				var tear: Dictionary = {
-					"type": "NEUTRAL_TEAR_CREATED",
-					"text": "",
-					"data": {"player_id": player_id, "amount": 1, "source": "PickingTheBones"}
-				}
-				events.append({"event": tear, "views": [tear, tear]})
+				if _take_trigger(ledger, "Bones:" + str(player_id), round_number):
+					var drawn: Dictionary = Cards.draw(
+						world, player_id, seed_value, details.event_id + ":bones:" + str(player_id)
+					)
+					if drawn.action == "invalid":
+						return drawn
+					events.append(_draw_event("PICKING_THE_BONES", drawn))
+				if attacker.attributes.get("source_power_id", "") == PREDATOR:
+					var unit_id: String = attacker.id
+					var progress: Dictionary = world.data.get("predator_bones_progress", {})
+					var tally: Dictionary = progress.get(unit_id, {"kills": 0, "rewarded": false})
+					tally.kills += 1
+					if (tally.kills >= 2 and not tally.rewarded
+						and _take_trigger(ledger, "PredatorBones:" + str(player_id), round_number)):
+						tally.rewarded = true
+						world.players[player_id].resources.personal_tears += 1
+						for event_type in ["PERSONAL_TEAR_CREATED", "PREDATOR_BONES"]:
+							var tear: Dictionary = {
+								"type": event_type, "text": "",
+								"data": {"player_id": player_id, "amount": 1, "source": "PredatorBones",
+									"round": round_number, "unit_id": unit_id, "kills": tally.kills}
+							}
+							events.append({"event": tear, "views": [tear, tear]})
+					progress[unit_id] = tally
+					world.data["predator_bones_progress"] = progress
 	world.data["gremory_triggers"] = ledger
 	return {"action": "resolved", "world": world, "events": events}
 

@@ -1,6 +1,8 @@
 class_name U13BattleEvents
 extends RefCounted
 
+const Embolden = preload("res://Scripts/Sim/U13Embolden.gd")
+
 const Veil = preload("res://Scripts/Sim/U13VeilBreaches.gd")
 
 const Allegiance = preload("res://Scripts/Sim/U13MarcherAllegiance.gd")
@@ -209,11 +211,11 @@ static func apply(
 			if (
 				target.is_empty()
 				or target.kind != "marcher"
-				or not Data.is_integer(target.attributes.get("hp"))
+				or not Embolden.numeric(target.attributes.get("hp"))
 			):
 				return Data.invalid("marcher_missing")
 			if (
-				not Data.is_integer(command.get("damage"))
+				not (Embolden.numeric(command.get("damage")) if Embolden.enabled(world) else Data.is_integer(command.get("damage")))
 				or command.damage < 0
 				or command.get("cause") not in ["combat", "hazard"]
 			):
@@ -233,10 +235,10 @@ static func apply(
 			details["victim"] = target.duplicate(true)
 			details["attacker"] = attacker
 			details["cause"] = command.cause
-			details["damage_dealt"] = int(command.damage)
-			details["hp_before"] = int(target.attributes.hp)
-			target.attributes.hp = maxi(0, int(target.attributes.hp) - int(command.damage))
-			details["hp_after"] = int(target.attributes.hp)
+			details["damage_dealt"] = command.damage
+			details["hp_before"] = target.attributes.hp
+			target.attributes.hp = max(0, Embolden.clean(target.attributes.hp - command.damage))
+			details["hp_after"] = target.attributes.hp
 			if target.attributes.hp == 0:
 				entities.retire(target.id)
 				event_type = "MARCHER_DEFEATED"

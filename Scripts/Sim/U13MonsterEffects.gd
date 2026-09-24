@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Embolden = preload("res://Scripts/Sim/U13Embolden.gd")
+
 const Charge = preload("res://Scripts/Sim/U13TumlerCharge.gd")
 const Shroud = preload("res://Scripts/Sim/U13DotraShroud.gd")
 const Incoming = preload("res://Scripts/Sim/U13IncomingDamage.gd")
@@ -80,7 +82,7 @@ static func evades(unit: Dictionary, source: Dictionary, rows: Array, context: D
 	var key: String = "%d:%d:%s:%s:%s" % [context.round, tick, kind, source.id, unit.id]
 	if name == "Kurchin":
 		# Read current Armor for every hit, including later hits in this tick.
-		return int(unit.attributes.armor) > 0 and Lamp.draw(context.seed, key, "KURCHIN_ARMORED_DEFLECTION", 100) < Rules.TUNING.kurchin_deflection_chance
+		return unit.attributes.armor > 0 and Lamp.draw(context.seed, key, "KURCHIN_ARMORED_DEFLECTION", 100) < Rules.TUNING.kurchin_deflection_chance
 	return name == "Tumler" and Lamp.draw(context.seed, key, "TUMLER_HUNT_EVASION", 100) < Rules.TUNING.tumler_evasion_chance
 
 static func intercept(unit: Dictionary, source: Dictionary, rows: Array, context: Dictionary, tick: int, structures: Array = []) -> Array:
@@ -135,7 +137,7 @@ static func end_round(world: Dictionary, round_number: int) -> Array:
 	if not events.is_empty(): world.data.marching_duels = {}
 	return events
 
-static func on_hit(entities, source: Dictionary, target_id: String, damage: int, context: Dictionary, tick: int) -> Array:
+static func on_hit(entities, source: Dictionary, target_id: String, damage, context: Dictionary, tick: int) -> Array:
 	var target: Dictionary = entities.get_entity(target_id)
 	if target.is_empty(): return []
 	var name: String = source.attributes.get("monster_id", "")
@@ -245,6 +247,7 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 						a["sooge_root_round"] = n
 						if Lamp.draw(context.seed, key, "ROOT", 100) < chance:
 							a.merge({"sprite_form": "turret", "attack": 3, "armor": 6, "max_armor": 6, "step_fp": 0}, true)
+							Embolden.transform(a, ["attack", "armor", "max_armor"])
 							events.append(event("MONSTER_ROOTED", {"unit_id": unit.id, "round": n, "tick": tick}))
 			entities.update(unit.id, unit.owner, a)
 	# Deterministic ID order for pulses, jumps, ambushes and beam preparation.
@@ -271,7 +274,7 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 				a["hunt_target"] = chosen.get("id", "")
 			"Kopita":
 				if int(a.birth_round) < n and (tick - int(context.get("marching_tick_offset", 0)) + int(context.get("marching_round_tick", 0))) in [0, int(Rules.TUNING.kopita_second_pulse_tick)] and int(a.get("kopita_last_pulse_tick", 0)) < clock:
-					var healing: bool = rows.any(func(other): return other.owner == unit.owner and other.attributes.lane == a.lane and distance(a, other.attributes) <= Rules.TUNING.kopita_radius ** 2 and int(other.attributes.hp) < int(other.attributes.max_hp))
+					var healing: bool = rows.any(func(other): return other.owner == unit.owner and other.attributes.lane == a.lane and distance(a, other.attributes) <= Rules.TUNING.kopita_radius ** 2 and other.attributes.hp < other.attributes.max_hp)
 					var healed: Array = []
 					# Each pulse chooses from current wounds, including her own.
 					# 133/200 is about ten seconds into the 15-second sandbox round.
@@ -281,12 +284,12 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 						var other: Dictionary = observed.duplicate(true)
 						if other.attributes.lane != a.lane or distance(a, other.attributes) > Rules.TUNING.kopita_radius ** 2: continue
 						if healing and other.owner == unit.owner:
-							var before: int = int(other.attributes.hp)
-							other.attributes.hp = mini(int(other.attributes.max_hp), int(other.attributes.hp) + 1)
+							var before = other.attributes.hp
+							other.attributes.hp = min(other.attributes.max_hp, other.attributes.hp + 1)
 							if other.id == unit.id: a.hp = other.attributes.hp
 							entities.update(other.id, other.owner, other.attributes)
-							if int(other.attributes.hp) > before:
-								healed.append({"id": other.id, "owner": other.owner, "attributes": other.attributes.duplicate(true), "amount": int(other.attributes.hp) - before})
+							if other.attributes.hp > before:
+								healed.append({"id": other.id, "owner": other.owner, "attributes": other.attributes.duplicate(true), "amount": other.attributes.hp - before})
 						elif not healing and other.owner != unit.owner: hits.append({"source": unit, "target": other.id, "amount": int(Rules.TUNING.kopita_damage), "bypass": false, "ability": "Kopita"})
 					events.append(event("MONSTER_PULSE", {"unit_id": unit.id, "source": unit, "radius_fp": Rules.TUNING.kopita_radius, "healing": healing, "healed": healed, "round": n, "tick": tick}))
 			"Muno":
@@ -406,11 +409,11 @@ static func damage(world: Dictionary, entities, hit: Dictionary, context: Dictio
 	var fleeing: bool = hunt_fleeing(target, world)
 	var evaded: bool = evades(target, hit.source, live_rows, context, tick, hit.ability, Fort.rows(world))
 	if not evaded and not fleeing and hit.ability in ["Muno", "Ambush"]: events.append_array(intercept(target, hit.source, live_rows, context, tick, Fort.rows(world)))
-	var amount: int = 0 if blocked or evaded else Incoming.apply(target.attributes, int(hit.amount), int(context.round) * 200 + tick)
-	var absorbed: int = 0 if hit.bypass else mini(int(target.attributes.armor), amount)
-	var dealt: int = amount - absorbed
+	var amount = 0 if blocked or evaded else Incoming.apply(target.attributes, hit.amount, int(context.round) * 200 + tick)
+	var absorbed = 0 if hit.bypass else min(target.attributes.armor, amount)
+	var dealt = amount - absorbed
 	target.attributes.armor -= absorbed
-	target.attributes.hp = maxi(0, int(target.attributes.hp) - dealt)
+	target.attributes.hp = max(0, Embolden.clean(target.attributes.hp - dealt))
 	target.attributes.movement_ready_round = mini(int(target.attributes.movement_ready_round), int(context.round))
 	if target.attributes.hp == 0: entities.retire(target.id)
 	else: entities.update(target.id, target.owner, target.attributes)

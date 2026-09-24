@@ -1,6 +1,6 @@
 """Gremory: reinforce pressure; pay two cards to reduce healthy Castle Integrity.
 
-Passives: Guard defense supports Gem Dagger; no assumed future draw is scored.
+Passives: Vulture kills support Picking the Bones; no future draw is guaranteed.
 Timing: Inevitable Ruin fires next round; reaching the current cap makes it fizzle.
 Resources: its two discard cards compete with this round's entire plan.
 """
@@ -78,9 +78,47 @@ def ruin_value(f, target, plan):
                 target_id=target, reason=reason, projection=copy_data(projected))
 
 
+def predator_value(f, lane, plan=None, ctx=None):
+    """Bounded lane pressure, using field troops and ready reserves only.
+
+    No new recruits, future kills, draws or enemy orders are assumed.
+    Distant allies past the forward three quarters are not an escort.
+    """
+    from u13_pysim import game_staging
+    consumed = set((ctx or {}).get('consumed_supplicants', ()))
+    def local(u):
+        a = u['attributes']
+        progress = a['x_fp'] if f.pid == 0 else 2400-a['x_fp']
+        return progress <= 1800 and not a.get('waiting') and not a.get('hidden', False)
+    allies = [u for u in f.units(f.pid, lane) if u['id'] not in consumed and local(u)]
+    enemies = [u for u in f.units(f.enemy, lane) if local(u)]
+    staging = (plan or {}).get('order', {}).get('staging')
+    if staging is None:
+        if not hasattr(f, '_predator_staging'):
+            f._predator_staging = game_staging.bot_order(f.world, f.v['round'], f.pid) if game_staging.enabled(f.world) else {}
+        staging = f._predator_staging
+    tray = f.v['data'].get('game_staging', {}).get('lanes', {}).get(lane, {})
+    due = tray.get('march_round', [0, 0])[f.pid]
+    selected = (plan or {}).get('order', {}).get('staging_ids', {}).get(lane)
+    allies += [u for u in tray.get('units', []) if u['owner'] == f.pid
+        and u['attributes']['staged_round'] < f.v['round']
+        and (0 < due <= f.v['round'] or (staging.get(lane) == 'March' and (selected is None or u['id'] in selected)))]
+    force = game_staging.strength(allies, enemies)
+    pressure = game_staging.strength(enemies, allies)
+    screens = sum(u['attributes']['suit'] != 'Vulture' for u in allies)
+    # Retain a positive cast value: an empty lane is useful pressure and
+    # isolated Vultures can still buy time. Do not reward being outnumbered.
+    bonus = min(12, 4*screens) if enemies else 0
+    penalty = min(22, max(0, pressure-force)//3) if enemies else 0
+    return dict(score=27+bonus-penalty, allies=len(allies), screens=screens,
+                enemies=len(enemies), force=force, pressure=pressure,
+                reason='predator_supported_lane_pressure')
+
+
 def proposals(f):
     for lane in LANES:
-        yield power('PredatorOfRuin', dict(lane=lane), 27+6*f.lane_need(lane), 'two_vultures_lane_pressure')
+        value = predator_value(f, lane)
+        yield power('PredatorOfRuin', dict(lane=lane), value['score'], value['reason'])
     if len(f.hand) >= 2:
         from ..common import Weights
         cards = discard_pair(f, f.hand, Weights())
@@ -93,6 +131,11 @@ def proposals(f):
 
 def coordinate(f, plan, ctx):
     for source in plan['powers']:
+        if source['power_id'] == 'PredatorOfRuin':
+            lane = source['target']['lane']
+            adjusted = predator_value(f, lane, plan, ctx)
+            yield dict(power='PredatorOfRuin', score_delta=adjusted['score']-predator_value(f, lane)['score'], **adjusted)
+            continue
         if source['power_id'] != 'InevitableRuin': continue
         target = source['target']['entity_id']
         baseline = ruin_value(f, target, dict(powers=[], order={}))

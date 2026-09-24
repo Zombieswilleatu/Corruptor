@@ -334,7 +334,7 @@ func accept_order(context: Dictionary) -> Dictionary:
 			used_round > context.round
 			or (
 				used_round == context.round
-				and context.next_hook_index <= Timeline.hook_rank(Timeline.MARCHING)
+				and context.next_hook_index <= Timeline.hook_rank(Timeline.ROUND_START_AUTOMATIC if context.world.data.has("game_staging") and int(context.world.data.get("opening_marching_round", 0)) == int(context.round) else Timeline.MARCHING)
 			)
 		):
 			return Data.invalid("interlock_clock_invalid")
@@ -516,7 +516,7 @@ func _interlock(
 		or result.world.data.interlock_rounds[pid] >= d.round
 	):
 		return result
-	if not Data.is_integer(d.get("damage_dealt")) or d.damage_dealt < 1:
+	if not (preload("res://Scripts/Sim/U13Embolden.gd").numeric(d.get("damage_dealt")) if preload("res://Scripts/Sim/U13Embolden.gd").enabled(result.world) else Data.is_integer(d.get("damage_dealt"))) or d.damage_dealt <= 0:
 		return Data.invalid("interlock_killing_damage_missing")
 	result.world.data.interlock_rounds[pid] = d.round
 	var target: Dictionary = entities.get_entity(attacker.id)
@@ -538,8 +538,8 @@ func _interlock(
 	# the attacker to apply reflection. Hazard attribution prevents recursion.
 	if target.is_empty():
 		return result
-	var amount: int = Incoming.apply(target.attributes, int(d.damage_dealt), int(d.round) * 200 + int(d.get("tick", 0)))
-	var absorbed: int = mini(int(target.attributes.armor), amount)
+	var amount = Incoming.apply(target.attributes, d.damage_dealt, int(d.round) * 200 + int(d.get("tick", 0)))
+	var absorbed = min(target.attributes.armor, amount)
 	target.attributes.armor -= absorbed
 	entities.update(target.id, target.owner, target.attributes)
 	result.world.entities = entities.snapshot()
@@ -684,7 +684,7 @@ static func _odradek_event(kind: String, details: Dictionary) -> Dictionary:
 			)
 		"PSYCHIC_INTERLOCK":
 			message = (
-				"Psychic Interlock: %d damage reflected%s."
+				"Psychic Interlock: %s damage reflected%s."
 				% [details.damage, "" if details.target_alive else " (attacker already defeated)"]
 			)
 		"PARADOX_GEOMETRY":

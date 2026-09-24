@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Embolden = preload("res://Scripts/Sim/U13Embolden.gd")
+
 const Data = preload("res://Scripts/Sim/U13EffectData.gd")
 const ROUT_RETREAT_ATTACK_BONUS: int = 1
 
@@ -8,10 +10,10 @@ static func active(a: Dictionary, clock: int) -> bool:
 
 # A positive packet gains one point BEFORE Armor. Blocks, evasion, healing,
 # banishment and direct execution never become damage packets through this rule.
-static func amount(a: Dictionary, base: int, clock: int) -> int:
-	return maxi(0, base) + (1 if base > 0 and active(a, clock) else 0)
+static func amount(a: Dictionary, base, clock: int):
+	return max(0, base) + (1 if base > 0 and active(a, clock) else 0)
 
-static func regular_amount(a: Dictionary, base: int, clock: int, round_number: int = -1) -> int:
+static func regular_amount(a: Dictionary, base, clock: int, round_number: int = -1):
 	# Only ordinary melee/ranged attacks enter here. Recovery, blocked/evaded
 	# hits and zero-damage attacks gain nothing. Exposure remains independent.
 	@warning_ignore("integer_division")
@@ -20,8 +22,8 @@ static func regular_amount(a: Dictionary, base: int, clock: int, round_number: i
 
 # Only damage resolution calls this mutating helper. Forecasts use amount().
 # A ward cancels one positive packet, including its exposure bonus, before Armor.
-static func apply(a: Dictionary, base: int, clock: int, regular: bool = false, round_number: int = -1) -> int:
-	var incoming: int = regular_amount(a, base, clock, round_number) if regular else amount(a, base, clock)
+static func apply(a: Dictionary, base, clock: int, regular: bool = false, round_number: int = -1):
+	var incoming = regular_amount(a, base, clock, round_number) if regular else amount(a, base, clock)
 	if incoming > 0 and a.get("muno_ward", false):
 		a["muno_ward"] = false
 		return 0

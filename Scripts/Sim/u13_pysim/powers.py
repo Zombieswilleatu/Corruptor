@@ -136,7 +136,7 @@ def shift(b,target,new,identity):
     return events
 
 
-def pulse(b,active,pulse_id,inner=False):
+def pulse(b,active,pulse_id,inner=False,enemy_bonus=0):
     target=active['target'];intensity=active['stages'][active['stage_index']]['intensity']
     ids=sorted(r['id'] for r in b.w['entities']['entities'] if
                (r['kind']=='marcher' and not r['attributes'].get('flying',False) and r['attributes']['lane']==target['lane'] if target['kind']=='lane'
@@ -146,16 +146,19 @@ def pulse(b,active,pulse_id,inner=False):
         r=e.entity(b.w,key);absorbed=0;hit={}
         command=dict(command_id=instance_id('hazard_hit',pulse_id,key),target_id=key)
         if target['kind']=='lane':
-            amount=incoming.apply(r['attributes'],intensity,incoming.phase_clock(b.w,b.number))
+            friendly = r['owner'] == active['declaration']['player_id']
+            base = max(0, intensity-int(friendly)+enemy_bonus*int(not friendly))
+            amount=incoming.apply(r['attributes'],base,incoming.phase_clock(b.w,b.number))
             absorbed=min(r['attributes']['armor'],amount);r['attributes']['armor']-=absorbed
             command.update(kind='marcher_damage',damage=amount-absorbed,cause='hazard')
             fact=b.fact(command);events.append(e.event(fact['type'],fact['data']));events.extend(b.react(fact,inner=inner))
         else:
             event_id=instance_id('battle',str(b.number),command['command_id'])
             e.require(event_id not in b.w['data'].get('battle_commands',{}),'battle_command_already_applied')
-            dealt=min(r['attributes']['integrity'],intensity)
+            castle_intensity=intensity+enemy_bonus*int(r['owner']!=active['declaration']['player_id'])
+            dealt=min(r['attributes']['integrity'],castle_intensity)
             hit=dict(castle_damage=dealt,destroyed=dealt==r['attributes']['integrity'],owner=r['owner'])
-            events.extend(b.breach_damage(key,b.w['players'][active['declaration']['player_id']]['lord_entity_id'],pulse_id,intensity,cause='scorch',inner=inner))
+            events.extend(b.breach_damage(key,b.w['players'][active['declaration']['player_id']]['lord_entity_id'],pulse_id,castle_intensity,cause='scorch',inner=inner))
             b.w['data'].setdefault('battle_commands',{})[event_id]=True
         events.append(e.event('HAZARD_HIT',dict(effect_id=active['effect_id'],pulse_id=pulse_id,entity_id=key,intensity=intensity,armor_absorbed=absorbed,round=b.number,hook=b.hook,**hit)))
     events.append(e.event('HAZARD_PULSED',dict(effect_id=active['effect_id'],power_id=active['declaration']['power_id'],player_id=active['declaration']['player_id'],target=target,intensity=intensity,pulse_id=pulse_id,affected_ids=ids,round=b.number,hook=b.hook)))
@@ -167,7 +170,7 @@ def resolve(rec,state,n):
     w=state['world'];b=Ordinary(w,n,state['seed'],state['player_order'],rec['fire_hook']);events=[];payload={}
     if power in ('PredatorOfRuin','MusterTheFaithful'):
         for ordinal in range(RULES[power].get('spawn_count',3)):
-            a=recruit.profile('Vulture' if power=='PredatorOfRuin' else 'Penitent',t['lane'],pid,n,n);a['source_effect_id']=rec['effect_id']
+            a=recruit.profile('Vulture' if power=='PredatorOfRuin' else 'Penitent',t['lane'],pid,n,n);a['source_effect_id']=rec['effect_id'];a['source_power_id']=power
             r=recruit.create(w,rec['effect_id'],ordinal,pid,a);recruit.place_spawn(w,r,state['seed'])
             events.append(e.event('MARCHER_SPAWNED',r))
     elif power=='InevitableRuin':
@@ -202,7 +205,7 @@ def resolve(rec,state,n):
     elif power=='Inferno': payload['hazard']='scorch'
     elif power=='Pyroclasm':
         active=next(a for a in state['persistent']['active'] if a['declaration']['power_id']=='Inferno' and a['declaration']['player_id']==pid)
-        events.extend(pulse(b,active,rec["effect_id"],inner=True))
+        events.extend(pulse(b,active,rec["effect_id"],inner=True,enemy_bonus=1))
     elif power=='Web':
         key=instance_id('persistent',identity,power);ids=members(w,t,270,1-pid)
         for uid in ids:

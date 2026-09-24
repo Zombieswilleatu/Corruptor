@@ -21,10 +21,10 @@ static func identity(game, revision: String, source_hash: String) -> Dictionary:
 
 static func begin(setup: Dictionary, revision: String, source_hash: String) -> Dictionary:
 	var promoted: bool = setup.get("ward_experiment") == Game.Content.SplitWard.VERSION and setup.get("tempo_experiment") == Game.Content.SplitWard.TEMPO
-	if setup.size() != (5 if promoted else 3) or typeof(setup.get("seed")) != TYPE_STRING or typeof(setup.get("lords")) != TYPE_ARRAY or typeof(setup.get("castles")) != TYPE_ARRAY:
+	if setup.size() != (5 if promoted else 3) + (1 if setup.has("defensive_pressure") else 0) or typeof(setup.get("seed")) != TYPE_STRING or typeof(setup.get("lords")) != TYPE_ARRAY or typeof(setup.get("castles")) != TYPE_ARRAY:
 		return {"action": "invalid", "reason": "trace_setup_invalid"}
 	var game = Game.new()
-	var result: Dictionary = game.start(setup.seed, setup.lords, setup.castles, true, promoted)
+	var result: Dictionary = game.start(setup.seed, setup.lords, setup.castles, true, promoted, setup.get("defensive_pressure", false))
 	if result.action == "invalid": return result
 	return {"action": "trace_started", "game": game, "trace": {
 		"identity": identity(game, revision, source_hash), "setup": setup.duplicate(true),

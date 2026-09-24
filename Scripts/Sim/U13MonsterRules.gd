@@ -55,7 +55,7 @@ static func valid_unit(a: Dictionary) -> bool:
 	if not a.has("monster_id"):
 		return a.get("suit") != "Monster"
 	for key in ["tumler_charge_next_tick", "tumler_charge_motion_tick", "tumler_charge_ready_tick", "tumler_charge_end_tick", "tumler_charge_base_armor", "muno_next_tick", "sooge_root_attempts", "sooge_root_round", "beam_next_tick", "beam_charge_tick", "beam_ready_tick", "dotra_concealment_round", "dotra_hide_at_tick", "sinodek_portal_round", "kopita_pulses", "kopita_last_pulse_tick"]:
-		if a.has(key) and (not Data.is_integer(a[key]) or a[key] < 0): return false
+		if a.has(key) and (not (preload("res://Scripts/Sim/U13Embolden.gd").numeric(a[key]) if key == "tumler_charge_base_armor" and a.has("_embolden_percent") else Data.is_integer(a[key])) or a[key] < 0): return false
 	return a.get("suit") == "Monster" and a.monster_id in NAMES and a.get("sprite_form") in ["mobile", "turret"] and (a.sprite_form != "turret" or a.monster_id == "Sooge") and typeof(a.get("flying")) == TYPE_BOOL
 
 static func limited(name: String) -> bool:

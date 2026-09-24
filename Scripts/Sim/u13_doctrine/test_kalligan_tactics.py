@@ -23,7 +23,8 @@ class KalliganTacticsTests(unittest.TestCase):
         tank=forecast(Facts(view),target,[(0,1)])
         self.assertEqual((2,0),(tank['score'],tank['enemy_kills']))
         unit(view,'fragile_friend',0,'Lord',hp=1,armor=0)
-        self.assertLess(forecast(Facts(view),target,[(0,1)])['score'],0)
+        self.assertEqual(2,forecast(Facts(view),target,[(0,1)])['score'])  # stage-one friendly damage is zero
+        self.assertLess(forecast(Facts(view),target,[(0,2)])['score'],0)
 
     def test_pyro_does_not_buy_kills_automatic_pulse_already_gets(self):
         view=view_with_scorch(); victim=unit(view,'victim',1,hp=1,armor=0)
@@ -78,7 +79,7 @@ class KalliganTacticsTests(unittest.TestCase):
         view=view_with_scorch(); active=view['persistent'][0]; active['stages']=[dict(intensity=i) for i in (1,2,1)]
         row=unit(view,'foe',1,hp=10,armor=0,step_fp=0)
         result=pyro_value(Facts(view))
-        self.assertEqual((4,6,-2),(result['immediate_gain'],result['next_stage_gain'],result['score']))
+        self.assertEqual((8,9,-1),(result['immediate_gain'],result['next_stage_gain'],result['score']))
         row['attributes']['hp']=2
         self.assertGreater(pyro_value(Facts(view))['score'],0)
 
@@ -103,7 +104,7 @@ class KalliganTacticsTests(unittest.TestCase):
         for identity,row in before.items():
             if row['attributes'].get('flying'):
                 self.assertNotIn(identity,hits);continue
-            expected=packet(copy_data(row['attributes']),2,200)
+            expected=packet(copy_data(row['attributes']),1 if row['owner']==0 else 2,200)
             actual=next(e['data'] for e in events if e['type'] in ('MARCHER_DAMAGED','MARCHER_DEFEATED') and e['data']['victim']['id']==identity)
             self.assertEqual(expected['armor'],hits[identity]['armor_absorbed'])
             self.assertEqual(expected['hp'],actual['hp_before']-actual['hp_after'])

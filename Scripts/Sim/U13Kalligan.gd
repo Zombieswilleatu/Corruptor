@@ -162,7 +162,8 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 		pulse_context,
 		_scorch(source.player_id, context.persistent_effects),
 		record.effect_id,
-		Callable(_humbaba, "react")
+		Callable(_humbaba, "react"),
+		1
 	)
 	return result
 
@@ -234,7 +235,7 @@ func _upkeep(context: Dictionary, result: Dictionary) -> Dictionary:
 		if not breach and (player.lord_id != "Kalligan" or not lord.attributes.alive):
 			continue
 		var before: int = castle.attributes.integrity
-		castle.attributes.integrity = mini(int(castle.attributes.max_integrity), before + (2 if breach else 1))
+		castle.attributes.integrity = mini(int(castle.attributes.max_integrity), before + 2)
 		castle.attributes.status = "standing"
 		ids.update(castle.id, castle.owner, castle.attributes)
 		result.events.append(
@@ -263,8 +264,7 @@ func _rekindle(context: Dictionary, result: Dictionary) -> Dictionary:
 	# repair them. Initial protected construction is never a revival reward.
 	for castle in context.world.entities.entities:
 		if (
-			Structures.targetable(castle)
-			and castle.attributes.status == "defunct"
+			Structures.defunct(castle)
 			and world.players[castle.owner].lord_id == "Kalligan"
 			and castle.id not in eligible
 		):
@@ -277,17 +277,17 @@ func _rekindle(context: Dictionary, result: Dictionary) -> Dictionary:
 		if not Structures.targetable(castle):
 			eligible.erase(entity_id)
 			continue
-		if not Structures.operational(castle):
+		if not Structures.operational(castle) or castle.attributes.integrity < castle.attributes.max_integrity:
 			continue
 		eligible.erase(entity_id)
 		var player_id: int = castle.owner
 		var lord: Dictionary = ids.get_entity(world.players[player_id].lord_entity_id)
-		if lord.attributes.alive and world.data.rekindle_rounds[player_id] < context.round:
+		if lord.attributes.alive:
 			world.data.rekindle_rounds[player_id] = context.round
-			world.data.neutral_tears += 1
+			world.players[player_id].resources.personal_tears += 1
 			result.events.append(
 				Structures.public_event(
-					"NEUTRAL_TEAR_CREATED",
+					"PERSONAL_TEAR_CREATED",
 					{
 						"source": "Rekindle",
 						"amount": 1,
@@ -324,7 +324,7 @@ func accept_order(context: Dictionary) -> Dictionary:
 	entities.restore(context.world.entities)
 	for entity_id in context.world.data.rekindle_defunct_ids:
 		var castle: Dictionary = entities.get_entity(entity_id)
-		if not Structures.targetable(castle) or Structures.operational(castle):
+		if not Structures.targetable(castle) or (Structures.operational(castle) and castle.attributes.integrity >= castle.attributes.max_integrity):
 			return Data.invalid("rekindle_episode_inconsistent")
 	for pending in context.get("pending_effects", []):
 		var source: Dictionary = pending.declaration

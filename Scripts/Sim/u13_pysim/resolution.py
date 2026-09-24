@@ -6,8 +6,8 @@ CastleDefenses and GuardWork. Decisions remain explicit, independent of policy.
 
 import json
 
-from . import economy as e, recruitment as recruits, split_ward
-from .battle import Battle, targetable, operational, note_loss, threat, defense
+from . import economy as e, recruitment as recruits, split_ward, ward_conversion
+from .battle import defunct, Battle, targetable, operational, note_loss, threat, defense
 from .copying import copy_data
 from .castle_balance import PENITENT_PAIR_SCREEN, BUTCHER_PAIR_KILLS
 from .development import DevelopmentMatch, reconcile
@@ -26,8 +26,7 @@ class Ordinary(Battle):
         if self.hook not in HOOKS:
             raise e.Unsupported("Ordinary resolution hook not implemented: " + self.hook)
         w, d = self.w, self.w["data"]
-        before_defunct = [c["id"] for c in w["entities"]["entities"] if targetable(c)
-                          and c["attributes"]["status"] == "defunct" and w["players"][c["owner"]]["lord_id"] == "Kalligan"]
+        before_defunct = [c["id"] for c in w["entities"]["entities"] if defunct(c) and w["players"][c["owner"]]["lord_id"] == "Kalligan"]
         self.kroni_orders = [{k: v for k, v in order.items() if k not in ("rites", "guard_moves", "summon")} for order in orders]
         self.orders = [combat_order(order) for order in orders]
         if self.hook == HOOKS[0]: events = self.artillery()
@@ -41,13 +40,13 @@ class Ordinary(Battle):
         for identity in eligible[:]:
             row = e.entity(w, identity)
             if not targetable(row): eligible.remove(identity); continue
-            if not operational(row): continue
+            if not operational(row) or row["attributes"]["integrity"] < row["attributes"]["max_integrity"]: continue
             eligible.remove(identity)
             pid = row["owner"]
-            if self.lord(pid)["attributes"]["alive"] and d["rekindle_rounds"][pid] < self.number:
+            if self.lord(pid)["attributes"]["alive"]:
                 d["rekindle_rounds"][pid] = self.number
-                d["neutral_tears"] += 1
-                events.append(e.event("NEUTRAL_TEAR_CREATED", dict(source="Rekindle", amount=1,
+                w["players"][pid]["resources"]["personal_tears"] += 1
+                events.append(e.event("PERSONAL_TEAR_CREATED", dict(source="Rekindle", amount=1,
                                       player_id=pid, castle_id=identity, round=self.number)))
         reconcile(w)
         events.extend(self.clear_sigils())
@@ -140,6 +139,7 @@ class Ordinary(Battle):
                            for part, suffix in ((self.orders[pid], ""), (self.orders[pid].get("ward", {}), ":ward"))]
         for pid, order, suffix in commitments:
             if not order: continue
+            spawn_start = len(events)
             cards = [e.entity(w, identity) for identity in order["card_ids"]]
             e.require(all(cards), "combat_cards_unavailable")
             events.append(e.event("COMBAT_ORDER_REVEALED", dict(player_id=pid, round=self.number, order=order, cards=cards)))
@@ -160,6 +160,7 @@ class Ordinary(Battle):
                     row=recruits.create(w,origin,ordinal,pid,monsters.profile(name,order['lane'],pid,self.number,self.number+1))
                     recruits.place_spawn(w,row,self.seed);bodies.append(row['id']);events.append(e.event('MARCHER_SPAWNED',row))
                 events.append(e.event('MONSTER_SUMMONED',dict(monster_id=name,player_id=pid,round=self.number,lane=order['lane'],unit_ids=bodies)))
+            ward_conversion.record(w,pid,order,self.number,events[spawn_start:])
         d["combat_reveal_round"] = self.number
         from . import game_staging
         events.extend(game_staging.capture(w,events,self.number))

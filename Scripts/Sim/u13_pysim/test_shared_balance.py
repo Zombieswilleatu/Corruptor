@@ -23,7 +23,7 @@ class SharedBalanceTests(unittest.TestCase):
                         if action == 'Siege':
                             attack.update(action='Siege', lane='Castle', target_id='castle_zone:1')
                             ward['lane'] = 'Castle'
-                        facts = Facts(dict(player_id=0, players=rules.w['players'], data=rules.w['data'],
+                        facts = Facts(dict(player_id=0, round=rules.number, players=rules.w['players'], data=rules.w['data'],
                             board=[r for r in rules.w['entities']['entities'] if r['kind']=='lord'], hand=[attacker]))
                         self.assertEqual(value, facts.strength(attack['card_ids'], action))
                         for exempt in (None, 'Butcher', 'Penitent'):

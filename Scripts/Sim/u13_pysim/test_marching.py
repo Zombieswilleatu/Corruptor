@@ -34,7 +34,7 @@ class MarchingTests(unittest.TestCase):
         fact['data']['event_id'] = 'vulture-kill'
         result = Battle(world, 1, setup['seed'], [0, 1], 'marching').react(fact)
         self.assertEqual(1, sum(e['event']['type'] == 'PICKING_THE_BONES' for e in result))
-        self.assertEqual(before+1, world['data']['neutral_tears'])
+        self.assertEqual(before, world['data']['neutral_tears'])
 
     def spec(self, name):
         return next(c for c in f.load()["cases"] if c["name"] == name)

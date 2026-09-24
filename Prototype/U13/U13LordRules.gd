@@ -20,7 +20,7 @@ const RULES: Dictionary = {
 		"breach": "ENTANGLEMENT\nPlayers at Threat 2+ may deploy no more than 2 Guards total during Development. Applies when this Breach is active before submission."
 	},
 	"Gremory": {
-		"passive": "PICKING THE BONES\nOnce per round, when your Vulture Marcher kills an enemy Marcher in combat, draw 1 card and place 1 Neutral Tear.\n\nSIFTING THE RUINS\nAfter the first Castle is destroyed each round, take the top discard into your Hand.\n\nINEVITABLE RUIN\nDiscard 2 cards to reduce a commissioned enemy Castle above 8 health to exactly 8 at the start of next round. If it has fallen to 8 or below when the power fires, the power fizzles. The Castle remains operational.",
+		"passive": "PICKING THE BONES\nOnce per round, when your Vulture Marcher kills an enemy Marcher in combat, draw 1 card. Each Vulture summoned by Predator of Ruin can also earn 1 Personal Tear in its lifetime after killing 2 enemy Marchers while Gremory is alive. At most 1 such Tear is earned per round; a Vulture blocked by this limit must kill again in a later round.\n\nSIFTING THE RUINS\nAfter the first Castle is destroyed each round, take the top discard into your Hand.\n\nINEVITABLE RUIN\nDiscard 2 cards to reduce a commissioned enemy Castle above 8 health to exactly 8 at the start of next round. If it has fallen to 8 or below when the power fires, the power fizzles. The Castle remains operational.",
 		"breach": "GEM DAGGER\nThe first Guard defeated each round makes both players draw 1 card."
 	},
 	"Deimos": {
@@ -32,7 +32,7 @@ const RULES: Dictionary = {
 		"breach": "THE STONES FORGET\nOn entering the Breach, deal 4 damage to every exposed Castle. On later rounds, deal 1 damage at round start before repairs. No recurring damage in the entry round. Permanent-arrival protection shields your Castles."
 	},
 	"Kalligan": {
-		"passive": "FORGE-REPAIR\nAt round start, each of your damaged standing Castles restores 1 Integrity. Ruined and Profaned Castles cannot be restored.\n\nREKINDLE\nOnce per round, when one of your Defunct Castles becomes operational, place 1 Neutral Tear.",
+		"passive": "FORGE-REPAIR\nAt round start, each of your damaged standing Castles restores 2 Integrity. Ruined and Profaned Castles cannot be restored.\n\nREKINDLE\nWhen one of your Castles falls to 1–6 Integrity and is then fully repaired, gain 1 Personal Tear. It can earn this reward again after becoming Defunct and being fully repaired again. Ruined Castles cannot be repaired.",
 		"breach": "RAPID CONSTRUCTION\nAt round start, both players' damaged standing Castles restore 2 Integrity. Ruined and Profaned Castles are unaffected. Forge-Repair does not stack while Kalligan is Banished."
 	}
 }

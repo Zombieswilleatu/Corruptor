@@ -12,7 +12,7 @@ var visible: Array = []
 
 
 static func row(
-	unit: Dictionary, hp: int, armor: int, at: float = 0.0, source: String = ""
+	unit: Dictionary, hp, armor, at: float = 0.0, source: String = ""
 ) -> Dictionary:
 	var a: Dictionary = unit.attributes
 	return {
@@ -52,12 +52,12 @@ static func outside_marching(events: Array, units: Array) -> Array:
 			var victim: Dictionary = d.get("victim", {})
 			if victim.get("kind", "") != "marcher" or not d.has("hp_after"):
 				continue
-			var hit: Dictionary = row(victim, int(d.hp_after) - int(d.hp_before), 0, at, "HIT")
+			var hit: Dictionary = row(victim, d.hp_after - d.hp_before, 0, at, "HIT")
 			hits[victim.id] = hit
 			result.append(hit)
 		elif event.type == "HAZARD_HIT":
 			if hits.has(d.entity_id):
-				hits[d.entity_id].armor = -int(d.armor_absorbed)
+				hits[d.entity_id].armor = -d.armor_absorbed
 				hits[d.entity_id].source = "SCORCH"
 		elif event.type == "HAZARD_PULSED":
 			if d.get("power_id", "") == "Inferno" and next_hook == Timeline.POST_RESOLUTION_DIRECT:
@@ -69,7 +69,7 @@ static func outside_marching(events: Array, units: Array) -> Array:
 			group_start = result.size()
 			hits.clear()
 		elif event.type == "MARCHER_REGENERATED" and lookup.has(d.entity_id):
-			result.append(row(lookup[d.entity_id], int(d.after) - int(d.before), 0, at, "REGEN"))
+			result.append(row(lookup[d.entity_id], d.after - d.before, 0, at, "REGEN"))
 	var changed: Array = []
 	for hit in result:
 		if hit.hp != 0 or hit.armor != 0 or hit.has("pulse"):
@@ -88,7 +88,7 @@ func show_rows(rows: Array) -> void:
 			if (
 				existing.id == hit.id
 				and existing.source == hit.source
-				and signi(int(existing.hp)) == signi(int(hit.hp))
+				and signf(existing.hp) == signf(hit.hp)
 			):
 				existing.hp += hit.hp
 				existing.armor += hit.armor

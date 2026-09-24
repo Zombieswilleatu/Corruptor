@@ -118,6 +118,7 @@ static func describe(kind: String, d: Dictionary) -> String:
 		"GUARD_PAIR_DRAW": return "Vulture pair drew 1 card"
 		"GUARD_PAIR_STRIKE": return "Butcher pair destroyed an enemy Marcher"
 		"GUARD_PAIR_SCREEN": return "Penitent pair provided %d protection" % d.get("amount", 0)
+		"WARD_RECRUITS_CONVERTED": return "%d enemy recruits changed sides · Ward stopped the attack; they march immediately" % int(d.get("regular_count", 0))
 		"WARD_SOUL_GAINED": return "+1 Soul · Ward prevented a successful attack in " + str(d.get("lane", ""))
 		"DECISIVE_SOUL_GAINED": return "+1 Soul · late-game " + str(d.get("attack", "attack")) + " victory"
 		"COMBAT_ORDER_REVEALED": return "Action: " + str(d.get("order", {}).get("action", "Pass"))

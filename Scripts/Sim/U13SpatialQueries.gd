@@ -25,7 +25,7 @@ func capture(registry_snapshot: Dictionary) -> Dictionary:
 		)
 		if point.is_empty() or Space.lane_region(attributes.get("lane")).is_empty():
 			return Data.invalid("spatial_marcher_position_invalid")
-		if not Data.is_integer(attributes.get("hp")) or attributes.hp < 1:
+		if not (preload("res://Scripts/Sim/U13Embolden.gd").numeric(attributes.get("hp")) if attributes.has("_embolden_percent") else Data.is_integer(attributes.get("hp"))) or attributes.hp <= 0:
 			return Data.invalid("spatial_marcher_life_invalid")
 		next_rows.append(
 			{"id": row.id, "owner": row.owner, "lane": attributes.lane, "field_position": point}

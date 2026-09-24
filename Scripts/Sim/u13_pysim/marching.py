@@ -23,6 +23,8 @@ from .primitives import entity_id, instance_id, draw
 VERSION = "U13_PYSIM_MARCHING_SPIKE_V2_RANGE_SENTINEL"
 MODEL = "U13_MARCHING_SPATIAL_V2"
 TICKS = 200
+from . import embolden
+
 INTEGER_FIELDS = ("hp", "max_hp", "attack", "armor", "regen", "step_fp", "birth_round",
                   "movement_ready_round", "x_fp", "y_fp", "contact_tick", "direction", "waiting_since_round")
 
@@ -50,9 +52,10 @@ def valid(world, check_duels=True):
             if not fort.valid_unit(a) or not incoming.valid(a): return False
             if row["owner"] not in (0, 1) or (a.get("suit") not in ("Butcher", "Penitent", "Vulture", "Wright", "Monster") or not monsters.valid_unit(a)) or a.get("lane") not in LANES:
                 return False
-            if any(type(a.get(field)) is not int for field in INTEGER_FIELDS):
+            if any(not (embolden.valid_stat(a.get(field)) if embolden.enabled(world) and field in embolden.FIELDS
+                        else type(a.get(field)) is int) for field in INTEGER_FIELDS):
                 return False
-            if not (1 <= a["hp"] <= a["max_hp"] <= 1000000 and 1 <= a["attack"] <= 1000000
+            if not ((0 < a["hp"] if embolden.enabled(world) else 1 <= a["hp"]) and a["hp"] <= a["max_hp"] <= 1000000 and 1 <= a["attack"] <= 1000000
                     and 0 <= a["armor"] <= 1000000 and 0 <= a["regen"] <= 1000000
                     and 0 <= a["step_fp"] <= 2400 and 0 <= a["x_fp"] <= 2400 and 0 <= a["y_fp"] <= 600
                     and a["contact_tick"] >= -1 and a["birth_round"] >= 0
@@ -248,8 +251,9 @@ def move(s, duels, context, clock, modifiers, fields, fleeing=(), lamps=()):
         step = (base >> 1) + (base & 1) * (clock & 1) if recovery else base
         percent = modifiers[lane][owner]["speed_percent"]
         web = not (s.extra[i] or {}).get("flying",False) and any(who != owner and distance(xs[i], ys[i], wx, wy) <= radius for who, wx, wy, radius in fields[lane])
-        if percent or web or collapse:
-            step = speed(base, percent, recovery, clock, web, collapse)
+        boost = extra.get("_embolden_percent", 0)
+        if percent or web or collapse or boost:
+            step = speed(base, percent, recovery, clock, web, collapse, boost)
         if monster_effects.slowed(dict(x_fp=xs[i],y_fp=ys[i],lane=lane,flying=(s.extra[i] or {}).get('flying',False),monster_id=(s.extra[i] or {}).get('monster_id')),data.get('monsters',{}).get('fields',[])):
             step=(step>>1)+(step&1)*(clock&1)
         if not retreat[i] and (fort.in_melee(moving_rows[i], field_nearest[i]) if ranged else gaps[i] <= reach2):
@@ -392,7 +396,7 @@ def attack(s, i, amount, bypass, clock=0):
         absorbed = min(s.armor[i], remaining)
         s.armor[i] -= absorbed
         remaining -= absorbed
-    s.hp[i] = max(0, s.hp[i] - remaining)
+    s.hp[i] = max(0, embolden.clean_damage(s.hp[i] - remaining, s.extra[i] or {}))
     return remaining
 
 
@@ -473,6 +477,7 @@ class Phase:
         if actors: self.emit("KRONI_ACTORS_STARTED",dict(round=self.number,actors=actors))
         has_monsters=monsters.enabled(self.w) and (bool(data['monsters']['fields']) or bool(data['monsters']['pending_beams']) or any(extra and ('monster_id' in extra or 'poison_until_round' in extra or extra.get('poison_ticks_left',0)>0) for extra in s.extra))
         for tick in range(tick_offset, tick_offset+ticks):
+            embolden.refresh_phase(self)
             tick_events_start=len(self.events)
             s = self.s
             lamp_before = s.rows() if lamps else []

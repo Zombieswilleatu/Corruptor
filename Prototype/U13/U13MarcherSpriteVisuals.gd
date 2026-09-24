@@ -71,7 +71,7 @@ func sync(units: Array, clash: Array, round_number: int, playback: bool) -> void
 
 func hit(rows: Array) -> void:
 	for row in rows:
-		if subjects.has(row.id) and (int(row.get("hp", 0)) < 0 or int(row.get("armor", 0)) < 0):
+		if subjects.has(row.id) and (row.get("hp", 0) < 0 or row.get("armor", 0) < 0):
 			subjects[row.id].hit_age = 0.0
 
 func advance(delta: float) -> void:
