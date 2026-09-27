@@ -10,7 +10,7 @@ func run() -> void:
 	world.players[0].resources.souls = Victory.RITUAL_SOULS
 	check(Victory.evaluate(world) == {"winner": 0, "win_by": "Ritual"}, "fifteen Souls with living Lord wins Ritual")
 	world.players[1].resources.souls = Victory.RITUAL_SOULS + 1
-	check(Victory.evaluate(world).winner == 0, "simultaneous Ritual preserves seat-zero tie priority")
+	check(Victory.evaluate(world).winner == 1, "simultaneous Ritual compares Souls before seat")
 	patch(world, world.players[0].lord_entity_id, {"alive": false})
 	check(Victory.evaluate(world).winner == 1, "absent Lord cannot win Ritual")
 	patch(world, world.players[1].lord_entity_id, {"alive": false})
@@ -37,6 +37,7 @@ func run() -> void:
 	check(Victory.evaluate(world) == {"winner": 1, "win_by": "Ritual"}, "Ritual takes precedence over Final Collapse")
 	for kind in ["Ritual", "Dominion", "FinalCollapse"]:
 		live_victory(kind)
+	ritual_checkdown()
 	throne_reward()
 	print("U13 victory failures: %d" % failures)
 	quit(failures)
@@ -93,3 +94,32 @@ func throne_reward() -> void:
 		Victory.Throne.finish(world, round_number)
 		Victory.finish(world, round_number)
 		check(world.data.victory.winner == (0 if round_number == 3 else -1), "Throne reward counts before victory in round %d" % round_number)
+
+
+func ritual_checkdown() -> void:
+	for preferred in [0, 1]:
+		var world: Dictionary = prepared()
+		world.entities.entities = world.entities.entities.filter(func(row): return row.kind != "castle")
+		for pid in [0, 1]:
+			patch(world, world.players[pid].lord_entity_id, {"alive": true})
+			world.players[pid].resources.souls = 15
+			world.players[pid].resources.personal_tears = 1
+		world.players[preferred].resources.souls = 16
+		world.players[1 - preferred].resources.personal_tears = 7
+		check(Victory.evaluate(world).winner == preferred, "Ritual Souls beat Tears in either seat")
+		world.players[1 - preferred].resources.souls = 16
+		check(Victory.evaluate(world).winner == 1 - preferred, "Ritual tied Souls compare Tears")
+		world.players[preferred].resources.personal_tears = 7
+		var castle: Dictionary = {"kind": "castle", "owner": preferred, "attributes": {"status": "standing", "construction_state": "active", "integrity": 1}}
+		world.entities.entities.append(castle)
+		check(Victory.evaluate(world).winner == preferred, "Ritual tied Souls and Tears compare castles")
+		castle.attributes.integrity = 0
+		check(Victory.evaluate(world).winner == 0, "Ritual zero integrity castle does not break perfect tie")
+		castle.attributes.integrity = 1
+		castle.attributes.construction_state = "building"
+		check(Victory.evaluate(world).winner == 0, "Ritual unfinished castle does not break perfect tie")
+		world.entities.entities.pop_back()
+		check(Victory.evaluate(world).winner == 0, "Ritual seat fallback only after complete tie")
+		patch(world, world.players[preferred].lord_entity_id, {"alive": false})
+		world.players[preferred].resources.souls = 99
+		check(Victory.evaluate(world).winner == 1 - preferred, "Ritual banished Lord cannot enter checkdown")

@@ -1,5 +1,7 @@
 extends RefCounted
 
+const MusterEndurance = preload("res://Scripts/Sim/U13MusterEndurance.gd")
+
 const Embolden = preload("res://Scripts/Sim/U13Embolden.gd")
 
 const Shroud = preload("res://Scripts/Sim/U13DotraShroud.gd")
@@ -83,6 +85,7 @@ static func resolve(world: Dictionary, entities, context: Dictionary, tick: int,
 		shots.append({"attacker": unit, "target": target, "amount": amount})
 	var deaths: Array = []
 	for shot in shots:
+		var hp_before: float = 0.0
 		var dealt = 0
 		var hp_after = 0
 		var evaded: bool = false
@@ -96,6 +99,7 @@ static func resolve(world: Dictionary, entities, context: Dictionary, tick: int,
 			var target: Dictionary = entities.get_entity(shot.target.id)
 			if not target.is_empty():
 				var a: Dictionary = target.attributes
+				hp_before = float(a.hp)
 				var live_rows: Array = entities.marchers() if a.get("monster_id") == "Tumler" else []
 				evaded = Effects.evades(target, shot.attacker, live_rows, context, tick, "Melee", Fort.rows(world), fleeing)
 				blocked = Defense.blocks_vulture_melee(target, shot.attacker, context.seed, context.round, tick)
@@ -115,6 +119,7 @@ static func resolve(world: Dictionary, entities, context: Dictionary, tick: int,
 				else: entities.update(target.id, target.owner, a)
 				if not blocked and not evaded: events.append_array(Effects.on_hit(entities, shot.attacker, target.id, dealt, context, tick))
 		events.append(Fort.event("MARCHER_MELEE_ATTACK", {"attacker": shot.attacker, "target": shot.target, "damage_dealt": dealt, "evaded": evaded, "blocked": blocked, "warded": warded, "hp_after": hp_after, "round": context.round, "tick": tick, "lane": shot.attacker.attributes.lane}))
+		events.append_array(MusterEndurance.credit(world, shot.target, shot.attacker, hp_before, hp_after, false, int(context.round), tick))
 	world.entities = entities.snapshot()
 	for death in deaths:
 		death.merge({"event_id": Data.instance_id("field_melee_kill", str(clock), death.victim.id), "round": context.round, "tick": tick, "hook": context.hook, "cause": "combat"})

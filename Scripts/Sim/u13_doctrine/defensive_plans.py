@@ -33,8 +33,9 @@ def development(f, plan):
         row = copy_data(f.by_id[move['card_id']])
         row['attributes'].update(role='guard', lane=move['lane'], slot=move['slot'])
         rows.append(row); by_id[row['id']] = row
-    amount = len(moves)
-    wright_pairs = 0
+    from .lords.odradek import project_immediate_guards
+    copies, wright_pairs = project_immediate_guards(f, plan, world)
+    amount = len(moves)+copies
     for lane in LANES:
         for suit in ('Penitent', 'Vulture', 'Wright', 'Butcher'):
             fresh = sorted((m for m in moves if m['lane'] == lane and
@@ -161,7 +162,11 @@ class Defense:
         work_score += rekindle.payoff(self.f, world)-rekindle.payoff(self.f, self.baseline_world)
         risk = opponent_memory.risk(self.f, world, plan, self.weights)
         history_score = self.history_risk-risk
-        return dict(enabled=True, score_delta=structure_score+work_score-old_work+history_score,
+        hunt_score = kanifous_hunt_bonus(self.f, world, plan)
+        kalligan_score = kalligan_orias_bonus(self.f, world, plan)
+        return dict(enabled=True, score_delta=structure_score+work_score-old_work+history_score+hunt_score+kalligan_score,
+                    kalligan_orias_score=kalligan_score,
+                    kanifous_hunt_score=hunt_score,
                     history_score=history_score, history_risk=risk,
                     structure_score=structure_score, work_score=work_score, replaced_work_score=old_work,
                     work=work, scenarios=scenarios)
@@ -203,3 +208,56 @@ def report(candidates, chosen, variants):
                 alternative_plans=dict(sorted(Counter(variants).items())), selected=copy_data(chosen['defense']),
                 scope='fixed stress cases plus bounded public commitment history; Work before combat; enemy powers, artillery and movement unmodeled',
                 hard_veto=False)
+
+
+def kanifous_hunt_bonus(f, world, plan):
+    """Reward crossing survival thresholds, not merely deploying more guards."""
+    if f.kind!='Kanifous' or getattr(f,'wish_profile','')!='wealth35_position_defense': return 0
+    if not f.lord[f.pid]['attributes']['alive'] or 'summon' in plan['order']: return 0
+    if f.lord[f.enemy]['attributes']['lord_id']!='Orias': return 0
+    history=[r for r in f.opponent['evidence'] if r['action']=='Hunt']
+    mean=sum(r['strength'] for r in history[-3:])//len(history[-3:]) if history else 15
+    mean=max(9,min(30,mean)); probes=(max(1,mean-6),mean,mean+6)
+    empty=dict(powers=[],order={})
+    if not hasattr(f,'_kanifous_hunt_baseline'):
+        base,_=development(f,empty)
+        f._kanifous_hunt_baseline=[exposure(f,base,empty,'Lord',p)['banished'] for p in probes]
+    saved=sum(int(before)-int(exposure(f,world,plan,'Lord',p)['banished'])
+              for before,p in zip(f._kanifous_hunt_baseline,probes))
+    return 48*saved//len(probes)
+
+
+def kanifous_guard_retention(f, proposal):
+    if proposal.category not in ('guards','combat'): return 0
+    if proposal.category=='combat' and proposal.term!='Ward': return 0
+    if f.kind!='Kanifous' or getattr(f,'wish_profile','')!='wealth35_position_defense': return 0
+    plan=dict(powers=[],order=proposal.payload)
+    world,_=development(f,plan)
+    return kanifous_hunt_bonus(f,world,plan)
+
+
+def kalligan_orias_bonus(f, world, plan):
+    """Kalligan/Orias only: preserve a live Lord and Keep under public probes.
+
+    No enemy sealed order or hand enters the forecast. A bounded threshold
+    reward allows useful attacks while discouraging avoidable banishments.
+    Resummon/Threat choices remain under the existing lifecycle scoring.
+    """
+    if f.kind != 'Kalligan' or f.lord[f.enemy]['attributes']['lord_id'] != 'Orias':
+        return 0
+    if not f.lord[f.pid]['attributes']['alive'] or 'summon' in plan['order']:
+        return 0
+    if not hasattr(f, '_kalligan_orias_baseline'):
+        history = [r for r in f.opponent['evidence'] if r['action'] == 'Hunt'][-3:]
+        mean = sum(r['strength'] for r in history)//len(history) if history else 15
+        mean = max(9, min(30, mean))
+        probes = (max(1, mean-6), mean, mean+6)
+        empty = dict(powers=[], order={})
+        base, _ = development(f, empty)
+        f._kalligan_orias_baseline = [(p, exposure(f, base, empty, 'Lord', p)) for p in probes]
+    score = 0
+    for pressure, before in f._kalligan_orias_baseline:
+        after = exposure(f, world, plan, 'Lord', pressure)
+        score += 72*(int(before['banished'])-int(after['banished']))
+        score += 18*(before['castles_lost']-after['castles_lost'])
+    return score//len(f._kalligan_orias_baseline)

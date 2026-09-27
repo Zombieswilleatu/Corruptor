@@ -27,15 +27,17 @@ def hashes(root):
 def freeze(root, output):
     frozen = output/'source'
     before = hashes(root)
-    # A local metadata-only clone pins HEAD without copying any game art.
-    subprocess.run(['git', 'clone', '--shared', '--no-checkout', str(root), str(frozen)], check=True)
+    # Copy only simulation inputs. The explicit revision and hashes make this
+    # snapshot portable without sharing Git objects with the live checkout.
+    frozen.mkdir(parents=True, exist_ok=False)
+    revision = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
     for name in before:
         destination = frozen/name
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(root/name, destination)
     if before != hashes(root) or before != hashes(frozen):
         raise RuntimeError('Source changed while freezing; start a fresh output directory.')
-    identity = dict(files=before, revision=subprocess.check_output(['git', '-C', str(frozen), 'rev-parse', 'HEAD'], text=True).strip())
+    identity = dict(files=before, revision=revision)
     (output/'frozen-source.json').write_text(json.dumps(identity, indent=2)+'\n', encoding='utf-8')
     return frozen
 

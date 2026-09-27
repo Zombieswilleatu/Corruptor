@@ -1,15 +1,15 @@
 """Odradek: buy material swings with Reconfiguration, not empty spatial casts.
 
 Passives: Interlock is not assumed to trigger. Redirect moves both sides;
-Allegiance Shift takes enemies only. Guard changes are delayed one round.
+Allegiance Shift takes enemies only. Multiply resolves before development; False Orders remains delayed.
 """
 from u13_pysim.power_rules import RULES
 from ..facts import LANES, power
 from ..odradek_tactics import inside, field, redirect, capture, redirect_value, shift_value, targets
 
 LORD = 'Odradek'
-RECONFIGURATION = frozenset(('Redirect', 'FalseOrders', 'AllegianceShift', 'Inversion'))
-SAVING_GOALS = frozenset(('AllegianceShift', 'Inversion'))
+RECONFIGURATION = frozenset(('Redirect', 'FalseOrders', 'AllegianceShift', 'Multiply'))
+SAVING_GOALS = frozenset(('AllegianceShift', 'Multiply'))
 
 
 def proposals(f):
@@ -21,12 +21,27 @@ def proposals(f):
                 if value['score']>0 or name=='Redirect': yield power(name,target,value['score'],value['reason'])
         other = 'Castle' if lane == 'Lord' else 'Lord'
         guards = sorted(f.guards(f.enemy, lane), key=lambda r: (-r['attributes']['value'], r['id']))
-        if guards and f.free(f.pid, lane):
-            count = min(len(guards), len(f.free(f.pid, lane)))
-            yield power('Inversion', dict(owner_id=f.enemy, lane=lane), 20*count, 'delayed_guard_ownership_plus_neutral_tear')
+        if len(f.free(f.pid, lane)) >= 2:
+            for guard in guards:
+                target = dict(entity_id=guard['id'], lane=lane)
+                yield power('Multiply', target, multiply_value(f, target), 'immediate_enemy_removal_and_up_to_three_guards')
         if guards and f.free(f.enemy, other) and len(guards) > len(f.guards(f.enemy, other)):
             yield power('FalseOrders', dict(entity_id=guards[0]['id'], owner_id=f.enemy, lane=other),
                         8+2*guards[0]['attributes']['value'], 'open_guarded_lane_next_round')
+
+
+def multiply_value(f, target, plan=None, ctx=None):
+    # Existing 12-point guard removal, 5 points per own guard strength,
+    # and existing pair bonuses. Same-round resolution has no delay discount.
+    row = f.by_id.get(target['entity_id'])
+    if not row or row not in f.guards(f.enemy, target['lane']): return 0
+    if ctx and row['id'] in ctx['guard_losses']: return 0
+    occupied = {r['attributes']['slot'] for r in f.guards(f.pid, target['lane'])}
+    if plan:
+        occupied.update(m['slot'] for m in plan['order'].get('guard_moves', []) if m['lane'] == target['lane'])
+    copies = min(3, max(0, 3-len(occupied)))
+    pair = dict(Penitent=15,Vulture=16,Wright=8,Butcher=9)[row['attributes']['suit']] if copies >= 2 else 0
+    return 12+5*copies*row['attributes']['value']+pair
 
 
 def guard_opportunity(f, plan, ctx, lane, future=False):
@@ -62,11 +77,11 @@ def coordinate(f, plan, ctx):
         redirect(units,target)
     for source in plan['powers']:
         name, target = source['power_id'], source['target']
-        if name == 'Inversion':
-            before = min(len(f.guards(f.enemy, target['lane'])), len(f.free(f.pid, target['lane'])))
-            ids = [r['id'] for r in guard_opportunity(f, plan, ctx, target['lane'])]
-            yield dict(power=name, score_delta=20*(len(ids)-before), eligible_after=ids,
-                       reason='own_plan_changes_inversion_capacity' if len(ids) != before else 'inversion_room_retained')
+        if name == 'Multiply':
+            before = multiply_value(f, target)
+            after = multiply_value(f, target, plan, ctx)
+            yield dict(power=name, score_delta=after-before,
+                       reason='multiply_after_own_attack_and_guard_deployments')
         elif name == 'FalseOrders':
             victim = f.by_id[target['entity_id']]
             lost = victim['id'] in ctx['guard_losses']
@@ -109,9 +124,15 @@ class ResourceHorizon:
             cost = RULES[name]['cost']['reconfiguration']
             wait = max(0, cost-remaining)
             if wait > 2: continue
-            if name == 'Inversion':
-                ids = [r['id'] for r in guard_opportunity(f, plan, ctx, target['lane'], future=True)]
-                value = 20*len(ids)
+            if name == 'Multiply':
+                # False Orders fires before a saved Multiply next round.
+                if any(s['power_id'] == 'FalseOrders' and s['target']['entity_id'] == target['entity_id'] and s['target']['lane'] != target['lane'] for s in plan['powers']): continue
+                if any(s['power_id'] == 'Multiply' and s['target']['lane'] == target['lane'] for s in plan['powers']): continue
+                occupied = {r['attributes']['slot'] for r in f.guards(f.pid, target['lane'])}
+                occupied.update(m['slot'] for m in plan['order'].get('guard_moves', []) if m['lane'] == target['lane'])
+                if len(occupied) > 1: continue
+                value = multiply_value(f, target, plan, ctx)
+                ids = [target['entity_id']] if value > 0 else []
             else:
                 shifted=shift_value(f,target,units)
                 ids=shifted['eligible_after'];value=shifted['score']
@@ -129,3 +150,45 @@ class ResourceHorizon:
                     omission_plans=omission_count, selected=chosen['resource_horizon'],
                     scope='current targets after own choices; at most two further active-Lord incomes; future board and survival uncertain',
                     hard_veto=False)
+
+
+def normalize_multiply(f, plan, selected):
+    """Never Multiply into the lane of our own Hunt/Siege this round."""
+    from u13_pysim.power_rules import declaration
+    order=plan['order']
+    if order.get('action') not in ('Hunt','Siege'):return selected,[]
+    lane='Lord' if order['action']=='Hunt' else 'Castle'
+    def conflict(source):return source['power_id']=='Multiply' and source['target']['lane']==lane
+    if not any(conflict(s) for s in plan['powers']):return selected,[]
+    remaining=[s for s in plan['powers'] if not conflict(s)]
+    plan['powers']=[declaration(f.pid,f.v['round'],s['power_id'],s['target'],index=i,
+        parameters=s['parameters'],discard_ids=s['cost'].get('discard_ids')) for i,s in enumerate(remaining)]
+    selected=[p for p in selected if not (p.category=='powers' and p.term=='Multiply' and p.payload['target']['lane']==lane)]
+    return selected,['Multiply']
+
+
+def project_immediate_guards(f, plan, world):
+    """Own copies/pair/work for public defensive scenarios; no enemy prediction.
+
+    Called after projecting sealed hand placements. Those slots are reserved
+    before the actual effect fires, so both paths have identical capacity.
+    """
+    rows = world['entities']['entities']
+    count = wrights = 0
+    for source in plan['powers']:
+        if source['power_id'] != 'Multiply': continue
+        target = source['target'];row = f.by_id.get(target['entity_id'])
+        if not row or row not in f.guards(f.enemy, target['lane']): continue
+        lane = target['lane'];a = row['attributes']
+        occupied = {r['attributes']['slot'] for r in rows if r['kind'] == 'card' and r['owner'] == f.pid and r['attributes'].get('role') == 'guard' and r['attributes']['lane'] == lane}
+        created = []
+        for slot in (s for s in range(3) if s not in occupied):
+            key = 'multiply_forecast:'+source['declaration_id']+':'+str(slot)
+            new = dict(id=key,kind='card',owner=f.pid,attributes=dict(role='guard',lane=lane,slot=slot,suit=a['suit'],value=a['value']))
+            rows.append(new);created.append(new)
+        count += len(created)
+        if len(created) >= 2:
+            world['data']['guard_work']['pairs'].append(dict(player_id=f.pid,lane=lane,suit=a['suit'],
+                ids=[r['id'] for r in created[:2]],slots=[r['attributes']['slot'] for r in created[:2]],round=f.v['round'],active=True))
+            wrights += a['suit'] == 'Wright'
+    return count, wrights

@@ -16,20 +16,44 @@ from .resolution import HOOKS, Ordinary
 RITUAL_SOULS = 15
 DOMINION_TEARS = 7
 DOMINION_VEIL = 12
+ROUND_LIMIT = 20
 
 
 def alive(world, pid):
     return e.entity(world, world["players"][pid]["lord_entity_id"])["attributes"]["alive"]
 
 
+def deadline_winner(world):
+    players = world['players']
+    if 'round_limit' not in world['data'].get('victory', {}):
+        return int(players[1]['resources']['souls'] > players[0]['resources']['souls'])
+    return tiebreak_winner(world)
+
+
+def tiebreak_winner(world):
+    """Souls, personal Tears, standing active castles, living Lord, then seat."""
+    players = world['players']
+    scores = []
+    for pid in (0, 1):
+        castles = sum(r.get('kind') == 'castle' and r.get('owner') == pid
+                      and r['attributes'].get('status') == 'standing'
+                      and r['attributes'].get('construction_state') == 'active'
+                      and r['attributes'].get('integrity', 0) > 0
+                      for r in world['entities']['entities'])
+        scores.append((players[pid]['resources']['souls'],
+                       players[pid]['resources']['personal_tears'], castles, alive(world, pid)))
+    return int(scores[1] > scores[0])
+
+
 def evaluate(world, number=None):
     players = world["players"]
-    for pid in (0, 1):
-        if alive(world, pid) and players[pid]["resources"]["souls"] >= RITUAL_SOULS:
-            return dict(winner=pid, win_by="Ritual")
+    ritual = [pid for pid in (0, 1)
+              if alive(world, pid) and players[pid]["resources"]["souls"] >= RITUAL_SOULS]
+    if ritual:
+        return dict(winner=ritual[0] if len(ritual) == 1 else tiebreak_winner(world), win_by="Ritual")
     veil = world["data"]["neutral_tears"] + sum(p["resources"]["personal_tears"] for p in players)
     if veil >= 26 and not split_ward.tempo_enabled(world):
-        return dict(winner=int(players[1]["resources"]["souls"] > players[0]["resources"]["souls"]), win_by="FinalCollapse")
+        return dict(winner=deadline_winner(world), win_by="FinalCollapse")
     if veil >= DOMINION_VEIL:
         for pid in (0, 1):
             tears = players[pid]["resources"]["personal_tears"]
@@ -37,8 +61,8 @@ def evaluate(world, number=None):
                 return dict(winner=pid, win_by="Dominion")
     if split_ward.tempo_enabled(world):
         e.require(type(number) is int, "tempo_settlement_round_required")
-        if number >= 25:
-            return dict(winner=int(players[1]["resources"]["souls"] > players[0]["resources"]["souls"]), win_by="RoundLimit")
+        if number >= world["data"].get("victory", {}).get("round_limit", 25):
+            return dict(winner=deadline_winner(world), win_by="RoundLimit")
     return dict(winner=-1, win_by="")
 
 
@@ -170,18 +194,6 @@ class RoundRules(Ordinary):
             events.extend(result["events"])
         elif hook == "end_marching_checks":
             e.require(d["humbaba_end_round"] < n, "endurance_already_checked")
-            for pid in self.order:
-                if self.w["players"][pid]["lord_id"] != "Humbaba":
-                    continue
-                qualifying = [r["id"] for r in self.w["entities"]["entities"] if r["kind"] == "marcher"
-                              and r["owner"] == pid and r["attributes"]["suit"] == "Penitent" and r["attributes"]["hp"] == 1]
-                met = alive(self.w,pid) and bool(qualifying)
-                events.append(e.event("ENDURANCE_CHECKED", dict(player_id=pid, round=n, threshold_met=met,
-                                      lord_alive=alive(self.w,pid), qualifying_ids=qualifying)))
-                if met:
-                    d["neutral_tears"] += 1
-                    events.append(e.event("NEUTRAL_TEAR_CREATED", dict(player_id=pid, round=n,
-                                          amount=1, source="EnduranceOfTheFaithful")))
             d["humbaba_end_round"] = n
         elif hook == "aftermath":
             e.require(d.get("combat_cleanup_round",0) < n and e.cards_valid(self.w), "combat_already_cleaned")

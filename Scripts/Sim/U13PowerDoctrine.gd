@@ -149,10 +149,9 @@ static func odradek(c) -> Array:
 		add(result, c, "Redirect", point.target, point.score * 1.5)
 	for lane in ["Lord", "Castle"]:
 		var free_slots: int = maxi(0, 3 - c.guards(c.pid, lane).size())
-		var value: int = 0
-		for guard in c.guards(1 - c.pid, lane).slice(0, free_slots):
-			value += c.guard_strength(guard)
-		add(result, c, "Inversion", {"owner_id": 1 - c.pid, "lane": lane}, value * 1.6)
+		if free_slots >= 2:
+			for guard in c.guards(1 - c.pid, lane):
+				add(result, c, "Multiply", {"entity_id": guard.id, "lane": lane}, 12.0 + 5.0 * free_slots * c.guard_strength(guard))
 		var other: String = "Castle" if lane == "Lord" else "Lord"
 		if c.guards(1 - c.pid, other).size() >= 3:
 			continue

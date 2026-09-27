@@ -116,8 +116,13 @@ def work(world, number, player_order):
         return events
     for pid in player_order:
         moves = world["data"]["guard_orders"][pid]["moves"]
-        amount = len(moves)
-        wright_pairs = 0
+        fresh_copies = []
+        for m in world['data'].get('multiply_fresh_guards',[]):
+            row=e.entity(world,m['card_id'])
+            if m['player_id']==pid and m['round']==number and row and row['owner']==pid and row['attributes'].get('role')=='guard' and row['attributes'].get('lane')==m['lane']:
+                fresh_copies.append(m['card_id'])
+        amount = len(moves)+len(fresh_copies)
+        wright_pairs = sum(p['active'] and p['player_id']==pid and p['suit']=='Wright' and set(p['ids']).issubset(fresh_copies) for p in state['pairs'])
         for lane in LANES:
             for suit in SUITS:
                 fresh = sorted((m for m in moves if m["lane"] == lane

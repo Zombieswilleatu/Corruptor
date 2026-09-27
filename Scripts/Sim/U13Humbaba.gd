@@ -165,6 +165,8 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 			"Penitent", source.target.lane, source.player_id, context.round, context.round
 		)
 		attributes["source_effect_id"] = record.effect_id
+		attributes["source_power_id"] = MUSTER
+		attributes["muster_owner"] = source.player_id
 		var created: Dictionary = entities.create(
 			"marcher", record.effect_id, ordinal, source.player_id, attributes
 		)
@@ -243,49 +245,7 @@ static func endurance(context: Dictionary) -> Dictionary:
 	var world: Dictionary = context.world.duplicate(true)
 	if world.data.humbaba_end_round >= context.round:
 		return Data.invalid("endurance_already_checked")
-	var entities = Ids.new()
-	entities.restore(world.entities)
 	var events: Array = []
-	for player_id in context.player_order:
-		var player: Dictionary = world.players[player_id]
-		if player.lord_id != "Humbaba":
-			continue
-		var lord: Dictionary = entities.get_entity(player.lord_entity_id)
-		var qualifying: Array = []
-		for unit in entities.snapshot().entities:
-			if (
-				unit.kind == "marcher"
-				and unit.owner == player_id
-				and unit.attributes.suit == "Penitent"
-				and unit.attributes.hp == 1
-			):
-				qualifying.append(unit.id)
-		var met: bool = lord.attributes.alive and not qualifying.is_empty()
-		events.append(
-			Structures.public_event(
-				"ENDURANCE_CHECKED",
-				{
-					"player_id": player_id,
-					"round": context.round,
-					"threshold_met": met,
-					"lord_alive": lord.attributes.alive,
-					"qualifying_ids": qualifying
-				}
-			)
-		)
-		if met:
-			world.data.neutral_tears += 1
-			events.append(
-				Structures.public_event(
-					"NEUTRAL_TEAR_CREATED",
-					{
-						"player_id": player_id,
-						"round": context.round,
-						"amount": 1,
-						"source": "EnduranceOfTheFaithful"
-					}
-				)
-			)
 	world.data.humbaba_end_round = context.round
 	return {"action": "resolved", "world": world, "events": events}
 

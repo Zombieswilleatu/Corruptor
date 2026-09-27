@@ -10,7 +10,7 @@ POWERS = {
     "Humbaba": ("MusterTheFaithful", "BreathOfLife"),
     "Kalligan": ("Pyroclasm", "Inferno"),
     "Orias": ("Web", "Snare"),
-    "Odradek": ("AllegianceShift", "Redirect", "Inversion", "FalseOrders"),
+    "Odradek": ("AllegianceShift", "Redirect", "Multiply", "FalseOrders"),
     "Kroni": ("Consume", "Ravenous"),
     "Valak": ("GravityOrb", "Projection"),
     "Kanifous": ("WishLongevity", "WishDeath", "WishPower", "WishResurrection", "WishWealth"),

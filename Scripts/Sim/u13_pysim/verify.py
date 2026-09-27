@@ -1,6 +1,7 @@
 """Verify independent Python opening results against a Godot-produced suite."""
 
 import hashlib
+import json
 import copy
 from collections import Counter
 from pathlib import Path
@@ -32,7 +33,11 @@ HOOKS = ["round_start_scheduled", "persistent_advancement", "round_start_automat
 
 def source_identity(root):
     root = Path(root)
-    revision = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
+    frozen_identity = root.parent / "frozen-source.json"
+    if root.name == "source" and frozen_identity.is_file():
+        revision = json.loads(frozen_identity.read_text(encoding="utf-8"))["revision"]
+    else:
+        revision = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
     sim = root / "Scripts/Sim"
     paths = list(sim.rglob("*.gd")) + list((sim / "u13_pysim").glob("*.py")) + [sim / "run_u13_pysim.py"]
     digest = hashlib.sha256()

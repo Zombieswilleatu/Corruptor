@@ -42,9 +42,8 @@ class CalibrationTests(unittest.TestCase):
         value=wish_value(f,'WishResurrection',dict(lane='Castle'),EMPTY)
         self.assertEqual(240,value['raw_exposure_value'])
         self.assertEqual(39,value['speculative_credit'])
-        # Current Lemek profile restores material value 54, not the old 44.
-        self.assertEqual(54,value['known_loss_value'])
-        self.assertEqual(93,value['benefit'])
+        self.assertEqual(44,value['known_loss_value'])
+        self.assertEqual(83,value['benefit'])
         self.assertEqual(['lost'],value['known_losses'])
 
     def test_wealth_shortage_bonus_is_bounded_after_commitments(self):
@@ -74,19 +73,20 @@ class CalibrationTests(unittest.TestCase):
 
     def test_profile_validation_and_identification(self):
         with self.assertRaises(ValueError):CommonSmartCore(wish_profile='guess')
-        self.assertEqual('power',CommonSmartCore().wish_profile)
-        self.assertEqual(CommonSmartCore(wish_profile='power').policy_id,CommonSmartCore().policy_id)
+        self.assertEqual('matchup',CommonSmartCore().wish_profile)
+        self.assertEqual(CommonSmartCore(wish_profile='matchup').policy_id,CommonSmartCore().policy_id)
         self.assertIn(':WISH_combined',CommonSmartCore(wish_profile='combined').policy_id)
-        self.assertNotIn(':WISH_',CommonSmartCore().policy_id)
+        self.assertIn(':WISH_matchup',CommonSmartCore().policy_id)
 
-    def test_comparison_has_all_five_profiles_on_identical_setups(self):
+    def test_comparison_has_all_profiles_on_identical_setups(self):
         from collections import defaultdict
         from .kanifous_calibration import cases
         groups=defaultdict(list)
         for row in cases():groups[row['pair_id']].append(row)
         self.assertEqual(36,len(groups))
         for rows in groups.values():
-            self.assertEqual({'v20','power','wealth','resurrection','combined'},{r['variant'] for r in rows})
+            from .kanifous_tactics import PROFILES
+            self.assertEqual(set(PROFILES),{r['variant'] for r in rows})
             self.assertTrue(all(r['setup']==rows[0]['setup'] for r in rows))
 
     def test_comparison_pairs_each_factor_with_v20_and_excludes_failures(self):

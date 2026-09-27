@@ -109,15 +109,9 @@ static func enumerate(owner, player_id: int) -> Dictionary:
 					power
 				)
 			)
-		result.powers.append(
-			source(
-				player_id,
-				owner.round_number(),
-				{"owner_id": 1 - player_id, "lane": lane},
-				0,
-				Content.INVERSION
-			)
-		)
+		for guard in view.world.entities:
+			if guard.kind == "card" and guard.owner == 1 - player_id and guard.attributes.get("role") == "guard" and guard.attributes.lane == lane:
+				result.powers.append(source(player_id, owner.round_number(), {"entity_id": guard.id, "lane": lane}, 0, Content.MULTIPLY))
 	return result
 
 

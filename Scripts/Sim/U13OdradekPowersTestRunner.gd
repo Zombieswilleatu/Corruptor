@@ -66,54 +66,18 @@ func _guard_moves() -> void:
 		),
 		"false_orders_cannot_forge_guard_owner"
 	)
-	var flipped: Dictionary = _fire(world, Odradek.INVERSION, {"owner_id": 1, "lane": "Castle"})
-	if not _check(flipped.action == "resolved", "inversion_resolves"):
-		return
-	_check(
-		(
-			_guards(flipped.world, 0, "Castle").size() == 3
-			and _guards(flipped.world, 1, "Castle").size() == 1
-		),
-		"inversion_fills_only_legal_free_slots"
-	)
-	_check(
-		flipped.world.data.neutral_tears == world.data.neutral_tears + 1,
-		"partial_inversion_grants_exactly_one_tear"
-	)
-	_check(Transfers.Guards.valid(flipped.world), "inversion_preserves_card_zone_invariants")
-	var donated: Dictionary = _fire(flipped.world, Odradek.INVERSION, {"owner_id": 0, "lane": "Castle"})
-	_check(donated.action == "resolved" and _guards(donated.world, 1, "Castle").size() == 3 and _guards(donated.world, 0, "Castle").size() == 1, "self_inversion_donates_only_into_free_enemy_slots")
-	_check(donated.world.data.neutral_tears == flipped.world.data.neutral_tears + 1 and Transfers.Guards.valid(donated.world), "self_inversion_grants_one_tear_and_preserves_invariants")
-	_check(Odradek.new().validate(OdradekScenario.source(0, 1, {"owner_id": 0, "lane": "Castle"}, 0, Odradek.INVERSION), flipped.world, "declaration").legal, "self_inversion_accepted_at_declaration")
-	var blocked_donation: Dictionary = _fire(donated.world, Odradek.INVERSION, {"owner_id": 0, "lane": "Castle"})
-	_check(blocked_donation.world == donated.world, "full_enemy_zone_blocks_donation_without_tear")
-	var full: Dictionary = _fire(
-		flipped.world, Odradek.INVERSION, {"owner_id": 1, "lane": "Castle"}, 1
-	)
-	_check(full.world == flipped.world, "full_destination_gives_no_transfer_or_tear")
-	_check(
-		not (
-			Odradek
-			. new()
-			. validate(
-				OdradekScenario.source(
-					0, 1, {"owner_id": 1, "lane": "Castle"}, 0, Odradek.INVERSION
-				),
-				flipped.world,
-				"declaration"
-			)
-			. legal
-		),
-		"full_inversion_rejected_at_declaration"
-	)
-	var changed_id: String = flipped.events[0].event.data.after.id
-	var stale: Dictionary = OdradekScenario.source(
-		0, 1, {"entity_id": changed_id, "owner_id": 1, "lane": "Lord"}, 0, Odradek.FALSE_ORDERS
-	)
-	_check(
-		not Odradek.new().validate(stale, flipped.world, "firing").legal,
-		"prepared_guard_order_fizzles_after_allegiance_change"
-	)
+	var payload: Dictionary = {"entity_id": source.id, "lane": "Castle"}
+	var multiplied: Dictionary = _fire(world, Odradek.MULTIPLY, payload)
+	if not _check(multiplied.action == "resolved", "multiply_resolves"): return
+	_check(_guards(multiplied.world, 0, "Castle").size() == 3, "multiply_fills_own_free_slots")
+	_check(_guards(multiplied.world, 1, "Castle").size() == _guards(world, 1, "Castle").size()-1, "multiply_destroys_one_target")
+	_check(multiplied.world.data.neutral_tears == world.data.neutral_tears, "multiply_grants_no_tear")
+	_check(Transfers.Guards.valid(multiplied.world), "multiply_preserves_card_zone_invariants")
+	var friendly: Dictionary = _guards(multiplied.world, 0, "Castle")[0]
+	_check(not Odradek.new().validate(OdradekScenario.source(0, 1, {"entity_id": friendly.id, "lane": "Castle"}, 0, Odradek.MULTIPLY), multiplied.world, "declaration").legal, "multiply_rejects_friendly_target")
+	_check(not Odradek.new().validate(OdradekScenario.source(0, 1, payload, 0, Odradek.MULTIPLY), multiplied.world, "firing").legal, "destroyed_multiply_target_fizzles")
+	var remaining: Dictionary = _guards(multiplied.world, 1, "Castle")[0]
+	_check(not Odradek.new().validate(OdradekScenario.source(0, 1, {"entity_id": remaining.id, "lane": "Castle"}, 0, Odradek.MULTIPLY), multiplied.world, "declaration").legal, "multiply_requires_two_free_slots")
 
 
 func _shift_order() -> void:
@@ -154,21 +118,9 @@ func _shift_order() -> void:
 		),
 		OdradekScenario.source(0, 1, _target(), 1)
 	]
-	_check(owner.submit(0, draft, {}).action != "invalid", "shift_plus_redirect_affordable")
-	owner.submit(1, [], {})
-	owner.run_next_hook()
-	if not _advance(owner, Timeline.POST_RESOLUTION_MOVEMENT_STATE):
-		return
-	var converted: Dictionary = _entity(owner.snapshot().world, id)
-	_check(
-		converted.owner == 0 and converted.attributes.lane == "Castle",
-		"10b_redirect_precedes_10c_shift_regardless_of_cart_order"
-	)
-	var restored = Odradek.new().create_combat_match()
-	_check(
-		restored.restore(JSON.parse_string(JSON.stringify(owner.snapshot()))).action != "invalid",
-		"mixed_allegiance_snapshot_restores"
-	)
+	var before: Dictionary = owner.snapshot()
+	_check(owner.submit(0, draft, {}).action == "invalid", "shift_plus_redirect_exceeds_four_point_cap")
+	_check(owner.snapshot() == before, "unaffordable_cart_is_atomic")
 
 
 func _prepared_replay() -> void:

@@ -73,14 +73,17 @@ class OdradekFieldTests(unittest.TestCase):
         self.assertEqual(3,sum(bool(r.get('planned')) for r in rows))
         self.assertGreater(redirect_value(f,target(x=100),rows)['score'],0)
 
-    def test_actual_hook_order_matches_retargeted_shift_and_clears_waiting(self):
+    def test_shift_cost_four_and_actual_allegiance_hook_clear_waiting(self):
         game=planning('Odradek')
         power_components.prepare(game,[dict(kind='fixture_resources',player_id=0,resources=dict(reconfiguration=4))]+[
             dict(kind='fixture_marcher',player_id=pid,lane='Lord',origin='field-hooks',ordinal=pid,attributes=dict(x_fp=900,y_fp=300)) for pid in (0,1)])
-        f=Facts(observe(game,0));plan=dict(powers=[declaration(0,1,'AllegianceShift',target('Castle')),declaration(0,1,'Redirect',target(),index=1)],order={})
-        ctx=context(f,plan);rows=field_after_redirects(f,plan,ctx);expected=shift_value(f,target('Castle'),rows)['eligible_after']
+        excessive=dict(powers=[declaration(0,1,'AllegianceShift',target('Castle')),declaration(0,1,'Redirect',target(),index=1)],order={})
+        before=game.snapshot()
+        self.assertEqual('invalid',game.apply(dict(kind='submit',plans=[excessive,dict(powers=[],order={})]))['action'])
+        self.assertEqual(before,game.snapshot())
+        f=Facts(observe(game,0));plan=dict(powers=[declaration(0,1,'AllegianceShift',target())],order={})
+        expected=shift_value(f,target(),field(f))['eligible_after']
         self.assertEqual(1,len(expected))
-        self.assertEqual(expected,next(r['eligible_after'] for r in evaluate(f,plan)['powers'] if r['power']=='AllegianceShift'))
         self.assertNotEqual('invalid',game.apply(dict(kind='submit',plans=[plan,dict(powers=[],order={})]))['action'])
         while game.clock.hook!='post_resolution_movement_state':
             self.assertNotEqual('invalid',game.apply(full_match_inputs.next_operation(game))['action'])
@@ -89,8 +92,8 @@ class OdradekFieldTests(unittest.TestCase):
         self.assertEqual(expected,actual)
         for key in expected:
             r=economy.entity(game._state['world'],key)
-            self.assertEqual((0,'Castle',False,1),(r['owner'],r['attributes']['lane'],r['attributes']['waiting'],r['attributes']['direction']))
-        self.assertEqual(2,len(next(e['data']['changes'] for e in events if e['type']=='REDIRECT_RESOLVED')))
+            self.assertEqual((0,'Lord',False,1),(r['owner'],r['attributes']['lane'],r['attributes']['waiting'],r['attributes']['direction']))
+        self.assertFalse(any(e['type']=='REDIRECT_RESOLVED' for e in events))
 
     def test_capture_cannot_credit_same_body_twice(self):
         view=observe(planning('Odradek'),0);unit(view,'foe',1,'Lord',x_fp=900,y_fp=300,waiting=True)

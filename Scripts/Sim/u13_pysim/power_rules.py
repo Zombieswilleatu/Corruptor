@@ -28,7 +28,7 @@ RULES = {
     'Redirect': rule('Odradek','post_resolution_position',repeatable=True),
     'FalseOrders': rule('Odradek','round_start_scheduled',delay=1,repeatable=True),
     'AllegianceShift': rule('Odradek','post_resolution_allegiance',repeatable=True),
-    'Inversion': rule('Odradek','round_start_scheduled',delay=1,repeatable=True),
+    'Multiply': rule('Odradek','development',repeatable=True),
     'Consume': rule('Kroni','round_start_scheduled',delay=1),
     'Ravenous': rule('Kroni','post_resolution_special_actors',2),
     'Projection': rule('Valak','post_resolution_direct'),
@@ -37,8 +37,9 @@ RULES = {
 RULES['InevitableRuin']['target_kind'] = 'castle'
 RULES['WarMachine'].update(target_kind='castle',target_relation='own')
 RULES['Rout']['target_relation'] = 'enemy'
+RULES['Multiply'].update(target_kind='card',target_relation='enemy')
 for _name in ('MusterTheFaithful','BreathOfLife'): RULES[_name]['target_relation'] = 'own'
-for _cost,_name in enumerate(('Redirect','FalseOrders','AllegianceShift','Inversion'),1):
+for _cost,_name in enumerate(('Redirect','FalseOrders','Multiply','AllegianceShift'),1):
     RULES[_name]['cost'] = dict(reconfiguration=_cost)
 for _name in ('WishPower','WishLongevity','WishResurrection','WishDeath','WishWealth'):
     RULES[_name] = rule('Kanifous','post_resolution_spawns' if _name=='WishPower' else 'post_resolution_direct')

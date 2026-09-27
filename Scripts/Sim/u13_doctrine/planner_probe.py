@@ -204,10 +204,16 @@ class PlannerObserver(ReferenceObserver):
             metrics = dict(castle_damage=d['damage'])
         elif kind in ('ROUT_APPLIED', 'ALLEGIANCE_SHIFT_RESOLVED') and identity:
             metrics = dict(affected_marchers=len(d['affected_ids']))
+        elif kind == 'MUSTER_ENDURANCE_PROGRESS' and identity:
+            metrics = dict(endurance_hp_damage=d['hp_damage'], endurance_projectile_blocks=d['projectile_blocks'])
+        elif kind == 'MUSTER_ENDURANCE_REWARDED' and identity:
+            metrics = dict(endurance_personal_tears=d['amount'])
         elif kind == 'BREATH_PULSED' and identity:
             metrics = dict(activation_pulses=1, immediate_hp_restored=d['healing'], healed_marchers=len(d['healed_ids']))
         elif kind == 'REDIRECT_RESOLVED' and identity:
             metrics = dict(redirected_marchers=len(d['changes']))
+        elif kind == 'MULTIPLY_RESOLVED' and identity:
+            metrics = dict(enemy_guards_destroyed=1, copies_created=len(d['created_ids']), pairs_created=int(len(d['created_ids'])>=2), **{'copies_'+str(len(d['created_ids']))+'_resolutions': 1})
         elif kind == 'RECONFIGURATION_RESOLVED' and identity:
             metrics = dict(guard_changes=d['moved'])
         elif kind in ('ARTILLERY_FIRED', 'ARTILLERY_NO_TARGET'):

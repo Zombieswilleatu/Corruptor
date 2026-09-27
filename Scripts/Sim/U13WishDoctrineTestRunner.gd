@@ -28,7 +28,8 @@ func run() -> void:
 	for i in range(4): debts.append({"owner": 0})
 	c.w.wish_prices = debts
 	var after: Array = Bot.Powers.kanifous(c)
-	check(after.filter(func(x): return x.payload.power_id == "WishLongevity")[0].score < before.filter(func(x): return x.payload.power_id == "WishLongevity")[0].score, "Outstanding public debts reduce wish utility")
+	var longevity_after: Array = after.filter(func(x): return x.payload.power_id == "WishLongevity")
+	check(longevity_after.is_empty() or longevity_after[0].score < before.filter(func(x): return x.payload.power_id == "WishLongevity")[0].score, "Outstanding public debts reduce or remove wish utility")
 	check(not after.any(func(x): return x.payload.power_id == "WishWealth"), "Several unpaid Prices stop repeated marginal Wealth wishes")
 	c = Bot.Context.new(Bot.BotPlanning.new(game._owner, 1).player_view(1, 0))
 	c.w.entities = c.w.entities.filter(func(e): return e.kind != "marcher" and e.attributes.get("role") != "guard")
@@ -37,17 +38,17 @@ func run() -> void:
 	for resource in [1, 2]:
 		c.w.reconfiguration[1] = resource
 		check(Bot.Powers.odradek(c).is_empty(), "Bank toward a useful Shift at resource " + str(resource))
-	c.w.reconfiguration[1] = 3
-	check(Bot.Powers.odradek(c).any(func(x): return x.payload.power_id == "AllegianceShift" and x.score == 5.0), "Shift becomes useful at three points without friendly-fire penalty")
+	c.w.reconfiguration[1] = 4
+	check(Bot.Powers.odradek(c).any(func(x): return x.payload.power_id == "AllegianceShift" and x.score == 5.0), "Shift becomes useful at four points without friendly-fire penalty")
 	c.w.entities = c.w.entities.filter(func(e): return e.kind != "marcher")
 	check(Bot.Powers.odradek(c).is_empty(), "No resource quota forces a spell on an empty board")
 	for slot in range(3):
 		for owner_id in [0, 1]:
 			c.w.entities.append({"id": "guard:%d:%d" % [owner_id, slot], "kind": "card", "owner": owner_id, "attributes": {"role": "guard", "lane": "Lord", "slot": slot, "concealed": owner_id == 0, "value": 3}})
 	c.w.reconfiguration[1] = 4
-	check(not Bot.Powers.odradek(c).any(func(x): return x.payload.power_id == "Inversion"), "Inversion accounts for full receiving guard slots")
+	check(not Bot.Powers.odradek(c).any(func(x): return x.payload.power_id == "Multiply"), "Multiply accounts for full receiving guard slots")
 	c.w.entities = c.w.entities.filter(func(e): return e.kind != "card" or e.owner != 1)
-	check(Bot.Powers.odradek(c).any(func(x): return x.payload.power_id == "Inversion"), "Inversion values enemy guards when receiving slots are open")
+	check(Bot.Powers.odradek(c).any(func(x): return x.payload.power_id == "Multiply"), "Multiply values enemy guards when receiving slots are open")
 	check(game._owner.preview_submission(0, Bot.plan(game._owner, 0).powers, Bot.plan(game._owner, 0).order).action != "invalid", "Wish changes produce an admitted complete cart")
 	print("U13 wish doctrine failures: %d" % failures)
 	quit(failures)
