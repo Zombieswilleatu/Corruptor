@@ -62,10 +62,10 @@ func _build() -> void:
 	false_orders_button = _button(
 		odradek_box, "FALSE ORDERS · 2 · NEXT ROUND", _begin_guard_power.bind(Odradek.FALSE_ORDERS)
 	)
-	shift_button = _button(odradek_box, "ALLEGIANCE SHIFT · 4", _begin_shift)
 	inversion_button = _button(
 		odradek_box, "MULTIPLY · 3 · THIS ROUND", _begin_guard_power.bind(Odradek.MULTIPLY)
 	)
+	shift_button = _button(odradek_box, "ALLEGIANCE SHIFT · 4", _begin_shift)
 	for pair in [
 		[redirect_button, "Both sides inside the circle move to the other lane after combat."],
 		[false_orders_button, "Move one Guard to its owner's other zone before next round's deployment."],
@@ -108,7 +108,7 @@ func _update_direct_ui() -> void:
 	for source in queued:
 		reserved += int(source.cost.get(Odradek.RESOURCE, 0))
 	odradek_note.text = (
-		"Reconfiguration %d/4 · %d queued · %d available\nGain 1 each round while active. Banishment resets the bank. Redirect moves both sides. Shift converts enemies. Guard orders fire next round."
+		"Reconfiguration %d/4 · %d queued · %d available\nGain 1 each round while active. Banishment resets the bank. Redirect moves both sides. Shift converts enemies. Multiply fires this round; False Orders fires next round."
 		% [bank, reserved, bank - reserved]
 	)
 	redirect_button.disabled = (
