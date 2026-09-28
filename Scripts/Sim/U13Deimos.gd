@@ -135,6 +135,12 @@ func valid_world(world: Dictionary, allow_humbaba: bool = false) -> bool:
 	for count in counters:
 		if not Data.is_integer(count) or count < 0:
 			return false
+	var cleared = world.data.get("deimos_all_castles_ruined", [false, false])
+	if typeof(cleared) != TYPE_ARRAY or cleared.size() != 2:
+		return false
+	for value in cleared:
+		if typeof(value) != TYPE_BOOL:
+			return false
 	var counted: Array = [0, 0]
 	for key in seen:
 		if (
@@ -355,6 +361,19 @@ func react(
 					}
 				)
 			)
+			var remaining: bool = false
+			for row in world.entities.entities:
+				if row.owner == 1 - player_id and Structures.targetable(row):
+					remaining = true
+					break
+			if not remaining and not world.data.get("deimos_all_castles_ruined", [false, false])[player_id]:
+				if not world.data.has("deimos_all_castles_ruined"):
+					world.data["deimos_all_castles_ruined"] = [false, false]
+				world.data["deimos_all_castles_ruined"][player_id] = true
+				player.resources.personal_tears += 1
+				var reward: Dictionary = {"player_id": player_id, "round": fact.data.round, "amount": 1, "source": "SpoilsOfWarAllCastles"}
+				events.append(Structures.public_event("PERSONAL_TEAR_CREATED", reward))
+				events.append(Structures.public_event("DEIMOS_ALL_CASTLES_RUINED", reward))
 	return {"action": "resolved", "world": world, "events": events}
 
 

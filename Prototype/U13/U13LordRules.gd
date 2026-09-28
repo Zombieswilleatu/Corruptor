@@ -24,7 +24,7 @@ const RULES: Dictionary = {
 		"breach": "GEM DAGGER\nThe first Guard defeated each round makes both players draw 1 card."
 	},
 	"Deimos": {
-		"passive": "THE WAR FOUNDRY\nYou may reconstruct a Ruined Siege Engine using normal Construction rules. A Profaned Engine cannot be reconstructed.\n\nFEAR AURA\nWhen you Siege, return the lowest-value enemy Castle Guards to their owner's Hand: 1 Guard plus 1 per Threat.\n\nSPOILS OF WAR\nThe first Castle you ruin grants an additional personal Tear. Later ruins grant an additional Neutral Tear.",
+		"passive": "THE WAR FOUNDRY\nYou may reconstruct a Ruined Siege Engine using normal Construction rules. A Profaned Engine cannot be reconstructed.\n\nFEAR AURA\nWhen you Siege or Pillage, return the lowest-value enemy Castle Guards to their owner's Hand: 1 Guard plus 1 per Threat.\n\nSPOILS OF WAR\nThe first Castle you ruin grants an additional personal Tear. Later ruins grant an additional Neutral Tear. Once per game, ruining the last enemy Castle in play grants 1 more Personal Tear. Unbuilt Castle slots do not count. These rewards require Deimos to be alive.",
 		"breach": "CRACKED FOUNDATIONS\nAll Castles have 5 less maximum Integrity. Ending this Breach restores the ceiling without healing damage."
 	},
 	"Humbaba": {

@@ -164,7 +164,9 @@ class Defense:
         history_score = self.history_risk-risk
         hunt_score = kanifous_hunt_bonus(self.f, world, plan)
         kalligan_score = kalligan_orias_bonus(self.f, world, plan)
-        return dict(enabled=True, score_delta=structure_score+work_score-old_work+history_score+hunt_score+kalligan_score,
+        deimos_score = deimos_orias_bonus(self.f, world, plan)
+        return dict(enabled=True, score_delta=structure_score+work_score-old_work+history_score+hunt_score+kalligan_score+deimos_score,
+                    deimos_orias_score=deimos_score,
                     kalligan_orias_score=kalligan_score,
                     kanifous_hunt_score=hunt_score,
                     history_score=history_score, history_risk=risk,
@@ -261,3 +263,30 @@ def kalligan_orias_bonus(f, world, plan):
         score += 72*(int(before['banished'])-int(after['banished']))
         score += 18*(before['castles_lost']-after['castles_lost'])
     return score//len(f._kalligan_orias_baseline)
+
+
+def deimos_orias_bonus(f, world, plan):
+    """Deimos/Orias only: preserve a live Lord and Keep under public probes.
+
+    No enemy sealed order or hand enters the forecast. A bounded threshold
+    reward allows useful attacks while discouraging avoidable banishments.
+    Resummon/Threat choices remain under the existing lifecycle scoring.
+    """
+    if f.kind != 'Deimos' or f.lord[f.enemy]['attributes']['lord_id'] != 'Orias':
+        return 0
+    if not f.lord[f.pid]['attributes']['alive'] or 'summon' in plan['order']:
+        return 0
+    if not hasattr(f, '_deimos_orias_baseline'):
+        history = [r for r in f.opponent['evidence'] if r['action'] == 'Hunt'][-3:]
+        mean = sum(r['strength'] for r in history)//len(history) if history else 15
+        mean = max(9, min(30, mean))
+        probes = (max(1, mean-6), mean, mean+6)
+        empty = dict(powers=[], order={})
+        base, _ = development(f, empty)
+        f._deimos_orias_baseline = [(p, exposure(f, base, empty, 'Lord', p)) for p in probes]
+    score = 0
+    for pressure, before in f._deimos_orias_baseline:
+        after = exposure(f, world, plan, 'Lord', pressure)
+        score += 72*(int(before['banished'])-int(after['banished']))
+        score += 18*(before['castles_lost']-after['castles_lost'])
+    return score//len(f._deimos_orias_baseline)

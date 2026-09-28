@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""810-game unified V41 baseline; rerun the same command to resume its frozen source."""
+"""810-game unified V42 baseline; rerun the same command to resume its frozen source."""
 import argparse,ctypes,json,os
 from pathlib import Path
 import subprocess,sys
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--output',type=Path,default=Path.home()/'Downloads/Corruptor/Balance/u13-unified-v41-overnight')
+    p.add_argument('--output',type=Path,default=Path.home()/'Downloads/Corruptor/Balance/u13-unified-v42-overnight')
     p.add_argument('--workers',type=int,default=3)
     p.add_argument('--prepare-only',action='store_true')
     args=p.parse_args()
@@ -21,7 +21,7 @@ def main():
             raise SystemExit('Existing output is a different baseline. Choose a different --output.')
     else:
         from u13_doctrine.common import VERSION
-        if VERSION != "U13_COMMON_SMART_CORE_ALPHA_V41_MULTIPLY_KALLIGAN_SURVIVAL":raise SystemExit("This runner expects the combined V41 doctrine.")
+        if VERSION != "U13_COMMON_SMART_CORE_ALPHA_V42_DEIMOS_FINAL_SPOILS":raise SystemExit("This runner expects the combined V42 doctrine.")
         from u13_pysim.muster_endurance import THRESHOLD
         if THRESHOLD!=25:raise SystemExit('This runner expects Muster Endurance 25.')
     command=[sys.executable,'-u',str(root/'Scripts/Sim/run_u13_lord_balance.py'),
