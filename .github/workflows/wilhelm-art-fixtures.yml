@@ -1,0 +1,31 @@
+name: Wilhelm original visual test assets
+on:
+  push:
+    branches: [work/wilhelm-audio-20260928]
+    paths: [.github/workflows/wilhelm-art-fixtures.yml]
+permissions:
+  contents: read
+jobs:
+  assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 24b654862d97ac05af937d575fecbd67baf32fa5
+          fetch-depth: 1
+      - name: Package original visual assets
+        run: |
+          mkdir -p /tmp/wilhelm-art
+          python3 - <<'PY'
+          import zipfile
+          paths = ['ConceptImages/Menus/DecisionPanel.png', 'ConceptImages/Sprites/Effects/MarcherDeath.png', 'ConceptImages/Sprites/Kanifous/WishDeath.png']
+          with zipfile.ZipFile('/tmp/wilhelm-art/source_art.zip', 'w', zipfile.ZIP_DEFLATED) as z:
+              for path in paths:
+                  z.write(path, path)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wilhelm-original-test-art
+          path: /tmp/wilhelm-art/source_art.zip
+          retention-days: 3
