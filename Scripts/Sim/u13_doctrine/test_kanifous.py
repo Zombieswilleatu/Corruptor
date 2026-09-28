@@ -145,10 +145,7 @@ class KanifousTests(unittest.TestCase):
 
     def test_deterministic_legal_both_seats_private_independence_and_small_budget(self):
         for pid in (0,1):
-            game=planning('Kanifous')
-            if pid==1:
-                world=game._state['world']; lord=next(r for r in world['entities']['entities'] if r['kind']=='lord' and r['owner']==1)
-                lord['attributes']['lord_id']='Kanifous'; world['players'][1]['lord_id']='Kanifous'
+            game=planning('Kanifous', 'Kanifous' if pid==1 else 'Gremory')
             before=game.snapshot(); v=observe(game,pid)
             first=CommonSmartCore().decide(v,Preview(game,pid))
             self.assertEqual(before,game.snapshot())

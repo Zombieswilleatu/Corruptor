@@ -36,6 +36,8 @@ func show_orders(
 		var origin := (
 			Vector2(rect.get_center().x - width * 0.5, rect.get_center().y - 34) - global_position
 		)
+		if stack.label == "WARD":
+			origin.y = rect.position.y - global_position.y
 		if String(stack.role).begins_with("ruin"):
 			origin.y = rect.end.y - 74 - global_position.y
 		var label := Label.new()

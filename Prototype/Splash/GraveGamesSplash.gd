@@ -10,12 +10,14 @@ const FADE_OUT_SECONDS: float = 0.70
 
 
 var _transitioning: bool = false
+var _prologue_request: Error = OK
 
 
 # CORRUPTOR_MURDER_PROCEDURAL_WIND_WHOLESALE_V1
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color.BLACK)
 	_build_black_background()
+	_prologue_request = ResourceLoader.load_threaded_request(PROLOGUE_SCENE, "PackedScene")
 	call_deferred("_play_logo")
 
 
@@ -29,23 +31,10 @@ func _build_black_background() -> void:
 
 
 func _play_logo() -> void:
-	var logo_image := Image.new()
-	var logo_error: Error = logo_image.load(SPLASH_LOGO)
-
-	if logo_error != OK:
-		push_error(
-			"GraveGamesSplash: could not load splash PNG: %s (error %d)"
-			% [SPLASH_LOGO, int(logo_error)]
-		)
-		_go_to_prologue()
-		return
-
-	var logo_texture := ImageTexture.create_from_image(logo_image)
+	# Use the imported texture (also works in exported builds).
+	var logo_texture := load(SPLASH_LOGO) as Texture2D
 	if logo_texture == null:
-		push_error(
-			"GraveGamesSplash: could not create texture: %s"
-			% SPLASH_LOGO
-		)
+		push_error("GraveGamesSplash: could not load logo: " + SPLASH_LOGO)
 		_go_to_prologue()
 		return
 
@@ -92,8 +81,22 @@ func _play_logo() -> void:
 func _go_to_prologue() -> void:
 	if _transitioning:
 		return
-
 	_transitioning = true
-	get_tree().change_scene_to_file(PROLOGUE_SCENE)
-
-
+	if _prologue_request != OK:
+		push_error("GraveGamesSplash: could not request prologue.")
+		_transitioning = false
+		return
+	while ResourceLoader.load_threaded_get_status(PROLOGUE_SCENE) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+		await get_tree().process_frame
+	if ResourceLoader.load_threaded_get_status(PROLOGUE_SCENE) != ResourceLoader.THREAD_LOAD_LOADED:
+		push_error("GraveGamesSplash: prologue load failed.")
+		_transitioning = false
+		return
+	var packed := ResourceLoader.load_threaded_get(PROLOGUE_SCENE) as PackedScene
+	if packed == null:
+		_transitioning = false
+		return
+	var error := get_tree().change_scene_to_packed(packed)
+	if error != OK:
+		_transitioning = false
+		push_error("GraveGamesSplash: prologue scene change failed: %d" % error)

@@ -415,7 +415,7 @@ func _choose_target(target: Dictionary) -> void:
 	if _intent == "Construct":
 		_apply_cards([], false)
 	elif _intent in ["Siege", "Hunt", "Ward"]:
-		_apply_cards(_draft_combat.get("card_ids", []), false)
+		_apply_cards(_intent_cards(), false)
 	else:
 		_schedule_refresh()
 
@@ -915,6 +915,8 @@ func _add_stack(stacks: Array, role: String, label: String, ids: Array, target: 
 		if not String(target.id).is_empty()
 		else (row.castle_guard_box if target.lane == "Castle" else row.lord_card)
 	)
+	if label == "WARD":
+		anchor = row.castle_row if target.lane == "Castle" else row.lord_card
 	if anchor == null:
 		return
 	var cards: Array = []

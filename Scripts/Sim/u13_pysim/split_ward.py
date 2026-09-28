@@ -11,7 +11,11 @@ from .copying import copy_data
 
 VERSION = 'U13_SPLIT_WARD_V1'
 TEMPO = 'U13_VEIL_ATTACK_ROUND25_V1'
-TEMPO_SOUL_START_ROUND = 20
+TEMPO_SOUL_START_ROUND = 17
+
+
+def soul_start_round(world):
+    return TEMPO_SOUL_START_ROUND if "round_limit" in world["data"].get("victory", {}) else 20
 
 
 def tempo_enabled(world):
@@ -39,7 +43,7 @@ def ward(order):
 
 
 def accept(match, world, pid, order, reserve, ordinary_accept):
-    """Reserve the separate Ward first so every other payment sees fewer cards."""
+    """Validate disjoint payments without removing cards from every zone."""
     part = order['ward']
     e.require(order.get('action') in ('Hunt', 'Siege'), 'ward_requires_attack')
     e.require(type(part) is dict and part.get('action') == 'Ward'
@@ -47,11 +51,12 @@ def accept(match, world, pid, order, reserve, ordinary_accept):
     staged = world if reserve else copy_data(world)
     zones = e.zones(staged)
     e.require(e.selection(zones['hands'][pid], part['card_ids']), 'ward_cards_unavailable')
-    for identity in part['card_ids']:
-        zones['hands'][pid].remove(identity)
     attack = {k: v for k, v in order.items() if k != 'ward'}
+    e.require(not set(part['card_ids']).intersection(payment_cards(attack)), 'ward_payment_overlap')
     events = ordinary_accept(staged, pid, attack, reserve)
     if reserve:
+        for identity in part['card_ids']:
+            zones['hands'][pid].remove(identity)
         zones['committed'][pid].extend(part['card_ids'])
         events.append(e.sealed_event('WARD_ORDER_SEALED', dict(player_id=pid,
             round=match.clock.round, order=part), pid))
@@ -76,7 +81,7 @@ def reward_breakthrough(rules, pid, events):
     Apply only to the real attack after its normal rewards/reactions resolve.
     """
     if tempo_enabled(rules.w):
-        if rules.number < TEMPO_SOUL_START_ROUND: return
+        if rules.number < soul_start_round(rules.w): return
     elif not rules.w['data'].get('decisive_soul_bonus', False): return
     resolved = next((r['event'] for r in reversed(events)
                      if r['event']['type'] in ('HUNT_RESOLVED', 'SIEGE_RESOLVED')), None)
@@ -128,3 +133,17 @@ events/resources are discarded. A successful Siege means its target destroyed
     if saved: events.extend(ward_conversion.convert(rules.w,pid,order,rules.number,rules.seed))
     reward_breakthrough(rules, pid, events)
     return events
+
+
+def payment_cards(value):
+    """Collect ordinary-order payments, including nested development orders."""
+    result = set()
+    if isinstance(value, dict):
+        for key, child in value.items():
+            if key == 'card_id' and isinstance(child, str): result.add(child)
+            elif key == 'card_ids' and isinstance(child, list):
+                result.update(x for x in child if isinstance(x, str))
+            else: result.update(payment_cards(child))
+    elif isinstance(value, list):
+        for child in value: result.update(payment_cards(child))
+    return result

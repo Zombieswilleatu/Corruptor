@@ -16,8 +16,8 @@ from .planner_probe import PlannerObserver, compare_reports
 from .diagnostics import fingerprint
 
 
-def planning(lord='Gremory'):
-    setup = dict(full_match_inputs.load()['cases'][0]['setup'], lords=[lord, 'Gremory'])
+def planning(lord='Gremory', enemy='Gremory'):
+    setup = dict(full_match_inputs.load()['cases'][0]['setup'], lords=[lord, enemy])
     game = PowerMatch(setup)
     while game.clock.hook != 'submission_lock':
         result = game.apply(full_match_inputs.next_operation(game))

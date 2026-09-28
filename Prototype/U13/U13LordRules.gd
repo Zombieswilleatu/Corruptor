@@ -28,7 +28,7 @@ const RULES: Dictionary = {
 		"breach": "CRACKED FOUNDATIONS\nAll Castles have 5 less maximum Integrity. Ending this Breach restores the ceiling without healing damage."
 	},
 	"Humbaba": {
-		"passive": "DEFENSE\nDefense is 2 plus your standing Castles. Humbaba has no Threat stat.\n\nENDURANCE OF THE FAITHFUL\nAt the end of Marching, place 1 Neutral Tear if at least one of your Penitents has exactly 1 HP and Humbaba is active.",
+		"passive": "DEFENSE\nDefense is 2 plus your standing Castles. Humbaba has no Threat stat.\n\nENDURANCE OF THE FAITHFUL\nEach Muster group shares an Endurance counter: 1 point per HP lost to enemy melee or ranged attacks, plus 1 per blocked enemy projectile. At 25 points, earn 1 Personal Tear while Humbaba is active, once per group. Points persist across rounds. If Humbaba is absent at 25, another contribution after his return can claim the reward.",
 		"breach": "THE STONES FORGET\nOn entering the Breach, deal 4 damage to every exposed Castle. On later rounds, deal 1 damage at round start before repairs. No recurring damage in the entry round. Permanent-arrival protection shields your Castles."
 	},
 	"Kalligan": {

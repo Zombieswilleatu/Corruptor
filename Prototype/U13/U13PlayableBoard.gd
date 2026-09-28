@@ -63,6 +63,9 @@ func _new_loadout_picker():
 	picker.full_game = true
 	return picker
 
+const DomainArt = preload("res://Prototype/U13/U13DomainArt.gd")
+var _domain_path: String = DomainArt.DEFAULT
+
 func _build() -> void:
 	super._build()
 	debug_button.hide()
@@ -137,6 +140,7 @@ func _build() -> void:
 	pause_dialog.confirmed.connect(_resume_playtime)
 	pause_dialog.canceled.connect(_resume_playtime)
 	add_child(pause_dialog)
+	preload("res://Prototype/U13/U13MenuSkin.gd").window(pause_dialog)
 	get_window().focus_entered.connect(_playtime_focus.bind(true))
 	get_window().focus_exited.connect(_playtime_focus.bind(false))
 	load_dialog = FileDialog.new()
@@ -149,6 +153,7 @@ func _build() -> void:
 	older_saves.pressed.connect(func(): load_dialog.current_dir = _downloads_folder())
 	load_dialog.get_vbox().add_child(older_saves)
 	add_child(load_dialog)
+	preload("res://Prototype/U13/U13MenuSkin.gd").window(load_dialog)
 	setup_load_button = _button(setup_picker.start_button.get_parent(), "LOAD SAVED GAME", _open_load)
 
 func _queue_main_modal_fit() -> void:
@@ -173,7 +178,7 @@ func _development_stacks(stacks: Array) -> void:
 	super._development_stacks(stacks)
 	if ward_plan.is_empty() or not _planning() or setup_open: return
 	var before: int = stacks.size()
-	_add_stack(stacks, "reserved_ward", "WARD", ward_plan.card_ids, {"id": "", "kind": "zone", "owner": 0, "lane": ward_plan.lane})
+	_add_stack(stacks, "reserved_ward", "WARD", ward_plan.card_ids, {"id": "", "kind": "zone", "owner": 0, "lane": ward_plan.lane, "ward_drop": true})
 	if stacks.size() > before: stacks.back().locked = powers_step
 
 func _return_card(role: String, id: String) -> void:
@@ -264,12 +269,12 @@ func _refresh(presented: Dictionary = {}) -> void:
 		return
 	var w: Dictionary = _visible_world
 	var split: bool = w.get("ward_experiment") == "U13_SPLIT_WARD_V1"
-	reserve_ward_button.visible = split
+	reserve_ward_button.visible = false
 	reserve_ward_button.disabled = not _planning() or powers_step or _draft_combat.get("action") != "Ward" or _draft_combat.get("card_ids", []).is_empty()
 	clear_ward_button.visible = split and not ward_plan.is_empty()
 	clear_ward_button.disabled = not _planning() or powers_step
 	ward_note.visible = split
-	ward_note.text = "Ward %s reserved · %d cards. Hunt or Siege can use the remaining hand." % [ward_plan.lane, ward_plan.card_ids.size()] if not ward_plan.is_empty() else "Optional: reserve one paid Ward, then Hunt or Siege. No Sigils. A Ward that prevents a successful attack earns 1 Soul (once per round)."
+	ward_note.text = "Ward %s · %d cards. Hunt or Siege can use the remaining hand." % [ward_plan.lane, ward_plan.card_ids.size()] if not ward_plan.is_empty() else "Drag cards to your Lord or Castles to Ward; drag other cards to the enemy to attack. No Sigils. A Ward that prevents a successful attack earns 1 Soul (once per round)."
 	if w.has("defensive_pressure_profile"):
 		ward_note.text += " A successful Ward also converts the attack’s surviving regular recruits; monsters stay with their owner."
 	if not ward_plan.is_empty(): plan_label.text += "\nWard %s · %d cards reserved" % [ward_plan.lane, ward_plan.card_ids.size()]
@@ -349,7 +354,7 @@ func _confirm_decision() -> void:
 func _complete_job() -> void:
 	var operation: String = _job_operation
 	super._complete_job()
-	if operation == "aftermath" and session is PlaySession and session.next_hook().is_empty() and not session.is_finished():
+	if operation == "aftermath" and session is PlaySession and not session.has_method("is_hotseat") and session.next_hook().is_empty() and not session.is_finished():
 		# Work on a detached next round while the player reviews Aftermath.
 		_discard_warm_round()
 		_warm_round_job = BoardJob.new()
@@ -452,7 +457,7 @@ func _open_game_menu() -> void:
 		game_menu.button("SAVE FINISHED GAME", _save_game)
 		return
 	var tempo: bool = _visible_world.get("tempo_experiment") == "U13_VEIL_ATTACK_ROUND25_V1"
-	game_menu.present("GAME / TEAR RITES", ("Ritual: %d Souls with your Lord present. Dominion: Veil %d+, at least %d Personal Tears and more than your opponent. " % [VictoryRules.RITUAL_SOULS, VictoryRules.DOMINION_VEIL, VictoryRules.DOMINION_TEARS]) + ("Round 25 ends the game after normal victories; most Souls wins (seat 0 wins a tie). Veil 15/19/23 adds +1/+2/+3 committed attack strength. From round 20, a Hunt banishment or Siege destruction earns +1 Soul, once per player per round. Reserve one paid Ward alongside Hunt or Siege. Ward protects only its chosen lane; no Sigils." if tempo else "Final Collapse: Veil 26; most Souls wins (seat 0 wins a tie)."))
+	game_menu.present("GAME / TEAR RITES", ("Ritual: %d Souls with your Lord present. Dominion: Veil %d+, at least %d Personal Tears and more than your opponent. " % [VictoryRules.RITUAL_SOULS, VictoryRules.DOMINION_VEIL, VictoryRules.DOMINION_TEARS]) + (("Round %d ends the game after normal victories; most Souls wins; %s. Veil 15/19/23 adds +1/+2/+3 committed attack strength. From round %d, a Hunt banishment or Siege destruction earns +1 Soul, once per player per round. Drag separate cards to Ward and Hunt or Siege. Ward protects only its chosen lane; no Sigils." % [VictoryRules.round_limit(_visible_world.get("victory", {})), "ties compare Personal Tears, active standing Castles, living Lord, then seat" if _visible_world.get("victory", {}).has("round_limit") else "seat 0 wins a tie", 17 if _visible_world.get("victory", {}).has("round_limit") else 20]) if tempo else "Final Collapse: Veil 26; most Souls wins (seat 0 wins a tie)."))
 	if not _planning():
 		game_menu.label("Round resolved. Return to the board and continue to the next round.")
 		return
@@ -473,9 +478,6 @@ func _pillage_available() -> bool:
 	return not _visible_world.get("entities", []).is_empty() and not _visible_world.entities.any(func(e): return e.owner == 1 and Structures.targetable(e))
 
 func _select_direct_action(action: String) -> void:
-	if action == "Ward" and not ward_plan.is_empty() and _planning() and not powers_step:
-		_draft_combat = ward_plan.duplicate(true)
-		ward_plan = {}
 	choosing_work = false
 	if action != "Siege" or not _pillage_available():
 		super._select_direct_action(action)
@@ -516,7 +518,24 @@ func _hand_selection_changed(ids: Array) -> void:
 				break
 	super._hand_selection_changed(ids)
 
+func _intent_cards() -> Array:
+	if _intent == "Ward": return ward_plan.get("card_ids", [])
+	return super._intent_cards()
+
 func _apply_cards(ids: Array, append: bool) -> bool:
+	if _intent == "Ward":
+		if not _planning() or powers_step or not _target_allowed(_target, "Ward"): return false
+		var previous: Dictionary = ward_plan.duplicate(true)
+		var selected: Array = ward_plan.get("card_ids", []).duplicate() if append else []
+		for id in ids:
+			if id not in selected: selected.append(id)
+		ward_plan = {"action": "Ward", "lane": _target.lane, "card_ids": selected} if not selected.is_empty() else {}
+		if _error(session.choose(queued, _order())):
+			ward_plan = previous
+			return false
+		_interaction_error = ""
+		_schedule_refresh()
+		return true
 	if _intent == "Siege" and _target.get("kind") == "zone" and _pillage_available():
 		_target["id"] = Plunder.zone_id(1)
 	return super._apply_cards(ids, append)
@@ -557,7 +576,8 @@ func _choose_invocation() -> void:
 		_stage_rite("invocation", {"card_ids": selected}))
 
 func _choose_waiters() -> void:
-	game_menu.present("SPEND SUPPLICANTS", "Select five Supplicants in one lane, then Resolve Round to gain 1 Personal Tear. Stage the group first if you want to add other rites. Unreserved Supplicants are automatically spent on your Hunt or Siege.")
+	game_menu.present("SPEND SUPPLICANTS", "Select five in one lane → 1 Personal Tear.")
+	game_menu.details("SUPPLICANTS · timing", "Resolve Round spends the selected group. Stage it first to add other rites. Unreserved Supplicants are automatically spent on your Hunt or Siege.")
 	var selections: Array = []
 	for lane in ["Lord", "Castle"]:
 		var rows: Array = _visible_world.entities.filter(func(e): return e.kind == "marcher" and e.owner == 0 and e.attributes.lane == lane and e.attributes.waiting)
@@ -699,7 +719,7 @@ func _load_game(path: String) -> void:
 	var raw = bytes_to_var(Marshalls.base64_to_raw(envelope.payload))
 	if typeof(raw) != TYPE_DICTIONARY:
 		return
-	var candidate = PlaySession.new()
+	var candidate = _session_from_save(raw)
 	var result: Dictionary = candidate.restore_checkpoint(raw)
 	if result.action == "invalid":
 		_busy_label.text = "Could not load game: " + str(result.get("reason", "invalid save"))
@@ -708,6 +728,8 @@ func _load_game(path: String) -> void:
 	_ledger_before = {}
 	_ledger_round = candidate.round_number() # Loaded mid-round: show totals, never invent a baseline.
 	session = candidate
+	_domain_path = DomainArt.from_save(envelope)
+	DomainArt.apply(self, _domain_path)
 	playtime = Playtime.new()
 	playtime.restore(envelope.get("playtime"))
 	setup_open = false
@@ -732,6 +754,9 @@ func _load_game(path: String) -> void:
 	staging_round = candidate.round_number()
 	_draft_combat = order.duplicate(true)
 	for key in ["castle_action", "guard_moves", "summon", "rites", "staging", "staging_ids", "ward"]: _draft_combat.erase(key)
+	if _draft_combat.get("action") == "Ward":
+		ward_plan = _draft_combat.duplicate(true)
+		_draft_combat = {}
 	powers_step = false
 	staged_order = {}
 	payment = []
@@ -826,11 +851,11 @@ func _set_work_target(id: String) -> void:
 
 func _drop_intent(target: Dictionary) -> String:
 	if target.get("owner") == 0:
-		return "Guard" if target.get("kind") == "zone" else "Ward"
+		return "Guard" if target.get("kind") == "zone" and not target.get("ward_drop", false) else "Ward"
 	return super._drop_intent(target)
 
 func _guard_drop_target(target: Dictionary) -> Dictionary:
-	if target.get("owner") != 0 or target.get("kind") != "zone" or target.has("slot"): return target
+	if target.get("ward_drop", false) or target.get("owner") != 0 or target.get("kind") != "zone" or target.has("slot"): return target
 	for slot in range(3):
 		var cell: Dictionary = target.duplicate(true)
 		cell["slot"] = slot
@@ -878,6 +903,7 @@ func _encode_playable_save() -> String:
 	_sample_playtime()
 	var envelope: Dictionary = JSON.parse_string(PlaySession.Game.encode_snapshot(session.checkpoint()))
 	envelope["playtime"] = playtime.snapshot()
+	envelope["presentation"] = {"domain": _domain_path}
 	return JSON.stringify(envelope)
 
 func _playtime_mode() -> String:
@@ -949,6 +975,8 @@ func start_loadout(lords: Array, castles: Array, quick: bool) -> void:
 	_sample_playtime()
 	super.start_loadout(lords, castles, quick)
 	if session != previous:
+		_domain_path = DomainArt.choose()
+		DomainArt.apply(self, _domain_path)
 		_opening_round = 0
 		_opening_playback = null
 		_sync_opening_march()
@@ -1029,11 +1057,12 @@ func _offer_grimoire_summons() -> bool:
 	var available: Array = _available_monsters(_draft_combat.get("card_ids", []))
 	if available.is_empty() or available == _summon_prompt_options: return false
 	_summon_prompt_options = available.duplicate()
-	summon_menu.present("GRIMOIRE SUMMONS", "Your committed cards unlock these summons. Choose one to continue to Lord Powers, or continue without a summon.")
+	summon_menu.present("GRIMOIRE SUMMONS", "Click a monster for details, then confirm your summon.")
 	summon_menu.close_button.text = "BACK TO COMMITMENT"
 	for monster in available:
-		var button: Button = summon_menu.button("SUMMON %s · %s" % [monster.to_upper(), MonsterRules.recipe_text(monster)], _select_grimoire_summon.bind(monster))
-		button.tooltip_text = MonsterRules.ROSTER[monster].ability
+		var r: Dictionary = MonsterRules.ROSTER[monster]
+		var description: String = "%s\nAttack %d · Armor %d · Speed %d · HP %d\n%s" % [MonsterRules.recipe_text(monster), r.attack, r.armor, r.speed, r.hp, r.ability]
+		summon_menu.details(str(monster).to_upper(), description, "SUMMON " + str(monster).to_upper(), _select_grimoire_summon.bind(monster))
 	summon_menu.button("NO MONSTER SUMMON", _select_grimoire_summon.bind(""))
 	return true
 
@@ -1050,25 +1079,17 @@ func _continue_after_grimoire() -> void:
 
 func _open_recipes() -> void:
 	if recipe_menu == null: return
-	recipe_menu.present("MONSTER GRIMOIRES", "Commit the named subjects together in Hunt or Siege, then choose a summon in the Combat step. One grimoire per round, alongside normal marchers. Ward keeps its defenses and 2:1 normal recruits but cannot summon a new monster. Existing field and staged monsters remain usable. Saved cards and cards spent on Guards, work, powers or rites do not count. All ten grimoires are unlocked for this prototype.")
+	recipe_menu.present("MONSTER GRIMOIRES", "Click a grimoire for stats and abilities.")
+	recipe_menu.details("SUMMONING · rules", "Commit the named subjects together in Hunt or Siege, then choose a summon in the Combat step. One grimoire per round, alongside normal marchers. Ward keeps its defenses and 2:1 normal recruits but cannot summon a new monster. Existing field and staged monsters remain usable. Saved cards and cards spent on Guards, work, powers or rites do not count.")
 	var available: Array = _available_monsters(_draft_combat.get("card_ids", []))
 	for name in MonsterRules.NAMES:
 		var r: Dictionary = MonsterRules.ROSTER[name]
-		var panel := PanelContainer.new()
-		var style := StyleBoxFlat.new()
-		style.bg_color = Color("242019")
-		style.set_content_margin_all(14)
-		panel.add_theme_stylebox_override("panel", style)
-		recipe_menu.column.add_child(panel)
-		var text := Label.new()
-		text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		text.add_theme_font_size_override("font_size", 16)
-		var eligibility: String = "\nReady with your committed cards." if name in available else ""
-		if MonsterRules.limited(name) and MonsterRules.living(_visible_world.get("entities", []) + _staged_monsters(), 0, name): eligibility = "\nAlready alive: summon another after it leaves play."
-		text.text = "%s · %s\n%s\nAttack %d · Armor %d · Speed %d · HP %d\n%s%s" % [name, r.tier, MonsterRules.recipe_text(name), r.attack, r.armor, r.speed, r.hp, r.ability, eligibility]
-		panel.add_child(text)
-	recipe_menu.label("Initial playtest values: Sinodek's stats, HP, chances and ability ranges are provisional. Varn is 3–5 bodies per summon. Sooge and Sinodek each allow one living copy per player, with no fixed cooldown.", 14)
+		var eligibility: String = " · READY" if name in available else ""
+		if MonsterRules.limited(name) and MonsterRules.living(_visible_world.get("entities", []) + _staged_monsters(), 0, name): eligibility = " · ALREADY ALIVE"
+		var heading: String = "%s%s\n%s" % [name, eligibility, MonsterRules.recipe_text(name)]
+		var explanation: String = "%s · Attack %d · Armor %d · Speed %d · HP %d\n%s" % [r.tier, r.attack, r.armor, r.speed, r.hp, r.ability]
+		if MonsterRules.limited(name): explanation += "\nOne living copy per player. Summon again after it leaves play."
+		recipe_menu.details(heading, explanation)
 
 
 func _staged_monsters() -> Array:
@@ -1137,3 +1158,7 @@ func _discard_warm_round() -> void:
 		_warm_round_job.join_on_exit()
 		_warm_round_job = null
 		_warm_round_source = null
+
+
+func _session_from_save(_raw: Dictionary):
+	return PlaySession.new()

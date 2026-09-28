@@ -199,6 +199,15 @@ func sample(seconds: float) -> Dictionary:
 	return {"units": result, "caption": left.caption, "clash": left.clash.duplicate(), "projectiles": projectiles, "monster_fields": fields, "monster_attacks": attacks, "banished_ids": _banished_ids.keys(), "field_structures": left.get("field_structures", []).duplicate(true)}
 
 
+func latest_blocked_attack_at(seconds: float, after: float) -> float:
+	var latest: float = after
+	for attack in _monster_attacks:
+		if attack.get("ability", "") != "RangedBlock": continue
+		var at: float = float(attack.start)
+		if at > after and at <= seconds: latest = maxf(latest, at)
+	return latest
+
+
 func tick_time(tick: int) -> float:
 	return _spatial_lead + _move_seconds * float(tick + 1) / float(_spatial_ticks)
 

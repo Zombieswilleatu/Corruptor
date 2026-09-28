@@ -34,6 +34,12 @@ var rules_ref = null
 var maintenance_step: String = ""
 var _gutter_width: float = 400.0
 var _gutter_center: float = -1.0
+const EXPANDED_HEIGHT: float = 530.0 * 1.25
+var _scroll_positions: Dictionary = {}
+var _scroll_key: String = ""
+var _requested_scroll_key: String = ""
+var _scroll_restore_queued: bool = false
+var _scroll_revision: int = 0
 
 func fit_board_gutter(left: float, right: float) -> void:
 	if right <= left: return
@@ -44,6 +50,10 @@ func fit_board_gutter(left: float, right: float) -> void:
 	call_deferred("_sync_decision_panel_layout_v4")
 
 func _apply_gutter_footprint() -> void:
+	if not board_view_collapsed:
+		var height: float = minf(EXPANDED_HEIGHT, maxf(120.0, get_parent_area_size().y - 32.0))
+		offset_top = -height * 0.5
+		offset_bottom = height * 0.5
 	if _gutter_center < 0.0: return
 	anchor_left = 0.0
 	anchor_right = 0.0
@@ -52,6 +62,8 @@ func _apply_gutter_footprint() -> void:
 
 
 func _ready() -> void:
+	get_viewport().size_changed.connect(_apply_gutter_footprint)
+	call_deferred("_apply_gutter_footprint")
 	UI2_DECISION_PANEL_TEXTURE = Textures.texture("res://ConceptImages/Menus/DecisionPanel.png")
 	call_deferred("_apply_decision_panel_skin_v1")
 	# UI2_DECISION_PHASE_SLOT_READABILITY_V17_1
@@ -240,6 +252,7 @@ func _refresh_mode() -> void:
 func _on_view_board_pressed() -> void:
 	if not _can_view_board(stage_key):
 		return
+	_request_scroll_position(_requested_scroll_key)
 	board_view_collapsed = not board_view_collapsed
 	_refresh_mode()
 
@@ -831,7 +844,8 @@ func _fit_content_above_actions(primary: Button, secondary: Button) -> void:
 		bottom = size.y * (0.900 if button_count == 2 else 0.785) - 12.0
 	var contents := content_host.get_parent() as Control
 	if _gutter_width < 400.0: _fit_narrow_controls(contents)
-	contents.position = Vector2(size.x * 0.09, 102.0)
+	# Keep content below the phase plaque as the painted panel grows taller.
+	contents.position = Vector2(size.x * 0.09, maxf(102.0, size.y * (102.0 / 530.0)))
 	contents.size = Vector2(size.x * 0.82, maxf(0.0, bottom - contents.position.y))
 	if action_zone != null and is_ancestor_of(action_zone.status_label):
 		action_zone.status_label.visible = not action_zone.status_label.text.strip_edges().is_empty()
@@ -903,6 +917,7 @@ func _sync_decision_header_slots_v15() -> void:
 
 
 func bind_decision(key: String, title: String, copy: String, phase: String) -> void:
+	_request_scroll_position(JSON.stringify([phase, key]))
 	if ledger != null: ledger.hide()
 	if stage_key != key:
 		board_view_collapsed = false
@@ -913,6 +928,43 @@ func bind_decision(key: String, title: String, copy: String, phase: String) -> v
 	eyebrow_label.text = phase
 	visible = true
 	_refresh_mode()
+
+
+func _action_scroll() -> ScrollContainer:
+	return action_zone.get_node_or_null("ActionScroll") as ScrollContainer if action_zone != null else null
+
+
+func _request_scroll_position(key: String) -> void:
+	_requested_scroll_key = key
+	# Base and flow presenters may bind different keys in the same refresh.
+	# Commit only the final decision, after the containers have laid it out.
+	if _scroll_restore_queued: return
+	_scroll_restore_queued = true
+	var scroll := _action_scroll()
+	if scroll != null and not _scroll_key.is_empty() and not board_view_collapsed:
+		_scroll_positions[_scroll_key] = scroll.scroll_vertical
+	call_deferred("_restore_scroll_position")
+
+
+func _restore_scroll_position() -> void:
+	var revision: int = _scroll_revision
+	await get_tree().process_frame
+	if revision != _scroll_revision: return
+	_scroll_restore_queued = false
+	_scroll_key = _requested_scroll_key
+	var scroll := _action_scroll()
+	if scroll != null:
+		scroll.scroll_vertical = int(_scroll_positions.get(_scroll_key, 0))
+
+
+func reset_scroll_memory() -> void:
+	_scroll_revision += 1
+	_scroll_restore_queued = false
+	_scroll_positions.clear()
+	_scroll_key = ""
+	_requested_scroll_key = ""
+	var scroll := _action_scroll()
+	if scroll != null: scroll.scroll_vertical = 0
 
 
 func set_presenting(enabled: bool) -> void:

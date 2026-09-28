@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://dwuhd3fdfucws"
-path="res://.godot/imported/Wilhelm.wav-8e9dcfa031ac703526b5cd2ddd0635df.sample"
+path="res://.godot/imported/Wilhelm.wav-f4db068c1d80370c20087696ca89eba8.sample"
 
 [deps]
 
-source_file="res://Sounds/Wilhelm.wav"
-dest_files=["res://.godot/imported/Wilhelm.wav-8e9dcfa031ac703526b5cd2ddd0635df.sample"]
+source_file="res://Sounds/SourceRecordings/Originals/Wilhelm.wav"
+dest_files=["res://.godot/imported/Wilhelm.wav-f4db068c1d80370c20087696ca89eba8.sample"]
 
 [params]
 

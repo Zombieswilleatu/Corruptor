@@ -3,7 +3,10 @@ extends RefCounted
 # Explicit profile flags preserve old saves and archived replay semantics.
 const VERSION: String = "U13_SPLIT_WARD_V1"
 const TEMPO: String = "U13_VEIL_ATTACK_ROUND25_V1"
-const SOUL_START_ROUND: int = 20
+const SOUL_START_ROUND: int = 17
+
+static func soul_start_round(world: Dictionary) -> int:
+	return SOUL_START_ROUND if world.data.get("victory", {}).has("round_limit") else 20
 
 static func enabled(world: Dictionary) -> bool:
 	return world.data.get("ward_experiment") == VERSION
@@ -62,7 +65,7 @@ static func reward(world: Dictionary, events: Array, pid: int, round_number: int
 		world.players[1 - pid].resources.souls += 1
 		events.append(public_event("WARD_SOUL_GAINED", {"player_id": 1 - pid, "round": round_number, "lane": order.lane, "amount": 1}))
 	if saved: events.append_array(preload("res://Scripts/Sim/U13WardConversion.gd").convert(world, pid, order, round_number, seed_value))
-	if not tempo_enabled(world) or round_number < SOUL_START_ROUND: return
+	if not tempo_enabled(world) or round_number < soul_start_round(world): return
 	for i in range(events.size() - 1, -1, -1):
 		var row: Dictionary = events[i].event
 		if row.type not in ["HUNT_RESOLVED", "SIEGE_RESOLVED"]: continue

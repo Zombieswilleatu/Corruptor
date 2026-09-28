@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bhq8whcdkj4b3"
+path="res://.godot/imported/FEETHmn_Running in the tall grass (ID 1843)_BigSoundBank.com.wav-0a247d992d26d94fde3c8962f4848ac5.sample"
+
+[deps]
+
+source_file="res://Sounds/SourceRecordings/Originals/FEETHmn_Running in the tall grass (ID 1843)_BigSoundBank.com.wav"
+dest_files=["res://.godot/imported/FEETHmn_Running in the tall grass (ID 1843)_BigSoundBank.com.wav-0a247d992d26d94fde3c8962f4848ac5.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

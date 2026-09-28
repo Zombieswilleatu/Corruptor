@@ -2,6 +2,7 @@ extends Control
 
 # Each collected Price remains readable until acknowledged, including multiple
 # debts falling due together. Presentation consumes only public outcome events.
+var _presented: Dictionary = {}
 var pending: Array = []
 var current: Dictionary = {}
 var side_center: Vector2 = Vector2.ZERO
@@ -45,6 +46,11 @@ func present(events: Array, sides: Array) -> void:
 	for event in events:
 		if event.type not in ["KANIFOUS_PRICE_RESOLVED", "KANIFOUS_PRICE_DEFERRED"]:
 			continue
+		# Worker sessions can carry an earlier public outcome tape forward.
+		# A debt may retry on another round; distinct debts remain distinct.
+		var key: String = JSON.stringify([event.type, event.data.get("id", ""), event.data.get("player_id", -1), event.data.get("round", -1)])
+		if _presented.has(key): continue
+		_presented[key] = true
 		var row: Dictionary = event.data.duplicate(true)
 		var side = sides[1 if int(row.player_id) == 0 else 0]
 		row["center"] = get_global_transform().affine_inverse() * side.get_global_rect().get_center()
@@ -60,7 +66,7 @@ static func description(row: Dictionary) -> String:
 		"Cards": detail = "%d hand card(s) discarded." % amount
 		"Blood": detail = "%d Marcher(s) destroyed." % amount
 		"Guards": detail = "A Guard was defeated."
-		"Stone": detail = "A Castle lost up to 5 Integrity."
+		"Stone": detail = "A Castle that was active and standing when this Price was collected lost up to 5 Integrity."
 		"Soul": detail = "1 Soul taken."
 		"Ruin": detail = "A Castle was reduced to 0 Integrity."
 		"Wishmaster": detail = "The owing Lord was banished. Their Breach is active."
@@ -68,7 +74,7 @@ static func description(row: Dictionary) -> String:
 		detail += "\n+1 neutral Tear."
 	if not row.get("taken", []).is_empty():
 		detail += "\n\n" + "\n".join(row.taken)
-	return "THE PRICE OF WISHES\n%s PRICE · %s\n%s" % ["YOUR" if int(row.player_id) == 0 else "ENEMY", row.outcome.to_upper(), detail]
+	return "THE PRICE OF WISHES · ROUND %d\n%s PRICE · %s\n%s" % [int(row.get("round", 0)), "YOUR" if int(row.player_id) == 0 else "ENEMY", row.outcome.to_upper(), detail]
 
 func _next() -> void:
 	if pending.is_empty():
@@ -94,3 +100,9 @@ func _draw() -> void:
 		var rise: float = fposmod(clock * 0.22 + i / 18.0, 1.0)
 		var at: Vector2 = side_center + Vector2(sin(clock + i * 2.1) * (28 + rise * 60), 60 - rise * 220)
 		draw_circle(at, 20 + rise * 35, Color(0.7, 0.25, 0.95, (1 - rise) * 0.32))
+
+func clear() -> void:
+	_presented.clear()
+	pending.clear()
+	current = {}
+	hide()

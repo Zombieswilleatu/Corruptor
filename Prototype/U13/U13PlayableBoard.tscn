@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
-[ext_resource type="Script" path="res://Prototype/U13/U13ActionFlowBoard.gd" id="1"]
+[ext_resource type="Script" path="res://Prototype/U13/U13HotseatBoard.gd" id="1"]
+
+[ext_resource type="Script" path="res://Prototype/U13/U13GameMusic.gd" id="game_music_playlist"]
 
 [node name="U13PlayableBoard" type="Control"]
 layout_mode = 3
@@ -10,3 +12,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1")
+
+[node name="U13GameMusic" type="Node" parent="."]
+script = ExtResource("game_music_playlist")

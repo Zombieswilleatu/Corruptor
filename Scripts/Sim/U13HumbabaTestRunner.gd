@@ -1,5 +1,6 @@
 extends SceneTree
 
+const Endurance = preload("res://Scripts/Sim/U13MusterEndurance.gd")
 const Content = preload("res://Scripts/Sim/U13Humbaba.gd")
 const Scenario = preload("res://Scripts/Sim/U13HumbabaScenario.gd")
 const Stats = preload("res://Scripts/Sim/U13LordStats.gd")
@@ -129,98 +130,42 @@ func _add_unit(world: Dictionary, pid: int, suit: String, hp: int, armor: int = 
 
 
 func _endurance() -> void:
-	for hp in [1, 2]:
-		var world: Dictionary = Scenario.world()
-		_add_unit(world, 0, "Penitent", hp, 9)
-		_add_unit(world, 0, "Penitent", hp, 0)
-		_add_unit(world, 1, "Penitent", 1)
-		_add_unit(world, 0, "Butcher", 1)
-		var before: Dictionary = world.duplicate(true)
-		var result: Dictionary = Content.endurance(_context(world, Timeline.END_MARCHING_CHECKS))
-		_check(
-			result.world.data.neutral_tears == (1 if hp == 1 else 0),
-			"endurance_exact_final_hp_once_" + str(hp)
-		)
-		_check(
-			_count(result.events, "ENDURANCE_CHECKED") == 1,
-			"endurance_emits_opportunity_" + str(hp)
-		)
-		_check(world == before, "endurance_input_isolated_" + str(hp))
-		_check(
-			(
-				Content.endurance(_context(result.world, Timeline.END_MARCHING_CHECKS)).action
-				== "invalid"
-			),
-			"endurance_duplicate_hook_rejected_" + str(hp)
-		)
 	var world: Dictionary = Scenario.world()
+	var initial = world.players[0].resources.personal_tears
+	var neutral = world.data.neutral_tears
+	var enemy: Dictionary = {"owner": 1}
 	var unit_id: String = _add_unit(world, 0, "Penitent", 1)
-	var healed: Dictionary = Marching.regenerate(_context(world, Timeline.ROUND_START_AUTOMATIC))
-	if _check(healed.action == "resolved", "endurance_shared_regen_resolves"):
-		_check(_entity(healed.world, unit_id).attributes.hp > 1, "penitent_regenerated_above_one")
-		var result: Dictionary = Content.endurance(
-			_context(healed.world, Timeline.END_MARCHING_CHECKS)
-		)
-		_check(result.world.data.neutral_tears == 0, "healed_penitent_does_not_qualify")
-	var entities = Ids.new()
-	entities.restore(world.entities)
-	entities.retire(unit_id)
-	world.entities = entities.snapshot()
-	_check(
-		(
-			(
-				Content
-				. endurance(_context(world, Timeline.END_MARCHING_CHECKS))
-				. world
-				. data
-				. neutral_tears
-			)
-			== 0
-		),
-		"dead_penitent_does_not_qualify"
-	)
-	_check(
-		Content.endurance(_context(world, Timeline.MARCHING)).action == "invalid",
-		"endurance_only_at_step_thirteen"
-	)
-	var replacement_id: String = _add_unit(world, 0, "Penitent", 1)
-	if not _check(
-		(
-			not replacement_id.is_empty()
-			and replacement_id != unit_id
-			and _entity(world, replacement_id).get("attributes", {}).get("hp") == 1
-			and unit_id in world.entities.used_ids
-		),
-		"endurance_replacement_has_new_identity_and_one_hp"
-	):
-		return
-	_check(
-		(
-			(
-				Content
-				. endurance(_context(world, Timeline.END_MARCHING_CHECKS))
-				. world
-				. data
-				. neutral_tears
-			)
-			== 1
-		),
-		"endurance_replacement_qualifies_before_banishment"
-	)
+	var unit: Dictionary = _entity(world, unit_id)
+	unit.attributes["source_power_id"] = "MusterTheFaithful"
+	unit.attributes["source_effect_id"] = "muster-test"
+	unit.attributes["muster_owner"] = 0
+	var checked: Dictionary = Content.endurance(_context(world, Timeline.END_MARCHING_CHECKS))
+	_check(checked.world.data.neutral_tears == neutral and checked.events.is_empty(), "old_low_hp_reward_removed")
+	_check(Content.endurance(_context(checked.world, Timeline.END_MARCHING_CHECKS)).action == "invalid", "end_hook_remains_once_only")
+	for i in range(3):
+		var member: Dictionary = unit.duplicate(true)
+		member.id = "member-" + str(i)
+		Endurance.credit(world, member, enemy, 7.5, 0, false, 1, i)
+	Endurance.credit(world, unit, enemy, 5, 5, true, 1, 4)
+	Endurance.credit(world, unit, enemy, 5, 5, true, 1, 5)
+	_check(world.players[0].resources.personal_tears == initial, "fractional_pool_below_threshold")
+	var events: Array = Endurance.credit(world, unit, enemy, 5, 4.5, false, 2, 0)
+	_check(world.players[0].resources.personal_tears == initial + 1 and _count(events, "MUSTER_ENDURANCE_REWARDED") == 1, "fractional_pool_pays_personal_at_25")
+	Endurance.credit(world, unit, enemy, 30, 0, false, 3, 0)
+	_check(world.players[0].resources.personal_tears == initial + 1 and world.data.neutral_tears == neutral, "one_lifetime_reward_no_neutral_tear")
+	unit.attributes.source_effect_id = "banished-group"
 	_lord(world, 0).attributes.alive = false
-	_check(
-		(
-			(
-				Content
-				. endurance(_context(world, Timeline.END_MARCHING_CHECKS))
-				. world
-				. data
-				. neutral_tears
-			)
-			== 0
-		),
-		"endurance_passive_requires_living_lord"
-	)
+	Endurance.credit(world, unit, enemy, 25, 0, false, 3, 1)
+	_check(world.players[0].resources.personal_tears == initial + 1, "banished_group_waits")
+	_lord(world, 0).attributes.alive = true
+	Endurance.credit(world, unit, enemy, 5, 5, true, 4, 1)
+	_check(world.players[0].resources.personal_tears == initial + 2, "later_contribution_claims_pending_group")
+	unit.attributes.source_effect_id = "friendly-group"
+	Endurance.credit(world, unit, {"owner": 0}, 25, 0, false, 4, 2)
+	_check(not world.data[Endurance.KEY].has("friendly-group"), "friendly_damage_excluded")
+	unit.owner = 1
+	Endurance.credit(world, unit, {"owner": 0}, 25, 0, false, 4, 3)
+	_check(not world.data[Endurance.KEY].has("friendly-group"), "stolen_muster_excluded")
 
 
 func _entry(world: Dictionary, suffix: String, round_number: int = 1) -> Dictionary:

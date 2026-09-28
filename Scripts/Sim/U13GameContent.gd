@@ -158,7 +158,7 @@ func on_hook(context: Dictionary) -> Dictionary:
 		return result
 	var ordinary: Dictionary = context.duplicate(true)
 	ordinary.world = result.world
-	var economy: Dictionary = Economy.on_hook(ordinary)
+	var economy: Dictionary = _draw_game_economy(ordinary)
 	if economy.action == "invalid":
 		return economy
 	economy.events.append_array(GuardWork.draw_pairs(economy.world, context.round, context.seed))
@@ -274,3 +274,8 @@ func _begin_market(result: Dictionary, seed_value: String, round_number: int) ->
 
 func is_finished(world: Dictionary) -> bool:
 	return world.data.victory.winner != -1
+
+
+# Overridden only by the two-human hotseat economy profile.
+func _draw_game_economy(context: Dictionary) -> Dictionary:
+	return Economy.on_hook(context)

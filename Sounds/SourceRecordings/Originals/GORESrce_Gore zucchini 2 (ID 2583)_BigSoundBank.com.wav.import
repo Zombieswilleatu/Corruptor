@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://hrcw0gmlqeur"
+path="res://.godot/imported/GORESrce_Gore zucchini 2 (ID 2583)_BigSoundBank.com.wav-08ad65f4afe4a8a6fa1a85bac0fcaf88.sample"
+
+[deps]
+
+source_file="res://Sounds/SourceRecordings/Originals/GORESrce_Gore zucchini 2 (ID 2583)_BigSoundBank.com.wav"
+dest_files=["res://.godot/imported/GORESrce_Gore zucchini 2 (ID 2583)_BigSoundBank.com.wav-08ad65f4afe4a8a6fa1a85bac0fcaf88.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

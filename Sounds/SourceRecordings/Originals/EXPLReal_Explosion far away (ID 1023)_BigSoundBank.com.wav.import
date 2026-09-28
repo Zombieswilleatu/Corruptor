@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bvmwis2wup1n5"
+path="res://.godot/imported/EXPLReal_Explosion far away (ID 1023)_BigSoundBank.com.wav-8e594a77d0494125a4c15705b6541af3.sample"
+
+[deps]
+
+source_file="res://Sounds/SourceRecordings/Originals/EXPLReal_Explosion far away (ID 1023)_BigSoundBank.com.wav"
+dest_files=["res://.godot/imported/EXPLReal_Explosion far away (ID 1023)_BigSoundBank.com.wav-8e594a77d0494125a4c15705b6541af3.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

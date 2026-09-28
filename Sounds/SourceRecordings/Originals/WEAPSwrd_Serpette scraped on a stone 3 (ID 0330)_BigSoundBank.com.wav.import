@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://4x0vj3qsdr6c"
+path="res://.godot/imported/WEAPSwrd_Serpette scraped on a stone 3 (ID 0330)_BigSoundBank.com.wav-69617e9aaa4d24a2dd4ef19914e9311a.sample"
+
+[deps]
+
+source_file="res://Sounds/SourceRecordings/Originals/WEAPSwrd_Serpette scraped on a stone 3 (ID 0330)_BigSoundBank.com.wav"
+dest_files=["res://.godot/imported/WEAPSwrd_Serpette scraped on a stone 3 (ID 0330)_BigSoundBank.com.wav-69617e9aaa4d24a2dd4ef19914e9311a.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

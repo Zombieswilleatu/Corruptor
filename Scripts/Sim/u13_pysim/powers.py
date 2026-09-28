@@ -171,6 +171,7 @@ def resolve(rec,state,n):
     if power in ('PredatorOfRuin','MusterTheFaithful'):
         for ordinal in range(RULES[power].get('spawn_count',3)):
             a=recruit.profile('Vulture' if power=='PredatorOfRuin' else 'Penitent',t['lane'],pid,n,n);a['source_effect_id']=rec['effect_id'];a['source_power_id']=power
+            if power=='MusterTheFaithful':a['muster_owner']=pid
             r=recruit.create(w,rec['effect_id'],ordinal,pid,a);recruit.place_spawn(w,r,state['seed'])
             events.append(e.event('MARCHER_SPAWNED',r))
     elif power=='InevitableRuin':

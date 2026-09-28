@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bhgiy2vrnywh0"
+path="res://.godot/imported/PAPRHndl_Pages that turn 5 (ID 2212)_BigSoundBank.com.wav-9bca7d250aeee0cef5391346798ebd6e.sample"
+
+[deps]
+
+source_file="res://Sounds/SourceRecordings/Originals/PAPRHndl_Pages that turn 5 (ID 2212)_BigSoundBank.com.wav"
+dest_files=["res://.godot/imported/PAPRHndl_Pages that turn 5 (ID 2212)_BigSoundBank.com.wav-9bca7d250aeee0cef5391346798ebd6e.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

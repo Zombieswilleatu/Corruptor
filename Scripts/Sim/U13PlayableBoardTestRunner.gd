@@ -103,7 +103,6 @@ func split_ward_controls() -> void:
 	board._select_direct_action("Ward")
 	board._choose_target(board._entity_target(own.id))
 	check(board._apply_cards(cards.slice(0, 1), false), "stage a paid Ward")
-	board._reserve_ward()
 	check(board.ward_plan.card_ids == cards.slice(0, 1) and cards[0] not in board._available_ids(), "reserved Ward cards leave the available hand")
 	check(board._order().action == "Ward", "reserved Ward can resolve without an attack")
 	board._select_direct_action("Hunt")
@@ -156,8 +155,8 @@ func work_and_guard_controls() -> void:
 		var card: String = board._available_ids()[0]
 		var data: Dictionary = {"ui2_type": "commitment_hand_card", "source": "Hand", "card": card}
 		board._drop(Vector2.ZERO, data, destination)
-		check(board._draft_combat.get("action") == "Ward" and board._draft_combat.lane == destination.lane, "direct " + destination.kind + " drop stages Ward")
-		board._draft_combat = {}
+		check(board.ward_plan.get("action") == "Ward" and board.ward_plan.lane == destination.lane, "direct " + destination.kind + " drop stages Ward")
+		board.ward_plan = {}
 		board._refresh()
 	board._reset_direct()
 	board._refresh()
@@ -186,10 +185,11 @@ func absent_siege() -> void:
 	board._choose_target(board._entity_target(Slots.castle_id(1, 1)))
 	var staged: bool = board._apply_cards([board._visible_world.hand[0]], false)
 	check(staged and board._order().get("action") == "Siege" and board.session.preview().action != "invalid", "playable board stages a legal Siege with the Lord actually absent")
+	board._draft_combat = {} # This legacy fixture has no split-Ward rules.
 	for lane in ["Lord", "Castle"]:
 		board._select_direct_action("Ward")
 		board._choose_target({"id": "", "kind": "zone", "owner": 0, "lane": lane})
-		check(board._apply_cards([board._visible_world.hand[0]], false) and board._order().get("action") == "Ward" and board.session.preview().action != "invalid", "playable board stages absent Lord Ward in " + lane)
+		check(board._apply_cards([board._visible_world.hand[1]], false) and board._order().get("action") == "Ward" and board._order().get("lane") == lane and board.session.preview().action != "invalid", "playable board stages absent Lord Ward in " + lane)
 
 func special_actions() -> void:
 	const Game = Board.PlaySession.Game

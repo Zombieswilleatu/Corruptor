@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://dkt3nwm0tyif5"
+path="res://.godot/imported/WEAPKnif_Knife blade 2 (ID 2575)_BigSoundBank.com.wav-135873533e416ba9e860e62dec8d06c2.sample"
+
+[deps]
+
+source_file="res://Sounds/SourceRecordings/Originals/WEAPKnif_Knife blade 2 (ID 2575)_BigSoundBank.com.wav"
+dest_files=["res://.godot/imported/WEAPKnif_Knife blade 2 (ID 2575)_BigSoundBank.com.wav-135873533e416ba9e860e62dec8d06c2.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

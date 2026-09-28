@@ -13,6 +13,8 @@ const VEIL := Color("d3b0f2")
 const OWNERS: Array = [Color("a3cee9"), Color("efada5")]
 
 var tempo_rules: bool = false
+var deadline: int = 25
+var extended_tiebreak: bool = false
 var current_value: int = 0
 var selected_value: int = 0
 var round_number: int = 1
@@ -108,6 +110,8 @@ func _layout() -> void:
 
 func bind_world(world: Dictionary, round_now: int) -> void:
 	tempo_rules = world.get("tempo_experiment") == "U13_VEIL_ATTACK_ROUND25_V1"
+	deadline = Victory.round_limit(world.get("victory", {}))
+	extended_tiebreak = world.get("victory", {}).has("round_limit")
 	var reset: bool = not _initialized or round_now < round_number
 	current_value = int(world.get("veil_total", 0))
 	round_number = round_now
@@ -200,7 +204,7 @@ func _milestone(value: int) -> Dictionary:
 			tooltip += "\n\n" + _arrival_tooltip(row)
 		return {"label": "CASCADE", "planned": false, "detail": (names if not names.is_empty() else "Cascade · Veil 21 AND round 21") + " · no protection", "tooltip": tooltip}
 	if value == LIMIT and tempo_rules:
-		return {"label": "VEIL", "planned": false, "detail": "Attack +3 · game ends by round 25", "tooltip": "Veil no longer triggers Final Collapse. At round 25, check Ritual and Dominion, then compare Souls."}
+		return {"label": "VEIL", "planned": false, "detail": "Attack +3 · game ends by round %d" % deadline, "tooltip": "Veil no longer triggers Final Collapse. At round %d, check Ritual and Dominion, then %s." % [deadline, "compare Souls, Tears, standing active Castles and living Lord; seat is the last tiebreak" if extended_tiebreak else "compare Souls; seat 0 wins a tie"]}
 	if value == LIMIT:
 		return {"label": "COLLAPSE", "planned": false, "detail": "Final Collapse · higher Souls wins · round-end check",
 			"tooltip": "At Veil %d, Final Collapse ends the match at the round-end victory check if Ritual has not already won. Higher Souls wins; a Soul tie favors you." % LIMIT}
@@ -210,7 +214,7 @@ func _milestone(value: int) -> Dictionary:
 func _update_controls() -> void:
 	if not is_instance_valid(detail):
 		return
-	round_label.text = ("R %d / 25" if tempo_rules else "ROUND %d") % round_number
+	round_label.text = ("R %d / %d" % [round_number, deadline]) if tempo_rules else "ROUND %d" % round_number
 	round_label.tooltip_text = "From round 20: +1 Soul for Hunt banishment or Siege destruction, once per round. Veil 15/19/23 adds +1/+2/+3 committed attack strength." if tempo_rules else ""
 	neutral_label.text = "NEUTRAL %d" % neutral_tears
 	current_button.text = ("VEIL %d%s" % [current_value, "" if following_current else "  ↩"]) if tempo_rules else ("VEIL %d / %d%s" % [current_value, LIMIT, "" if following_current else "  ↩"])

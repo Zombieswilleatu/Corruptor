@@ -1,7 +1,7 @@
 # TITLE_SCREEN_ALIENS_WIPE_V1
 extends Control
 
-const NEXT_SCENE: String = "res://CorruptorMain.tscn"
+const NEXT_SCENE: String = "res://Prototype/U13/U13MainMenu.tscn"
 const FINAL_PROGRESS: float = 1.2
 const REVEAL_SECONDS: float = 7.5
 const LIVING_LEAD_SECONDS: float = REVEAL_SECONDS
@@ -28,16 +28,22 @@ var _logo_start_y: float = 0.0
 
 var _menu_music: AudioStreamPlayer
 
-func _ready() -> void:
-	_menu_music = AudioStreamPlayer.new()
-	add_child(_menu_music)
 
-	var music := load("res://Music/MenuThemeConcept.mp3") as AudioStreamMP3
-	if music:
-		music.loop = true
-		_menu_music.stream = music
-		_menu_music.volume_db = -6.0
-		_menu_music.play()
+func use_menu_music(player: AudioStreamPlayer) -> void:
+	_menu_music = player
+	if is_instance_valid(player) and player.stream is AudioStreamMP3:
+		(player.stream as AudioStreamMP3).loop = true
+
+func _ready() -> void:
+	if not is_instance_valid(_menu_music):
+		_menu_music = AudioStreamPlayer.new()
+		add_child(_menu_music)
+		var music := load("res://Music/MenuThemeConcept.mp3") as AudioStreamMP3
+		if music:
+			music.loop = true
+			_menu_music.stream = music
+			_menu_music.volume_db = -6.0
+			_menu_music.play()
 	_logo_start_y = logo.position.y
 	prompt.modulate.a = 0.0
 
@@ -324,6 +330,12 @@ func _start_game() -> void:
 
 
 func _finish_start_game() -> void:
+	# CORRUPTOR_SETUP_THEME_HANDOFF_V1
+	# Move the playing node, preserving its playback position across scenes.
+	if is_instance_valid(_menu_music):
+		_menu_music.add_to_group("corruptor_setup_theme")
+		if _menu_music.get_parent() != get_tree().root:
+			_menu_music.reparent(get_tree().root)
 	var error: int = get_tree().change_scene_to_file(
 		NEXT_SCENE
 	)

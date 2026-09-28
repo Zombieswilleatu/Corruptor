@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://un5tsb8y3ejw"
+path="res://.godot/imported/CHAINMvmt_Heavy chain (ID 0359)_BigSoundBank.com.wav-f62dc05d61c198097102a76b61d68b69.sample"
+
+[deps]
+
+source_file="res://Sounds/SourceRecordings/Originals/CHAINMvmt_Heavy chain (ID 0359)_BigSoundBank.com.wav"
+dest_files=["res://.godot/imported/CHAINMvmt_Heavy chain (ID 0359)_BigSoundBank.com.wav-f62dc05d61c198097102a76b61d68b69.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

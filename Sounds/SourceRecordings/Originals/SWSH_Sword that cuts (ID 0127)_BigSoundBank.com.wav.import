@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bve17oe4kbm22"
+path="res://.godot/imported/SWSH_Sword that cuts (ID 0127)_BigSoundBank.com.wav-f4e234c207c942415966e37af575bb39.sample"
+
+[deps]
+
+source_file="res://Sounds/SourceRecordings/Originals/SWSH_Sword that cuts (ID 0127)_BigSoundBank.com.wav"
+dest_files=["res://.godot/imported/SWSH_Sword that cuts (ID 0127)_BigSoundBank.com.wav-f4e234c207c942415966e37af575bb39.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://byyfemdm5s2ww"
+path="res://.godot/imported/DOORGate_Grinding metal barrier opening 1 (ID 2355)_BigSoundBank.com.wav-4e543fb6a20c31fe4aa03d1de39d9a16.sample"
+
+[deps]
+
+source_file="res://Sounds/SourceRecordings/Originals/DOORGate_Grinding metal barrier opening 1 (ID 2355)_BigSoundBank.com.wav"
+dest_files=["res://.godot/imported/DOORGate_Grinding metal barrier opening 1 (ID 2355)_BigSoundBank.com.wav-4e543fb6a20c31fe4aa03d1de39d9a16.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

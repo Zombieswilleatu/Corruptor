@@ -1,8 +1,12 @@
 extends Control
 
 const Tape = preload("res://Prototype/U13/U13ResolutionTape.gd")
+const CardBreak = preload("res://Prototype/U13/U13CardBreak.gd")
+signal presentation_finished
 const Art = preload("res://Prototype/U13/U13BoardTextures.gd")
 const Castles = preload("res://Prototype/UI2/CastleArtCatalog.gd")
+signal strike_landed(step: Dictionary)
+signal attack_revealed()
 var _steps: Array = []
 var _index: int = 0
 var _elapsed: float = 0.0
@@ -19,6 +23,7 @@ var _hit: Dictionary = {}
 var _attack_pid: int = 0
 var _lane: String = "Castle"
 var _target_id: String = ""
+var _strike_sound_sent: bool = false
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -53,6 +58,7 @@ func clear() -> void:
 	_index = 0
 	_elapsed = 0.0
 	_begun = false
+	_strike_sound_sent = false
 	hide()
 
 func advance(delta: float) -> bool:
@@ -63,15 +69,22 @@ func advance(delta: float) -> bool:
 		_begun = true
 	_elapsed = minf(float(step.seconds), _elapsed + maxf(0.0, delta))
 	_pose(step, _elapsed / float(step.seconds))
+	if not _strike_sound_sent and step.kind in ["intercept", "impact"] and _elapsed >= float(step.seconds) * 0.38:
+		_strike_sound_sent = true
+		strike_landed.emit(step.duplicate(true))
 	if _elapsed >= float(step.seconds):
 		_complete(step)
 		_clear_copies()
 		_index += 1
 		_elapsed = 0.0
 		_begun = false
+		_strike_sound_sent = false
 		if not active():
 			_clear_attackers()
 			hide()
+			# The board must commit its final public view now, before tutorials
+			# or later effects can suspend the next playback tick.
+			presentation_finished.emit()
 	return true
 
 func _side(pid: int):
@@ -138,6 +151,7 @@ func _begin(step: Dictionary) -> void:
 	_hit = {}
 	match step.kind:
 		"advance":
+			attack_revealed.emit()
 			_clear_attackers()
 			_attack_pid = step.pid
 			_lane = step.lane
@@ -164,7 +178,14 @@ func _begin(step: Dictionary) -> void:
 						var source = box.get_child(slot)
 						start = _point(source)
 						_hide_source(source)
-				_copies.append({"node": _copy(row), "start": start, "dead": dead})
+				var copy: Control = _copy(row)
+				if dead:
+					var fracture: Control = CardBreak.new()
+					fracture.name = "CardBreak"
+					copy.add_child(fracture)
+					fracture.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+					copy.pivot_offset = copy.size * 0.5
+				_copies.append({"node": copy, "start": start, "dead": dead})
 		"sigil": _label.text = "SIGIL BROKEN"
 		"intercept", "impact":
 			_hit = _entity(step.hit_id)
@@ -207,7 +228,13 @@ func _pose(step: Dictionary, t: float) -> void:
 		var jump: float = smoothstep(0.0, 0.35, t)
 		if step.kind in ["ward", "guards"] and not item.dead: jump *= 1.0 - smoothstep(0.65, 1.0, t)
 		node.position = Vector2(item.start).lerp(end + Vector2(offset, direction * 35), jump) - node.size * 0.5
-		if item.dead: node.modulate.a = 1.0 - smoothstep(0.5, 1.0, t)
+		if item.dead:
+			var breaking: float = smoothstep(0.38, 0.68, t)
+			node.get_node("CardBreak").set_progress(breaking)
+			node.rotation = breaking * (-0.065 if index % 2 == 0 else 0.065)
+			node.position.y += 12.0 * smoothstep(0.6, 1.0, t)
+			node.modulate = Color.WHITE.lerp(Color(0.62, 0.57, 0.52), breaking)
+			node.modulate.a = 1.0 - smoothstep(0.62, 1.0, t)
 	if not _hit.is_empty() and _hit.kind == "castle":
 		var progress: float = smoothstep(0.30 if step.kind == "intercept" else 0.0, 0.90, t)
 		var damage: int = int(step.result.get("damage", 0))

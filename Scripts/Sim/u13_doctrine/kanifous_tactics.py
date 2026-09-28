@@ -11,12 +11,13 @@ from .lane_support import travel
 WISHES = ('WishWealth', 'WishLongevity', 'WishDeath', 'WishResurrection', 'WishPower')
 HAND_LIMIT = 10  # Ordinary U13 opening/card-zone contract.
 PRICE_WEIGHTS = dict(Cards=30, Blood=30, Guards=15, Stone=15, Soul=5, Ruin=4, Wishmaster=1)
-PROFILES = ('v20', 'power', 'wealth', 'resurrection', 'combined')
+PROFILES = ('v20', 'power', 'wealth', 'resurrection', 'combined', 'wealth25', 'wealth35', 'wealth35_position', 'wealth35_position_defense', 'matchup')
 DEFAULT_PROFILE = 'power'
 
 
 def calibrated(f, term):
-    return getattr(f, 'wish_profile', DEFAULT_PROFILE) in (term, 'combined')
+    profile = getattr(f, 'wish_profile', DEFAULT_PROFILE)
+    return profile in (term, 'combined') or (term == 'power' and profile in ('wealth25', 'wealth35', 'wealth35_position', 'wealth35_position_defense'))
 
 
 def ordinary_material_sum():
@@ -101,9 +102,10 @@ def wish_value(f, name, target, plan, ctx=None):
         # Restore V19's bounded urgency for a short hand, measured after this
         # order's spending. This is option value, not a predicted card/recipe.
         shortage=3*max(0,5-len(state['hand'])) if calibrated(f,'wealth') and hundredths else 0
-        benefit=10*hundredths//100+shortage
+        card_value = {'wealth25': 25, 'wealth35': 35, 'wealth35_position': 35, 'wealth35_position_defense': 35}.get(getattr(f, 'wish_profile', DEFAULT_PROFILE), 10)
+        benefit=card_value*hundredths//100+shortage
         result.update(reason='draw_after_current_card_commitments',hand_after_commitments=len(state['hand']),
-                      hand_space=space,expected_cards_hundredths=hundredths,short_hand_bonus=shortage,
+                      hand_space=space,expected_cards_hundredths=hundredths,short_hand_bonus=shortage,card_value=card_value,
                       draw_timing='after_combat_before_next_orders')
     elif name=='WishLongevity':
         castle=next(c for c in state['castles'] if c['id']==target['entity_id'])
@@ -139,7 +141,8 @@ def wish_value(f, name, target, plan, ctx=None):
         result.update(reason='material_removed_less_friendly_spawn_exposure',enemy_victims=[r['id'] for r in enemy],
                       friendly_victims=[r['id'] for r in friendly],planned_friendly_exposure_upper_bound=exposure)
     elif name=='WishResurrection':
-        lane=target['lane']; known=[]; exposed=[]; seen=set(); limited=set()
+        lane=target['lane']; known=[]; exposed=[]; seen=set(); limited=set(); position_credit=0
+        positional = getattr(f, 'wish_profile', DEFAULT_PROFILE) in ('wealth35_position', 'wealth35_position_defense')
         for r in sorted(f.v['data']['kanifous_losses'],key=lambda r:r['id']):
             a=r['attributes']; monster=a.get('monster_id','')
             # Ordinary planning observations expose the ledger after its
@@ -149,6 +152,7 @@ def wish_value(f, name, target, plan, ctx=None):
             if r['kind']!='marcher' or r['owner']!=f.pid or a['lane']!=lane or r['id'] in seen: continue
             if monsters.limited(monster) and (monsters.living(f.rows,f.pid,monster) or monster==ctx['monster'] or monster in limited): continue
             seen.add(r['id']);limited.add(monster);known.append(r['id']);benefit+=material(r,True)
+            if positional: position_credit += restoration_position_value(f, r)
         known_value=benefit;foes=f.units(f.enemy,lane)
         for r in state['units']:
             a=r['attributes']
@@ -163,21 +167,38 @@ def wish_value(f, name, target, plan, ctx=None):
                 if distance<=reach*reach: credit=max(credit,material(r,True)//2)
                 elif distance<=(reach+travel(a,f.v['round'])+travel(b,f.v['round']))**2:
                     credit=max(credit,material(r,True)//4)
-            if credit: exposed.append(dict(id=r['id'],discounted_value=credit))
+            if credit:
+                exposed.append(dict(id=r['id'],discounted_value=credit))
+                if positional:
+                    position_credit += restoration_position_value(f, r)*credit//max(1,material(r,True))
         raw=sum(row['discounted_value'] for row in exposed)
         # Exposure of many bodies is not evidence that all will die. Bound the
         # speculative insurance at two average ordinary bodies; actual ledger
         # losses keep full credit. A heuristic ceiling, not an engine limit.
         cap=2*ordinary_material_sum()//len(recruitment.SUITS) if calibrated(f,'resurrection') else None
         speculative=min(raw,cap) if cap is not None else raw
-        benefit=known_value+speculative
+        position_credit=min(39,position_credit) # at most two average bodies of extra positional utility
+        benefit=known_value+speculative+position_credit
         result.update(reason='eligible_losses_and_discounted_reachable_danger',known_losses=known,
                       known_loss_value=known_value,exposed=exposed,raw_exposure_value=raw,
-                      speculative_credit=speculative,speculative_cap=cap,
+                      speculative_credit=speculative,speculative_cap=cap,position_credit=position_credit,
                       restoration_timing='after_marching_no_same_phase_combat')
     else: raise ValueError('Unknown ordinary Wish')
     result.update(benefit=benefit,score=benefit-price['score'])
     return result
+
+
+def restoration_position_value(f, row):
+    """Bounded saved-travel credit; never a prediction of a future casualty.
+
+    Caller applies the existing casualty-confidence discount to living units.
+    Staged, waiting and stationary bodies have no travel-position bonus.
+    """
+    a=row['attributes']
+    if a.get('waiting') or a.get('step_fp',0)<=0 or a.get('sprite_form')=='turret': return 0
+    if a.get('movement_ready_round',0)>f.v['round']+1: return 0
+    progress=a['x_fp'] if f.pid==0 else 2400-a['x_fp']
+    return material(row,True)*max(0,min(2280,progress-120))//4560
 
 
 def choices(f):
@@ -236,3 +257,9 @@ class WishPlans:
         return dict(enabled=self.enabled,alternatives=alternatives,profile=getattr(self.f,'wish_profile',DEFAULT_PROFILE),
             selected=[copy_data(r) for r in chosen['coordination']['powers'] if r['power'] in WISHES],
             scope='own commitments and public assets; future Price outcomes, draws, enemy orders and spatial survival unknown')
+
+
+def matchup_profile(f):
+    """Keep the tested anti-Orias combination local to that matchup."""
+    if f.kind != 'Kanifous': return 'power'
+    return 'wealth35_position_defense' if f.lord[f.enemy]['attributes']['lord_id'] == 'Orias' else 'wealth35'

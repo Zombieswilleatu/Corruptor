@@ -1,6 +1,8 @@
 # CORRUPTOR_PROLOGUE_CRAWLER_STILLS_V2
 extends Control
 
+const IntroQueue = preload("res://Prototype/Prologue/IntroResourceQueue.gd")
+
 const TITLE_SCENE: String = "res://Prototype/TitleScreen/TitleScreen.tscn"
 const MENU_THEME: String = "res://Music/MenuThemeConcept.mp3"
 const CRAWLER_FONT: String = "res://Fonts/Grenze_Gotisch/static/GrenzeGotisch-Regular.ttf"
@@ -217,6 +219,10 @@ var _crawler_active: bool = true
 var _transitioning: bool = false
 var _crawl_elapsed: float = 0.0
 var _stills: Array[TextureRect] = []
+var _chapter_windows: Array[PackedFloat32Array] = []
+var _intro_queue: Node
+var _scrim_strength: float = -1.0
+const STILL_LOOKAHEAD: float = 8.0
 
 
 # CORRUPTOR_SEPARATE_SPLASH_TRANSITION_CLEANUP_V1
@@ -224,6 +230,9 @@ var _stills: Array[TextureRect] = []
 func _ready() -> void:
 	_crawler_active = true
 	_crawl_elapsed = 0.0
+	_intro_queue = IntroQueue.new()
+	add_child(_intro_queue)
+	_intro_queue.request(TITLE_SCENE, "PackedScene")
 	_start_menu_music()
 	_build_crawler()
 	if not get_viewport().size_changed.is_connected(_layout_stills):
@@ -240,6 +249,7 @@ func _process(delta: float) -> void:
 		_crawl_elapsed + delta,
 		CRAWLER_SECONDS
 	)
+	_update_still_loading()
 	_update_still_opacity()
 
 
@@ -356,31 +366,46 @@ func _build_crawler() -> void:
 
 func _build_stills() -> void:
 	_stills.clear()
-
+	_chapter_windows.clear()
 	for index: int in range(STILL_PATHS.size()):
-		var texture: Texture2D = load(STILL_PATHS[index]) as Texture2D
-		if texture == null:
-			push_error(
-				"PrologueRunner: missing storyboard still: %s"
-				% STILL_PATHS[index]
-			)
-			continue
-
+		# Keep one slot per chapter even when a texture is missing.
+		_chapter_windows.append(_storyboard_chapter_window_for_path(STILL_PATHS[index]))
 		var still := TextureRect.new()
 		still.name = "Still%02d" % (index + 1)
-		still.texture = texture
 		still.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		still.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		still.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		still.modulate = Color(1.0, 1.0, 1.0, 0.0)
+		still.modulate.a = 0.0
+		still.hide()
 		_still_layer.add_child(still)
 		_stills.append(still)
-
-	_layout_stills()
-	_update_still_opacity()
+	_update_still_loading()
 
 
-# CORRUPTOR_TEXT_SCRIM_V2
+func _update_still_loading() -> void:
+	var layout_needed: bool = false
+	for index: int in range(_stills.size()):
+		var window: PackedFloat32Array = _chapter_windows[index]
+		var start: float = window[0] if window.size() == 4 else STILL_STARTS[index]
+		var end: float = window[3] if window.size() == 4 else STILL_ENDS[index]
+		var path: String = STILL_PATHS[index]
+		if _crawl_elapsed >= end:
+			_stills[index].hide()
+			_stills[index].texture = null
+			_intro_queue.release(path)
+			continue
+		if _crawl_elapsed < start - STILL_LOOKAHEAD:
+			continue
+		_intro_queue.request(path, "Texture2D")
+		if _stills[index].texture == null:
+			var texture: Texture2D = _intro_queue.get_ready(path) as Texture2D
+			if texture != null:
+				_stills[index].texture = texture
+				layout_needed = true
+	if layout_needed:
+		_layout_stills()
+
+
 func _build_text_scrim() -> void:
 	_text_scrim = ColorRect.new()
 	_text_scrim.name = "TextScrim"
@@ -492,24 +517,25 @@ func _storyboard_chapter_window_for_path(path: String) -> PackedFloat32Array:
 
 func _update_still_opacity() -> void:
 	var strongest_visible_image: float = 0.0
-
 	for index: int in range(_stills.size()):
-		var alpha: float = _alpha_for_still(index, _crawl_elapsed)
-		var opacity: float = STILL_OPACITY[index] * alpha
-		_stills[index].modulate = Color(1.0, 1.0, 1.0, opacity)
-
-		strongest_visible_image = maxf(
-			strongest_visible_image,
-			opacity
-		)
-
+		var still: TextureRect = _stills[index]
+		var opacity: float = STILL_OPACITY[index] * _alpha_for_still(index, _crawl_elapsed)
+		var should_show: bool = opacity > 0.0 and still.texture != null
+		if still.visible != should_show:
+			still.visible = should_show
+		if not should_show:
+			continue
+		if still.modulate.a != opacity:
+			still.modulate.a = opacity
+		strongest_visible_image = maxf(strongest_visible_image, opacity)
 	if _text_scrim != null:
-		var material := _text_scrim.material as ShaderMaterial
-		if material != null:
-			material.set_shader_parameter(
-				"strength",
-				strongest_visible_image * 0.34
-			)
+		var strength: float = strongest_visible_image * 0.34
+		_text_scrim.visible = strength > 0.0
+		if strength != _scrim_strength:
+			_scrim_strength = strength
+			var material := _text_scrim.material as ShaderMaterial
+			if material != null:
+				material.set_shader_parameter("strength", strength)
 
 
 func _alpha_for_still(index: int, elapsed: float) -> float:
@@ -517,7 +543,7 @@ func _alpha_for_still(index: int, elapsed: float) -> float:
 		return 0.0
 
 	var chapter_window: PackedFloat32Array = (
-		_storyboard_chapter_window_for_path(STILL_PATHS[index])
+		_chapter_windows[index]
 	)
 
 	if chapter_window.size() == 4:
@@ -645,65 +671,39 @@ func _is_skip_input(event: InputEvent) -> bool:
 
 
 func _enter_title() -> void:
-	if _transitioning:
+	if _transitioning or not _crawler_active:
 		return
-
 	_transitioning = true
+	# Early skip can arrive before the background request completes.
+	# Yield while it loads so the window and music remain responsive.
+	while not _intro_queue.is_finished(TITLE_SCENE):
+		await get_tree().process_frame
+	var packed: PackedScene = _intro_queue.get_ready(TITLE_SCENE) as PackedScene
+	if packed == null:
+		_transitioning = false
+		push_error("PrologueRunner: could not load title scene: " + TITLE_SCENE)
+		return
 	_crawler_active = false
-
 	if _crawl_tween != null:
 		_crawl_tween.kill()
 		_crawl_tween = null
-
-	var packed: PackedScene = load(TITLE_SCENE) as PackedScene
-	if packed == null:
-		_transitioning = false
-		_crawler_active = true
-		set_process(true)
-		push_error("PrologueRunner: could not load title scene: %s" % TITLE_SCENE)
-		return
-
 	set_process(false)
-
+	if get_viewport().size_changed.is_connected(_layout_stills):
+		get_viewport().size_changed.disconnect(_layout_stills)
 	var title: Node = packed.instantiate()
+	# Pass the playing stream before _ready; avoid starting a duplicate track.
+	title.use_menu_music(_music)
 	add_child(title)
-
 	if title is Control:
-		var title_control: Control = title as Control
-		title_control.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-
+		(title as Control).set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	if _crawler_root != null:
 		_crawler_root.queue_free()
 		_crawler_root = null
-
-	await get_tree().process_frame
-	_suppress_duplicate_menu_music()
-
+	_stills.clear()
+	_chapter_windows.clear()
+	_text_scrim = null
+	_crawler_text = null
+	for path: String in STILL_PATHS:
+		_intro_queue.release(path)
+	_intro_queue.release(TITLE_SCENE)
 	_transitioning = false
-
-
-func _suppress_duplicate_menu_music() -> void:
-	if _music == null:
-		return
-
-	var nodes: Array[Node] = []
-	_collect_nodes(get_tree().root, nodes)
-
-	for node: Node in nodes:
-		if node == _music:
-			continue
-		if not (node is AudioStreamPlayer):
-			continue
-
-		var player: AudioStreamPlayer = node as AudioStreamPlayer
-		if player.stream == null:
-			continue
-
-		if player.stream.resource_path == MENU_THEME and player.playing:
-			player.stop()
-
-
-func _collect_nodes(node: Node, out: Array[Node]) -> void:
-	out.append(node)
-	for child: Node in node.get_children():
-		_collect_nodes(child, out)

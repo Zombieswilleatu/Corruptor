@@ -29,3 +29,7 @@ project/assembly_name="Corruptor"
 [rendering]
 
 renderer/rendering_method="mobile"
+
+[autoload]
+CorruptorMenuFlow="*res://Prototype/U13/U13MenuFlow.gd"
+CorruptorAudio="*res://Prototype/U13/U13AudioSettings.gd"

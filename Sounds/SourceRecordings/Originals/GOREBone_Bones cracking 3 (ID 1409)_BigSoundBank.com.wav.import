@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cyiv64a1yljh1"
+path="res://.godot/imported/GOREBone_Bones cracking 3 (ID 1409)_BigSoundBank.com.wav-5e727d79203c330fed60242ffdccb074.sample"
+
+[deps]
+
+source_file="res://Sounds/SourceRecordings/Originals/GOREBone_Bones cracking 3 (ID 1409)_BigSoundBank.com.wav"
+dest_files=["res://.godot/imported/GOREBone_Bones cracking 3 (ID 1409)_BigSoundBank.com.wav-5e727d79203c330fed60242ffdccb074.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

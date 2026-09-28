@@ -12,6 +12,7 @@ var lord_choices: Array = []
 var castle_choices: Array = [[], []]
 var opening: OptionButton
 var quickstart_button: Button
+var random_opponent_button: Button
 var start_button: Button
 var cancel_button: Button
 var message: Label
@@ -22,9 +23,21 @@ var animation_previews
 var animation_button: Button
 var sandbox_button: Button
 var lane_sandbox
+# CORRUPTOR_NATIVE_MUSIC_LAB_V1
+var music_lab_button: Button
+var music_lab
+var _music_lab_previous_scale_size: Vector2i
+var _music_lab_previous_scale_mode: int
+var _music_lab_previous_scale_aspect: int
+var sound_lab_button: Button
+var sound_lab
+var _sound_lab_previous_scale_size: Vector2i
+var _sound_lab_previous_scale_mode: int
+var _sound_lab_previous_scale_aspect: int
 var _loadout_content: Control
 var _accepted_castles: Array = [[], []]
 var full_game: bool = false
+var _setup_theme_seen: bool = false
 
 
 func _ready() -> void:
@@ -97,6 +110,16 @@ func _ready() -> void:
 	sandbox_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	extras.add_child(sandbox_button)
 	sandbox_button.pressed.connect(_open_lane_sandbox)
+	sound_lab_button = Button.new()
+	sound_lab_button.text = "SOUND LAB"
+	sound_lab_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	extras.add_child(sound_lab_button)
+	sound_lab_button.pressed.connect(_open_sound_lab)
+	music_lab_button = Button.new()
+	music_lab_button.text = "MUSIC LAB / MIDI CORRUPTOR"
+	music_lab_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	column.add_child(music_lab_button)
+	music_lab_button.pressed.connect(_open_music_lab)
 	_label(column, "FULL GAME OPENING" if full_game else "TEST OPENING", 16)
 	opening = _option(
 		column,
@@ -117,6 +140,12 @@ func _ready() -> void:
 		14
 	)
 	message = _label(column, "", 15)
+	random_opponent_button = Button.new()
+	random_opponent_button.text = "PLAY VS RANDOM OPPONENT"
+	random_opponent_button.tooltip_text = "Keep your selected Lord and Castle slots. Randomize the opponent’s Lord and Castles, then start. The opponent uses the same bot difficulty."
+	random_opponent_button.custom_minimum_size.y = 42
+	column.add_child(random_opponent_button)
+	random_opponent_button.pressed.connect(_start_random_opponent)
 	var buttons := HBoxContainer.new()
 	column.add_child(buttons)
 	quickstart_button = Button.new()
@@ -138,10 +167,14 @@ func _ready() -> void:
 	tutorial_popup = TutorialPopup.new()
 	add_child(tutorial_popup)
 	_validate()
+	visibility_changed.connect(_sync_setup_theme)
+	_loadout_content.visibility_changed.connect(_sync_setup_theme)
 
 
 func present(lords: Array, castles: Array, quick: bool, can_cancel: bool) -> void:
 	if is_instance_valid(lane_sandbox): lane_sandbox.dismiss()
+	if is_instance_valid(music_lab): music_lab.dismiss()
+	if is_instance_valid(sound_lab): sound_lab.dismiss()
 	if animation_previews != null and animation_previews.visible:
 		animation_previews.dismiss()
 	tutorial_popup.hide()
@@ -153,7 +186,9 @@ func present(lords: Array, castles: Array, quick: bool, can_cancel: bool) -> voi
 	opening.select(0 if quick else 1)
 	cancel_button.visible = can_cancel
 	_validate()
+	_setup_theme_seen = true
 	show()
+	_sync_setup_theme()
 
 
 func selection() -> Dictionary:
@@ -174,6 +209,8 @@ func _validate() -> void:
 		Slots.selection_valid(draft.castles[0]) and Slots.selection_valid(draft.castles[1])
 	)
 	start_button.disabled = not valid
+	if random_opponent_button != null:
+		random_opponent_button.disabled = not Slots.selection_valid(draft.castles[0])
 	message.text = (
 		"Start creates a new match. Your Castle types stay fixed for that match."
 		if valid
@@ -272,6 +309,35 @@ func _open_lane_sandbox() -> void:
 	_loadout_content.hide()
 
 
+func _open_sound_lab() -> void:
+	if tutorial_popup.visible or is_instance_valid(sound_lab): return
+	var lab_scene := load("res://Prototype/U13/U13SoundLab.tscn") as PackedScene
+	if lab_scene == null:
+		message.text = "Sound Lab scene is missing."
+		return
+	var window := get_window()
+	_sound_lab_previous_scale_size = window.content_scale_size
+	_sound_lab_previous_scale_mode = window.content_scale_mode
+	_sound_lab_previous_scale_aspect = window.content_scale_aspect
+	sound_lab = lab_scene.instantiate() as Control
+	add_child(sound_lab)
+	sound_lab.closed.connect(_sound_lab_closed)
+	sound_lab.enable_return_to_setup()
+	_loadout_content.hide()
+
+
+func _sound_lab_closed() -> void:
+	if is_instance_valid(sound_lab):
+		sound_lab.queue_free()
+	sound_lab = null
+	var window := get_window()
+	window.content_scale_size = _sound_lab_previous_scale_size
+	window.content_scale_mode = _sound_lab_previous_scale_mode
+	window.content_scale_aspect = _sound_lab_previous_scale_aspect
+	_loadout_content.show()
+	if visible: sound_lab_button.grab_focus()
+
+
 static func quickstart_selection(seed_value: String) -> Dictionary:
 	if seed_value.is_empty():
 		return {}
@@ -303,3 +369,66 @@ func _quickstart() -> void:
 	var draft: Dictionary = quickstart_selection(seed_value)
 	present(draft.lords, draft.castles, true, cancel_button.visible)
 	_start()
+
+
+func _sync_setup_theme() -> void:
+	# U13 briefly hides this picker while constructing the board. Only a hide
+	# after present() means a game has actually started or loaded successfully.
+	if not _setup_theme_seen or not is_inside_tree():
+		return
+	for node: Node in get_tree().get_nodes_in_group("corruptor_setup_theme"):
+		var music := node as AudioStreamPlayer
+		if music == null or music.is_queued_for_deletion():
+			continue
+		if not is_visible_in_tree():
+			music.stop()
+			music.remove_from_group("corruptor_setup_theme")
+			music.queue_free()
+		else:
+			# All embedded test suites hide the setup contents until they close.
+			# Pause for quiet auditions; resume at this point on return to setup.
+			music.stream_paused = not _loadout_content.is_visible_in_tree()
+
+
+func _start_random_opponent() -> void:
+	if tutorial_popup.visible:
+		return
+	var draft: Dictionary = selection()
+	# Only validate the human side: the opponent's current choices are replaced.
+	if not Slots.selection_valid(draft.castles[0]):
+		_validate()
+		return
+	var seed_value: String = str(Time.get_unix_time_from_system()) + ":" + str(Time.get_ticks_usec())
+	var opponent: Dictionary = quickstart_selection(seed_value)
+	draft.lords[1] = opponent.lords[1]
+	draft.castles[1] = opponent.castles[1].duplicate()
+	present(draft.lords, draft.castles, draft.quick, cancel_button.visible)
+	_start()
+
+
+func _open_music_lab() -> void:
+	if tutorial_popup.visible or is_instance_valid(music_lab): return
+	var lab_scene := load("res://Prototype/U13/U13MusicLab.tscn") as PackedScene
+	if lab_scene == null:
+		message.text = "Music Lab scene is missing."
+		return
+	var window := get_window()
+	_music_lab_previous_scale_size = window.content_scale_size
+	_music_lab_previous_scale_mode = window.content_scale_mode
+	_music_lab_previous_scale_aspect = window.content_scale_aspect
+	music_lab = lab_scene.instantiate() as Control
+	add_child(music_lab)
+	music_lab.closed.connect(_music_lab_closed)
+	music_lab.enable_return_to_setup()
+	_loadout_content.hide()
+
+
+func _music_lab_closed() -> void:
+	if is_instance_valid(music_lab): music_lab.queue_free()
+	music_lab = null
+	var window := get_window()
+	window.content_scale_size = _music_lab_previous_scale_size
+	window.content_scale_mode = _music_lab_previous_scale_mode
+	window.content_scale_aspect = _music_lab_previous_scale_aspect
+	_loadout_content.show()
+	if visible: music_lab_button.grab_focus()

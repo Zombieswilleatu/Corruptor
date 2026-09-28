@@ -149,9 +149,8 @@ func _ready() -> void:
 	get_window().content_scale_size = Vector2i(1920, 1080)
 	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
-	if DisplayServer.get_name() != "headless":
-		get_window().mode = Window.MODE_WINDOWED
-		get_window().size = Vector2i(1440, 810)
+	# CORRUPTOR_KEEP_APPLICATION_WINDOW_V1
+	# Keep the size and window mode chosen by the intro, runner or player.
 	_build()
 	if _runtime_ok:
 		if setup_enabled and not dense_mode:
@@ -204,6 +203,8 @@ func restart() -> void:
 func _build() -> void:
 	resolution_view = ResolutionView.new()
 	add_child(resolution_view)
+	# Publish the resolved board in the same tick the theater finishes.
+	resolution_view.presentation_finished.connect(_finish_resolution_presentation)
 	gem_dagger_view = GemDaggerView.new()
 	add_child(gem_dagger_view)
 	gem_dagger_view.impact.connect(_gem_dagger_impact)

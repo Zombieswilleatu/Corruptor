@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bqks37j67s783"
+path="res://.godot/imported/ROCKFric_Tombstone opening (ID 0580)_BigSoundBank.com.wav-fa3c7c6658afc656f0d883ccb1f3ede2.sample"
+
+[deps]
+
+source_file="res://Sounds/SourceRecordings/Originals/ROCKFric_Tombstone opening (ID 0580)_BigSoundBank.com.wav"
+dest_files=["res://.godot/imported/ROCKFric_Tombstone opening (ID 0580)_BigSoundBank.com.wav-fa3c7c6658afc656f0d883ccb1f3ede2.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

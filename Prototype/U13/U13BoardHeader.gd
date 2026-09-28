@@ -16,6 +16,8 @@ var veil_wheel
 
 
 func _ready() -> void:
+	set_meta("compact_header", true)
+	_install_compact_header.call_deferred()
 	custom_minimum_size.y = 120
 	add_theme_constant_override("separation", 8)
 	_score(1)
@@ -142,3 +144,9 @@ func bind_playable_veil(world: Dictionary, round_number: int) -> void:
 	scope.hide()
 	veil_wheel.show()
 	veil_wheel.bind_world(world, round_number)
+
+
+func _install_compact_header() -> void:
+	var layout = preload("res://Prototype/U13/U13CompactHeader.gd").new()
+	add_child(layout)
+	layout.install(self)

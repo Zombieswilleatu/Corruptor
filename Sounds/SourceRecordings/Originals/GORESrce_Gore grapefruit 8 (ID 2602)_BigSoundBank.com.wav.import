@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://ccc78voesvohr"
+path="res://.godot/imported/GORESrce_Gore grapefruit 8 (ID 2602)_BigSoundBank.com.wav-5a4fa164ce91cffae7560438c08f5882.sample"
+
+[deps]
+
+source_file="res://Sounds/SourceRecordings/Originals/GORESrce_Gore grapefruit 8 (ID 2602)_BigSoundBank.com.wav"
+dest_files=["res://.godot/imported/GORESrce_Gore grapefruit 8 (ID 2602)_BigSoundBank.com.wav-5a4fa164ce91cffae7560438c08f5882.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

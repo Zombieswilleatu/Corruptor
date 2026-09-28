@@ -1,5 +1,7 @@
 extends RefCounted
 
+const MusterEndurance = preload("res://Scripts/Sim/U13MusterEndurance.gd")
+
 const Embolden = preload("res://Scripts/Sim/U13Embolden.gd")
 
 const Shroud = preload("res://Scripts/Sim/U13DotraShroud.gd")
@@ -125,6 +127,7 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 	var events: Array = []
 	var deaths: Array = []
 	for shot in shots:
+		var hp_before: float = 0.0
 		var target: Dictionary = entities.get_entity(shot.target.id)
 		# A shot already in the volley still exists after reciprocal lethal fire;
 		# an overkilled target does not generate a second death or refund the shot.
@@ -138,6 +141,7 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 			dealt = hit.damage_dealt; hp_after = hit.hp_after
 			events.append_array(hit.events)
 		elif not target.is_empty():
+			hp_before = float(target.attributes.hp)
 			var shot_kind: String = "Tower" if shot.attacker.kind == "fortification" else shot.attacker.attributes.suit
 			blocked = Defense.blocks(target, shot.attacker.id, context.seed, context.round, tick, shot_kind)
 			evaded = MonsterEffects.evades(target, shot.attacker, entities.marchers() if target.attributes.get("monster_id") == "Tumler" else [], context, tick, shot_kind, Fort.rows(world), fleeing)
@@ -158,6 +162,7 @@ static func volley(world: Dictionary, entities, context: Dictionary, duels: Dict
 				entities.update(target.id, target.owner, target.attributes)
 		var details: Dictionary = {"round": context.round, "tick": tick, "lane": shot.attacker.attributes.lane, "attacker": shot.attacker, "target": shot.target, "blocked": blocked, "evaded": evaded, "warded": warded, "damage_dealt": dealt, "hp_after": hp_after}
 		events.append(event("MARCHER_RANGED_ATTACK", details))
+		events.append_array(MusterEndurance.credit(world, shot.target, shot.attacker, hp_before, hp_after, blocked, int(context.round), tick))
 	world.entities = entities.snapshot()
 	for death in deaths:
 		death.merge({"event_id": Data.instance_id("ranged_kill", str(clock), death.victim.id), "round": context.round, "tick": tick, "hook": context.hook, "cause": "combat"})

@@ -82,7 +82,7 @@ def _initial_data(loadouts):
         "vacant_throne": {"version": "U13_VACANT_THRONE_V1", "round": 0, "completed_round": 0,
                           "prior_counts": [0, 0], "counts": [0, 0], "present": [False, False]},
         "plunder": {"version": "U13_PROFANE_PILLAGE_V1", "resolved_round": 0, "results": [None, None]},
-        "victory": {"version": "U13_VICTORY_V2_ROUND_PRESSURE", "checked_round": 0, "winner": -1, "win_by": ""},
+        "victory": {"version": "U13_VICTORY_V2_ROUND_PRESSURE", "checked_round": 0, "winner": -1, "win_by": "", "round_limit": 20},
         "guard_work": {"version": "U13_GUARD_WORK_V4", "targets": ["", ""], "pairs": [],
                        "developed_round": 0, "draw_round": 0},
     }

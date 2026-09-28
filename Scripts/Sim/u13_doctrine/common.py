@@ -23,7 +23,7 @@ from .lords.orias import OriasPlans
 from .lords.valak import ValakPlans
 from .lords.kroni import KroniPlans, normalize as kroni_normalize
 from .lords.gremory import RuinPlans
-from .kanifous_tactics import WishPlans, PROFILES as WISH_PROFILES, DEFAULT_PROFILE
+from .kanifous_tactics import WishPlans, PROFILES as WISH_PROFILES, DEFAULT_PROFILE, matchup_profile
 from .budget import Budget, Limits
 from . import closing, coordination, defensive_plans, opponent_memory
 from .coverage import POWERS
@@ -33,7 +33,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V33_DEIMOS_ROUT85'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V34_KANIFOUS_MATCHUPS'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -159,7 +159,7 @@ def ordinary(f, category, weights):
 
 
 class CommonSmartCore:
-    def __init__(self, weights=None, limits=None, lord_modules=True, selector=None, wish_profile=DEFAULT_PROFILE, opponent_memory_enabled=True):
+    def __init__(self, weights=None, limits=None, lord_modules=True, selector=None, wish_profile="matchup", opponent_memory_enabled=True):
         self.weights, self.limits = weights or Weights(), limits or Limits()
         self.lord_modules = lord_modules
         self.opponent_memory_enabled = opponent_memory_enabled
@@ -175,7 +175,7 @@ class CommonSmartCore:
         f, budget = Facts(view), Budget(self.limits)
         if not self.opponent_memory_enabled:
             f.opponent = opponent_memory.profile(dict(round=view['round']))
-        f.wish_profile = self.wish_profile
+        f.wish_profile = matchup_profile(f) if self.wish_profile == "matchup" else self.wish_profile
         recipes = Recipes(f, self.weights)
         initial_goal = recipes.goal(f.hand)
         categories = ('powers', 'resummon', 'rites', 'guards', 'work', 'combat', 'monsters')
@@ -192,7 +192,7 @@ class CommonSmartCore:
                     exhausted[category] = True
                     break
                 if p.category == 'combat': recipes.attach(p)
-                p.memory_bonus = opponent_memory.proposal_bonus(f, p, self.weights)
+                p.memory_bonus = opponent_memory.proposal_bonus(f, p, self.weights) + defensive_plans.kanifous_guard_retention(f, p)
                 p.value += p.memory_bonus
                 counts[(p.category, p.term)] += 1
                 opportunities[(p.category, p.term)] = opportunities.get((p.category, p.term), False) or p.value > 0

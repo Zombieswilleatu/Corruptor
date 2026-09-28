@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://du5s2aye6x0j3"
+path="res://.godot/imported/SCIDoor_Opening closing an sliding door (ID 0336)_BigSoundBank.com.wav-80e861335cf746bf41b817ac9fc51123.sample"
+
+[deps]
+
+source_file="res://Sounds/SourceRecordings/Originals/SCIDoor_Opening closing an sliding door (ID 0336)_BigSoundBank.com.wav"
+dest_files=["res://.godot/imported/SCIDoor_Opening closing an sliding door (ID 0336)_BigSoundBank.com.wav-80e861335cf746bf41b817ac9fc51123.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

@@ -1,0 +1,878 @@
+{
+  "version": 1,
+  "cues": [
+    {
+      "area": "Menus",
+      "id": "ui_hover",
+      "title": "Hover / focus",
+      "direction": "Tiny dry tick, restrained and rate-limited",
+      "priority": "B"
+    },
+    {
+      "area": "Menus",
+      "id": "modal_choose",
+      "title": "Select / confirm",
+      "direction": "Firm mechanical click",
+      "priority": "A",
+      "file": "modal_choose.wav"
+    },
+    {
+      "area": "Menus",
+      "id": "modal_back",
+      "title": "Back / cancel",
+      "direction": "Soft descending paper answer",
+      "priority": "A",
+      "file": "modal_back.wav"
+    },
+    {
+      "area": "Menus",
+      "id": "ui_denied",
+      "title": "Disabled / unaffordable",
+      "direction": "Blunt dead switch",
+      "priority": "A",
+      "file": "ui_denied.wav"
+    },
+    {
+      "area": "Menus",
+      "id": "ui_open",
+      "title": "Screen open",
+      "direction": "Folio or latch movement",
+      "priority": "B",
+      "file": "ui_open.wav"
+    },
+    {
+      "area": "Menus",
+      "id": "ui_close",
+      "title": "Screen close",
+      "direction": "Folio or latch settling",
+      "priority": "B",
+      "file": "ui_close.wav"
+    },
+    {
+      "area": "Menus",
+      "id": "ui_save",
+      "title": "Save",
+      "direction": "Tape transport catches",
+      "priority": "B",
+      "file": "ui_save.wav"
+    },
+    {
+      "area": "Menus",
+      "id": "ui_load",
+      "title": "Load",
+      "direction": "Tape transport starts",
+      "priority": "B",
+      "file": "ui_load.wav"
+    },
+    {
+      "area": "Cards",
+      "id": "card_draw",
+      "title": "Draw / deal",
+      "direction": "Paper scrape and stock snap",
+      "priority": "A",
+      "file": "card_draw.wav"
+    },
+    {
+      "area": "Cards",
+      "id": "card_select",
+      "title": "Pick up / select",
+      "direction": "Short paper turn",
+      "priority": "A",
+      "file": "card_select.wav"
+    },
+    {
+      "area": "Cards",
+      "id": "card_place",
+      "title": "Place on board",
+      "direction": "Stock snap at the drop",
+      "priority": "A",
+      "file": "card_place.wav"
+    },
+    {
+      "area": "Cards",
+      "id": "card_return",
+      "title": "Return to hand",
+      "direction": "Dry reverse handling",
+      "priority": "A",
+      "file": "card_return.wav"
+    },
+    {
+      "area": "Cards",
+      "id": "card_assign",
+      "title": "Assign to work / action",
+      "direction": "Card and surface lock",
+      "priority": "A"
+    },
+    {
+      "area": "Cards",
+      "id": "card_pair",
+      "title": "Guard pair formed",
+      "direction": "Two cards lock together",
+      "priority": "A",
+      "file": "card_pair.wav"
+    },
+    {
+      "area": "Choices",
+      "id": "forecast_change",
+      "title": "Forecast change",
+      "direction": "Quiet focus tick",
+      "priority": "B"
+    },
+    {
+      "area": "Choices",
+      "id": "target_select",
+      "title": "Target selected",
+      "direction": "Short aimed tick",
+      "priority": "B"
+    },
+    {
+      "area": "Choices",
+      "id": "power_ready",
+      "title": "Power ready",
+      "direction": "Faint rising tone",
+      "priority": "B"
+    },
+    {
+      "area": "Choices",
+      "id": "commit_seal",
+      "title": "Resolve round",
+      "direction": "Wooden seal, accepted",
+      "priority": "A",
+      "file": "commit_seal.wav"
+    },
+    {
+      "area": "Choices",
+      "id": "commit_reveal",
+      "title": "Orders revealed",
+      "direction": "Threatening breath opening",
+      "priority": "A",
+      "file": "commit_reveal.wav"
+    },
+    {
+      "area": "Choices",
+      "id": "round_transition",
+      "title": "New round",
+      "direction": "Short tactile transition",
+      "priority": "A",
+      "file": "round_transition.wav"
+    },
+    {
+      "area": "Choices",
+      "id": "choice_invalid",
+      "title": "Invalid declaration",
+      "direction": "Low muted denial; currently shares UI denied",
+      "priority": "A",
+      "file": "ui_denied.wav"
+    },
+    {
+      "area": "Choices",
+      "id": "soul_insufficient",
+      "title": "Insufficient Souls",
+      "direction": "Muted denial with occult drop",
+      "priority": "A",
+      "file": "soul_insufficient.wav"
+    },
+    {
+      "area": "Economy",
+      "id": "soul_gain",
+      "title": "Soul gained",
+      "direction": "Low inhale",
+      "priority": "A",
+      "file": "soul_gain.wav"
+    },
+    {
+      "area": "Economy",
+      "id": "soul_spend",
+      "title": "Soul spent",
+      "direction": "Low exhale",
+      "priority": "A",
+      "file": "soul_spend.wav"
+    },
+    {
+      "area": "Economy",
+      "id": "tear_gain",
+      "title": "Tear gained",
+      "direction": "Fragile dissonant harmonic",
+      "priority": "A",
+      "file": "tear_gain.wav"
+    },
+    {
+      "area": "Economy",
+      "id": "tear_spend",
+      "title": "Tear spent",
+      "direction": "Strained reverse harmonic",
+      "priority": "A",
+      "file": "tear_spend.wav"
+    },
+    {
+      "area": "Economy",
+      "id": "stockpile",
+      "title": "Stockpile choice",
+      "direction": "Dry drawer or paper",
+      "priority": "B",
+      "file": "stockpile.wav"
+    },
+    {
+      "area": "Economy",
+      "id": "slaver",
+      "title": "Slaver exchange",
+      "direction": "Small iron chain",
+      "priority": "B",
+      "file": "slaver.wav"
+    },
+    {
+      "area": "Economy",
+      "id": "profane",
+      "title": "Profane",
+      "direction": "Material scrape and sacrilegious bend",
+      "priority": "B",
+      "file": "profane.wav"
+    },
+    {
+      "area": "Castles",
+      "id": "castle_commission",
+      "title": "Castle commissioned",
+      "direction": "Foundation wood and mortar",
+      "priority": "A",
+      "file": "castle_commission.wav"
+    },
+    {
+      "area": "Castles",
+      "id": "castle_build",
+      "title": "Construction completes",
+      "direction": "Four deliberate hammer blows with a firm finish",
+      "priority": "A",
+      "file": "castle_build.wav"
+    },
+    {
+      "area": "Castles",
+      "id": "castle_repair",
+      "title": "Repair",
+      "direction": "Three solid hammer knocks on timber",
+      "priority": "A",
+      "file": "castle_repair.wav"
+    },
+    {
+      "area": "Castles",
+      "id": "guard_stationed",
+      "title": "Guard pair stationed",
+      "direction": "Armor settling",
+      "priority": "A",
+      "file": "guard_stationed.wav"
+    },
+    {
+      "area": "Castles",
+      "id": "castle_hit",
+      "title": "Castle hit",
+      "direction": "Stone crack",
+      "priority": "A",
+      "file": "castle_hit.wav"
+    },
+    {
+      "area": "Castles",
+      "id": "castle_danger",
+      "title": "Damaged threshold",
+      "direction": "Deeper structural crack",
+      "priority": "A",
+      "file": "castle_danger.wav"
+    },
+    {
+      "area": "Castles",
+      "id": "castle_collapse",
+      "title": "Castle collapse",
+      "direction": "Rare large masonry fall",
+      "priority": "A",
+      "file": "castle_collapse.wav"
+    },
+    {
+      "area": "Castles",
+      "id": "castle_reconstruct",
+      "title": "Castle reconstructed",
+      "direction": "Four heavy rebuilding blows",
+      "priority": "A",
+      "file": "castle_reconstruct.wav"
+    },
+    {
+      "area": "Castles",
+      "id": "siege_fire",
+      "title": "Siege engine fires",
+      "direction": "Winch / ratchet",
+      "priority": "A",
+      "file": "siege_fire.wav"
+    },
+    {
+      "area": "Castles",
+      "id": "siege_impact",
+      "title": "Siege bolt hits",
+      "direction": "Heavy masonry strike",
+      "priority": "A",
+      "file": "siege_impact.wav"
+    },
+    {
+      "area": "Castles",
+      "id": "siege_intercept",
+      "title": "Siege order intercepted",
+      "direction": "Heavy shield and guard hardware answer the attack",
+      "priority": "A",
+      "file": "siege_intercept.wav"
+    },
+    {
+      "area": "Castles",
+      "id": "siege_resolution_hit",
+      "title": "Siege order hits Castle",
+      "direction": "Stone and iron contact, separate from the siege engine explosion",
+      "priority": "A",
+      "file": "siege_resolution_hit.wav"
+    },
+    {
+      "area": "Castles",
+      "id": "siege_break",
+      "title": "Siege engine breaks",
+      "direction": "Iron under stress",
+      "priority": "A",
+      "file": "siege_break.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "combat_ward",
+      "title": "Ward selected / reserved",
+      "direction": "Low shield and held resonance",
+      "priority": "A",
+      "file": "combat_ward.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "combat_hunt",
+      "title": "Hunt selected",
+      "direction": "Forward double pulse",
+      "priority": "A",
+      "file": "combat_hunt.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "combat_siege",
+      "title": "Siege selected",
+      "direction": "Iron tension and weight",
+      "priority": "A",
+      "file": "combat_siege.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "hunt_withstood",
+      "title": "Hunt is withstood",
+      "direction": "Dry defended blow; no triumphant strike",
+      "priority": "A",
+      "file": "hunt_withstood.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "hunt_banish",
+      "title": "Hunt banishes Lord",
+      "direction": "Lord's body breaks and its presence drops away",
+      "priority": "A",
+      "file": "hunt_banish.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "hunt_impact",
+      "title": "Hunt hits target",
+      "direction": "Close blade and bodily weight after the attack lands",
+      "priority": "A",
+      "file": "hunt_impact.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "recruit_arrival",
+      "title": "Marchers arrive",
+      "direction": "Small boots and gear cluster",
+      "priority": "A",
+      "file": "recruit_arrival.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "staging_hold",
+      "title": "Staging hold",
+      "direction": "Quiet ready rustle",
+      "priority": "A"
+    },
+    {
+      "area": "Combat",
+      "id": "staging_march_select",
+      "title": "Staged march selected",
+      "direction": "Two boots on MARCH selection; chain snap on actual release",
+      "priority": "A",
+      "file": "staging_march_select.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "march_release",
+      "title": "MARCH released",
+      "direction": "Chain command snap",
+      "priority": "A",
+      "file": "march_release.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "melee_hit",
+      "title": "Basic melee hit",
+      "direction": "Small reusable metal and flesh",
+      "priority": "A",
+      "file": "melee_hit.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "melee_block",
+      "title": "Blocked attack",
+      "direction": "Shield deflection",
+      "priority": "A",
+      "file": "melee_block.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "ranged_fire",
+      "title": "Ranged strike",
+      "direction": "Bolt or air cut",
+      "priority": "A",
+      "file": "ranged_fire.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "marcher_death",
+      "title": "Marcher death",
+      "direction": "Brief collapse",
+      "priority": "A",
+      "file": "marcher_death.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "butcher_shock",
+      "title": "Butcher shock hit",
+      "direction": "Heavy armor accent",
+      "priority": "B",
+      "file": "butcher_shock.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "vulture_attack",
+      "title": "Vulture attack",
+      "direction": "Fast talon and air accent",
+      "priority": "B",
+      "file": "vulture_attack.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "penitent_block",
+      "title": "Penitent block",
+      "direction": "Wood and mail knock",
+      "priority": "B",
+      "file": "penitent_block.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "wright_repair",
+      "title": "Wright repair",
+      "direction": "Three lighter, quicker hammer knocks",
+      "priority": "B",
+      "file": "wright_repair.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "wright_fire",
+      "title": "Wright defense fire",
+      "direction": "Tense ranged twang",
+      "priority": "B",
+      "file": "wright_fire.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "rout",
+      "title": "Rout",
+      "direction": "Harsh retreat signal",
+      "priority": "B",
+      "file": "rout.wav"
+    },
+    {
+      "area": "Combat",
+      "id": "fleeing",
+      "title": "Fleeing",
+      "direction": "Scattered movement",
+      "priority": "B"
+    },
+    {
+      "area": "Combat",
+      "id": "formation_return",
+      "title": "Return to formation",
+      "direction": "Rhythm steadies",
+      "priority": "B",
+      "file": "formation_return.wav"
+    },
+    {
+      "area": "Monsters",
+      "id": "recipe_complete",
+      "title": "Recipe completes",
+      "direction": "Unstable conjuring begins",
+      "priority": "A",
+      "file": "recipe_complete.wav"
+    },
+    {
+      "area": "Monsters",
+      "id": "grimoire_chosen",
+      "title": "Grimoire chosen",
+      "direction": "Stone veil opening and distorted bell",
+      "priority": "A",
+      "file": "grimoire_chosen.wav"
+    },
+    {
+      "area": "Monsters",
+      "id": "monster_lands",
+      "title": "Monster arrives",
+      "direction": "Conjuring with greater weight",
+      "priority": "A",
+      "file": "monster_lands.wav"
+    },
+    {
+      "area": "Monsters",
+      "id": "monster_death",
+      "title": "Monster dies",
+      "direction": "Occult body collapsing",
+      "priority": "A",
+      "file": "monster_death.wav"
+    },
+    {
+      "area": "Monsters",
+      "id": "monster_lemek",
+      "title": "Lemek",
+      "direction": "Heavy drag",
+      "priority": "B"
+    },
+    {
+      "area": "Monsters",
+      "id": "monster_varn",
+      "title": "Varn",
+      "direction": "Multiplying skitter",
+      "priority": "B"
+    },
+    {
+      "area": "Monsters",
+      "id": "monster_fyra",
+      "title": "Fyra",
+      "direction": "Airy flutter and charm",
+      "priority": "B"
+    },
+    {
+      "area": "Monsters",
+      "id": "monster_kopita",
+      "title": "Kopita",
+      "direction": "Alternating hurt / heal motif",
+      "priority": "B"
+    },
+    {
+      "area": "Monsters",
+      "id": "monster_tumler",
+      "title": "Tumler",
+      "direction": "Coiling charge and collision",
+      "priority": "B"
+    },
+    {
+      "area": "Monsters",
+      "id": "monster_kurchin",
+      "title": "Kurchin",
+      "direction": "Taunting bark and armor ring",
+      "priority": "B"
+    },
+    {
+      "area": "Monsters",
+      "id": "monster_muno",
+      "title": "Muno",
+      "direction": "Lunge and afterimage",
+      "priority": "B"
+    },
+    {
+      "area": "Monsters",
+      "id": "monster_dotra",
+      "title": "Dotra",
+      "direction": "Signature pending current ability check",
+      "priority": "B"
+    },
+    {
+      "area": "Monsters",
+      "id": "monster_sooge",
+      "title": "Sooge",
+      "direction": "Transformation and cannon",
+      "priority": "B"
+    },
+    {
+      "area": "Monsters",
+      "id": "monster_sinodek",
+      "title": "Sinodek",
+      "direction": "Swallowed-space void",
+      "priority": "B"
+    },
+    {
+      "area": "Lords",
+      "id": "lord_power_select",
+      "title": "Power selected",
+      "direction": "Occult preparation",
+      "priority": "A",
+      "file": "lord_power_select.wav"
+    },
+    {
+      "area": "Lords",
+      "id": "lord_power_activate",
+      "title": "Power activates",
+      "direction": "Shared ritual with Lord accent",
+      "priority": "A",
+      "file": "lord_power_activate.wav"
+    },
+    {
+      "area": "Lords",
+      "id": "lord_power_denied",
+      "title": "Power denied / fizzles",
+      "direction": "Dry unresolved ending",
+      "priority": "A",
+      "file": "lord_power_denied.wav"
+    },
+    {
+      "area": "Lords",
+      "id": "lord_orias",
+      "title": "Orias",
+      "direction": "Sticky web drawn taut",
+      "priority": "B",
+      "file": "lord_orias.wav"
+    },
+    {
+      "area": "Lords",
+      "id": "lord_deimos",
+      "title": "Deimos",
+      "direction": "War drum and metal rout",
+      "priority": "B",
+      "file": "lord_deimos.wav"
+    },
+    {
+      "area": "Lords",
+      "id": "lord_valak",
+      "title": "Valak",
+      "direction": "Gravitational pitch bend",
+      "priority": "B",
+      "file": "lord_valak.wav"
+    },
+    {
+      "area": "Lords",
+      "id": "lord_kroni",
+      "title": "Kroni",
+      "direction": "Ravenous breath and crunch",
+      "priority": "B",
+      "file": "lord_kroni.wav"
+    },
+    {
+      "area": "Lords",
+      "id": "lord_kalligan",
+      "title": "Kalligan",
+      "direction": "Forge clank and scorched hiss",
+      "priority": "B",
+      "file": "lord_kalligan.wav"
+    },
+    {
+      "area": "Lords",
+      "id": "lord_gremory",
+      "title": "Gremory",
+      "direction": "Winged carrion and crumbling ruin",
+      "priority": "B",
+      "file": "lord_gremory.wav"
+    },
+    {
+      "area": "Lords",
+      "id": "lord_humbaba",
+      "title": "Humbaba",
+      "direction": "Mustered boots and heart",
+      "priority": "B",
+      "file": "lord_humbaba.wav"
+    },
+    {
+      "area": "Lords",
+      "id": "lord_odradek",
+      "title": "Odradek",
+      "direction": "Mechanism turned inside out",
+      "priority": "B",
+      "file": "lord_odradek.wav"
+    },
+    {
+      "area": "Lords",
+      "id": "lord_kanifous",
+      "title": "Kanifous",
+      "direction": "Whispered bargain and price",
+      "priority": "B",
+      "file": "lord_kanifous.wav"
+    },
+    {
+      "area": "States",
+      "id": "state_web",
+      "title": "Web persists",
+      "direction": "Very quiet timed loop",
+      "priority": "C"
+    },
+    {
+      "area": "States",
+      "id": "state_scorch",
+      "title": "Scorch persists",
+      "direction": "Ember texture",
+      "priority": "C"
+    },
+    {
+      "area": "States",
+      "id": "state_orb",
+      "title": "Orb persists",
+      "direction": "Gravity motion",
+      "priority": "C"
+    },
+    {
+      "area": "States",
+      "id": "state_hunger",
+      "title": "Hunger reminder",
+      "direction": "Sparing heartbeat",
+      "priority": "C"
+    },
+    {
+      "area": "States",
+      "id": "state_mark",
+      "title": "Mark reminder",
+      "direction": "Tense dry harmonic",
+      "priority": "C"
+    },
+    {
+      "area": "States",
+      "id": "state_price",
+      "title": "Price reminder",
+      "direction": "Bargain motif returns",
+      "priority": "C"
+    },
+    {
+      "area": "Stakes",
+      "id": "lord_hit",
+      "title": "Lord damaged",
+      "direction": "Deep impact",
+      "priority": "A",
+      "file": "lord_hit.wav"
+    },
+    {
+      "area": "Stakes",
+      "id": "lord_fall",
+      "title": "Lord falls",
+      "direction": "Abrupt absence",
+      "priority": "A",
+      "file": "lord_fall.wav"
+    },
+    {
+      "area": "Stakes",
+      "id": "lord_return",
+      "title": "Lord returns",
+      "direction": "Ominous re-entry",
+      "priority": "A",
+      "file": "lord_return.wav"
+    },
+    {
+      "area": "Stakes",
+      "id": "breach",
+      "title": "Breach begins",
+      "direction": "Major supernatural onset",
+      "priority": "A",
+      "file": "breach.wav"
+    },
+    {
+      "area": "Stakes",
+      "id": "veil_pressure",
+      "title": "Veil pressure",
+      "direction": "Sparse low pulse",
+      "priority": "B"
+    },
+    {
+      "area": "Stakes",
+      "id": "neutral_tear",
+      "title": "Neutral Tear appears",
+      "direction": "Tear accent",
+      "priority": "B"
+    },
+    {
+      "area": "Stakes",
+      "id": "final_rite_channel",
+      "title": "Final Rite channels",
+      "direction": "Vulnerable held tone",
+      "priority": "B"
+    },
+    {
+      "area": "Stakes",
+      "id": "final_rite_interrupt",
+      "title": "Final Rite breaks",
+      "direction": "Tone snaps",
+      "priority": "B"
+    },
+    {
+      "area": "Results",
+      "id": "aftermath_tally",
+      "title": "Aftermath tally",
+      "direction": "Sparse counted ticks",
+      "priority": "A",
+      "file": "aftermath_tally.wav"
+    },
+    {
+      "area": "Results",
+      "id": "reward",
+      "title": "Rewards",
+      "direction": "Short accepted result",
+      "priority": "A",
+      "file": "reward.wav"
+    },
+    {
+      "area": "Results",
+      "id": "victory_dominion",
+      "title": "Dominion victory",
+      "direction": "Resolved short signature",
+      "priority": "A",
+      "file": "victory_dominion.wav"
+    },
+    {
+      "area": "Results",
+      "id": "victory_ritual",
+      "title": "Ritual victory",
+      "direction": "Related but separate signature",
+      "priority": "A",
+      "file": "victory_ritual.wav"
+    },
+    {
+      "area": "Results",
+      "id": "defeat",
+      "title": "Defeat",
+      "direction": "Low unresolved cadence",
+      "priority": "A",
+      "file": "defeat.wav"
+    },
+    {
+      "area": "Atmosphere",
+      "id": "title_air",
+      "title": "Title ambience",
+      "direction": "Intermittent cold air",
+      "priority": "B"
+    },
+    {
+      "area": "Atmosphere",
+      "id": "domain_air",
+      "title": "Domain ambience",
+      "direction": "Distant machinery",
+      "priority": "B"
+    },
+    {
+      "area": "Atmosphere",
+      "id": "battlefield_air",
+      "title": "Battlefield ambience",
+      "direction": "Quiet structural creak",
+      "priority": "B"
+    },
+    {
+      "area": "Atmosphere",
+      "id": "prologue_wind",
+      "title": "Prologue wind",
+      "direction": "Sparse old-world air",
+      "priority": "B"
+    }
+  ]
+}

@@ -76,8 +76,8 @@ static func result_summary(world: Dictionary, outcome: Dictionary) -> String:
 	match method:
 		"Dominion": return "%s\n%s won with %d Personal Tears to %d. Veil reached %d.\nRequires Veil %d+, at least %d Personal Tears and more than the opponent." % [title, lord, tears[winner], tears[1 - winner], veil, Victory.DOMINION_VEIL, Victory.DOMINION_TEARS]
 		"Ritual": return "%s\n%s won with %d Souls and their Lord present.\nRequires %d Souls and a present Lord." % [title, lord, souls[winner], Victory.RITUAL_SOULS]
-		"RoundLimit": return "%s\nRound 25 reached. %s won with %d Souls to %d.%s" % [title, lord, souls[winner], souls[1 - winner], " Seat 0 wins a tied Soul count." if souls[0] == souls[1] else ""]
-		"FinalCollapse": return "%s\nVeil reached %d. %s won with %d Souls to %d.%s" % [title, veil, lord, souls[winner], souls[1 - winner], " Seat 0 wins a tied Soul count." if souls[0] == souls[1] else ""]
+		"RoundLimit": return "%s\nRound %d reached. %s won with %d Souls to %d.%s" % [title, int(world.get("victory", {}).get("checked_round", 20)), lord, souls[winner], souls[1 - winner], (" Tiebreak order: Souls, Personal Tears, active standing Castles, living Lord, then seat." if world.get("victory", {}).has("round_limit") else " Seat 0 wins a tied Soul count.") if souls[0] == souls[1] else ""]
+		"FinalCollapse": return "%s\nVeil reached %d. %s won with %d Souls to %d.%s" % [title, veil, lord, souls[winner], souls[1 - winner], (" Tiebreak order: Souls, Personal Tears, active standing Castles, living Lord, then seat." if world.get("victory", {}).has("round_limit") else " Seat 0 wins a tied Soul count.") if souls[0] == souls[1] else ""]
 	return title
 
 static func append_rows(lines: PackedStringArray, rows: Dictionary) -> void:

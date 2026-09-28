@@ -22,7 +22,8 @@ func _build() -> void:
 	powers_box.add_child(wish_box)
 	_label(wish_box, "WISH · ONE PER ROUND", 18)
 	wish_choice = _option(wish_box, ["Power", "Longevity", "Resurrection", "Death", "Wealth"])
-	wish_choice.item_selected.connect(func(_index): _update_direct_ui())
+	wish_choice.allow_reselect = true
+	wish_choice.item_selected.connect(_wish_selected)
 	wish_note = _label(wish_box, "", 13)
 	wish_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	wish_button = _button(wish_box, "QUEUE WISH", _queue_wish)
@@ -79,6 +80,8 @@ func _update_direct_ui() -> void:
 	wish_visual.bind_world(_visible_world)
 	var has_wish: bool = queued.any(func(row: Dictionary) -> bool: return Kanifous.is_wish(row.power_id))
 	wish_button.disabled = not _planning() or not powers_step or (not _human_alive() and not _using_breach_wish()) or has_wish or (Kanifous.Wishes[wish_choice.selected] == "WishLongevity" and wish_castles.is_empty())
+	wish_button.hide()
+	wish_choice.disabled = not _planning() or not powers_step or has_wish or (not _human_alive() and not _using_breach_wish())
 	wish_remove.visible = has_wish
 	price_note.text = ""
 	for price in _visible_world.get("wish_prices", []):
@@ -87,6 +90,10 @@ func _update_direct_ui() -> void:
 		confirm.disabled = true
 		pass_button.disabled = true
 		phase_prompt.set_presenting(false)
+
+func _wish_selected(_index: int) -> void:
+	_update_direct_ui()
+	_queue_wish()
 
 func _queue_wish() -> void:
 	if wish_button.disabled:
@@ -199,6 +206,8 @@ func finish_playback(skip: bool = true) -> void:
 		wish_visual.bind_world(session.board_view().world)
 
 func _reset_direct() -> void:
+	if price_visual != null:
+		price_visual.clear()
 	if death_wish_visual != null:
 		death_wish_visual.clear()
 	if wish_placement != null:
@@ -221,3 +230,9 @@ func _using_breach_wish() -> bool:
 
 func _wish_power(power: String) -> String:
 	return "Breach" + power if _using_breach_wish() else power
+
+func start_loadout(lords: Array, castles: Array, quick: bool) -> void:
+	var previous = session
+	super.start_loadout(lords, castles, quick)
+	if session != previous and price_visual != null:
+		price_visual.clear()

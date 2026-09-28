@@ -159,83 +159,97 @@ vec2 source_point(float index) {
 
 void fragment() {
     vec4 c = texture(TEXTURE, UV);
+    if (c.a == 0.0) {
+        discard;
+    }
 
     // -------------------------------------------------------------------------
     // ORIGINAL REVEAL
     // -------------------------------------------------------------------------
 
-    float warp_a = fbm(
-        UV * 5.0
-        + vec2(run_seed * 0.021, run_seed * 0.013)
-    );
+    // CORRUPTOR_INTRO_PERFORMANCE_V1: arrival is clamped to [0.015, 1.03].
+    // Beyond the widest reveal edge it cannot affect settled title pixels.
+    // Keep the exact original field for formation and reverse-formation exit.
+    float arrival = 0.015;
+    float reveal = 1.0;
+    float edge = 0.0;
+    bool needs_formation = progress < 1.03 + edge_softness * 3.4
+        || exit_progress >= 0.0001;
+    if (needs_formation) {
+        float warp_a = fbm(
+            UV * 5.0
+            + vec2(run_seed * 0.021, run_seed * 0.013)
+        );
 
-    float warp_b = fbm(
-        UV * 5.0
-        + vec2(31.7, 11.3)
-        + vec2(run_seed * 0.017, run_seed * 0.029)
-    );
+        float warp_b = fbm(
+            UV * 5.0
+            + vec2(31.7, 11.3)
+            + vec2(run_seed * 0.017, run_seed * 0.029)
+        );
 
-    vec2 warped_uv = UV + (
-        vec2(warp_a, warp_b) - vec2(0.5)
-    ) * warp_strength;
+        vec2 warped_uv = UV + (
+            vec2(warp_a, warp_b) - vec2(0.5)
+        ) * warp_strength;
 
-    float nearest = 99.0;
+        float nearest = 99.0;
 
-    for (int i = 0; i < 5; i++) {
-        vec2 s = source_point(float(i));
-        vec2 delta = warped_uv - s;
-        delta.x *= 1.18;
-        nearest = min(nearest, length(delta));
+        for (int i = 0; i < 5; i++) {
+            vec2 s = source_point(float(i));
+            vec2 delta = warped_uv - s;
+            delta.x *= 1.18;
+            nearest = min(nearest, length(delta));
+        }
+
+        float coarse = fbm(
+            UV * 7.5
+            + vec2(run_seed * 0.037, 23.0)
+        );
+
+        float ridge_noise = fbm(
+            UV * 15.0
+            + vec2(47.0, run_seed * 0.041)
+        );
+
+        float ridge = 1.0 - abs(
+            ridge_noise * 2.0 - 1.0
+        );
+
+        ridge = pow(
+            clamp(ridge, 0.0, 1.0),
+            4.0
+        );
+
+        float fine = fbm(
+            UV * 28.0
+            + vec2(run_seed * 0.053, 79.0)
+        );
+
+        arrival = nearest * 1.52;
+        arrival += (coarse - 0.5) * 0.18;
+        arrival += (fine - 0.5) * 0.045;
+        arrival -= ridge * tendril_strength;
+
+        arrival = clamp(
+            0.025 + arrival,
+            0.015,
+            1.03
+        );
+
+        reveal = smoothstep(
+            arrival - edge_softness,
+            arrival + edge_softness,
+            progress
+        );
+
+        edge = 1.0 - smoothstep(
+            edge_softness * 0.45,
+            edge_softness * 3.4,
+            abs(progress - arrival)
+        );
+
+        edge *= reveal;
+
     }
-
-    float coarse = fbm(
-        UV * 7.5
-        + vec2(run_seed * 0.037, 23.0)
-    );
-
-    float ridge_noise = fbm(
-        UV * 15.0
-        + vec2(47.0, run_seed * 0.041)
-    );
-
-    float ridge = 1.0 - abs(
-        ridge_noise * 2.0 - 1.0
-    );
-
-    ridge = pow(
-        clamp(ridge, 0.0, 1.0),
-        4.0
-    );
-
-    float fine = fbm(
-        UV * 28.0
-        + vec2(run_seed * 0.053, 79.0)
-    );
-
-    float arrival = nearest * 1.52;
-    arrival += (coarse - 0.5) * 0.18;
-    arrival += (fine - 0.5) * 0.045;
-    arrival -= ridge * tendril_strength;
-
-    arrival = clamp(
-        0.025 + arrival,
-        0.015,
-        1.03
-    );
-
-    float reveal = smoothstep(
-        arrival - edge_softness,
-        arrival + edge_softness,
-        progress
-    );
-
-    float edge = 1.0 - smoothstep(
-        edge_softness * 0.45,
-        edge_softness * 3.4,
-        abs(progress - arrival)
-    );
-
-    edge *= reveal;
 
     vec3 revealed_rgb = (
         c.rgb
