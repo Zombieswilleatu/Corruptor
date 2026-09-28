@@ -191,10 +191,10 @@ func _spoils_and_identity() -> void:
 	)
 	_check(
 		(
-			second.world.players[0].resources.personal_tears == 1
+			second.world.players[0].resources.personal_tears == 2
 			and second.world.data.neutral_tears == 2
 		),
-		"later_spoils_neutral_despite_normal_round_cap"
+		"last_castle_adds_personal_with_later_neutral_spoils"
 	)
 	_check(second.world.data.deimos_spoils == [2, 0], "spoils_tracks_attributed_lifetime_ruins")
 	world = second.world

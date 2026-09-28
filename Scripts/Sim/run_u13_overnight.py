@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""810-game unified V34 baseline; rerun the same command to resume its frozen source."""
+"""810-game unified V42 baseline; rerun the same command to resume its frozen source."""
 import argparse,ctypes,json,os
 from pathlib import Path
 import subprocess,sys
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--output',type=Path,default=Path.home()/'Downloads/Corruptor/Balance/u13-unified-v34-overnight')
+    p.add_argument('--output',type=Path,default=Path.home()/'Downloads/Corruptor/Balance/u13-unified-v42-overnight')
     p.add_argument('--workers',type=int,default=3)
     p.add_argument('--prepare-only',action='store_true')
     args=p.parse_args()
@@ -15,11 +15,13 @@ def main():
     resume=output.exists()
     if resume:
         config=json.loads((output/'balance-config.json').read_text())
-        if config['repeats']!=10 or config['namespace']!='u13-unified-v34-overnight-2026-09-24':raise SystemExit('Existing output is not the 810-game run. Choose a different --output.')
+        if config['repeats']!=10 or config['namespace']!='u13-unified-v41-overnight-2026-09-27':raise SystemExit('Existing output is not the 810-game run. Choose a different --output.')
         frozen=output/'source/Scripts/Sim/u13_pysim/muster_endurance.py'
         if not frozen.exists() or 'THRESHOLD = 25' not in frozen.read_text():
             raise SystemExit('Existing output is a different baseline. Choose a different --output.')
     else:
+        from u13_doctrine.common import VERSION
+        if VERSION != "U13_COMMON_SMART_CORE_ALPHA_V42_DEIMOS_FINAL_SPOILS":raise SystemExit("This runner expects the combined V42 doctrine.")
         from u13_pysim.muster_endurance import THRESHOLD
         if THRESHOLD!=25:raise SystemExit('This runner expects Muster Endurance 25.')
     command=[sys.executable,'-u',str(root/'Scripts/Sim/run_u13_lord_balance.py'),

@@ -272,6 +272,17 @@ class Battle:
                 else: d["neutral_tears"] += 1
                 events.append(e.event("PERSONAL_TEAR_CREATED" if first else "NEUTRAL_TEAR_CREATED",
                                       dict(player_id=pid, round=self.number, amount=1, source="SpoilsOfWar")))
+                # Once per game, clearing all commissioned enemy castles pays
+                # one extra personal Tear. Unused construction slots do not count.
+                if (not d.get("deimos_all_castles_ruined", [False, False])[pid]
+                        and not any(r["owner"] == 1-pid and targetable(r)
+                                    for r in w["entities"]["entities"])):
+                    d.setdefault("deimos_all_castles_ruined", [False, False])[pid] = True
+                    w["players"][pid]["resources"]["personal_tears"] += 1
+                    reward = dict(player_id=pid, round=self.number, amount=1,
+                                  source="SpoilsOfWarAllCastles")
+                    events.append(e.event("PERSONAL_TEAR_CREATED", reward))
+                    events.append(e.event("DEIMOS_ALL_CASTLES_RUINED", reward))
         if kind == "BREACH_CHANGED" and detail["lord_id"] == "Humbaba":
             key = detail["event_id"]
             if key not in d["humbaba_breach_entries"]:

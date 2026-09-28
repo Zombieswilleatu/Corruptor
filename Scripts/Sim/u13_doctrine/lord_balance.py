@@ -4,7 +4,7 @@ from statistics import mean
 
 from u13_pysim.opening import LORDS
 
-NAMESPACE = 'u13-unified-v34-overnight-2026-09-24'
+NAMESPACE = 'u13-unified-v41-overnight-2026-09-27'
 
 
 def summarize(records):

@@ -511,14 +511,14 @@ const ENTRIES: Dictionary = {
 	"power:AllegianceShift": {
 		"id": "power:AllegianceShift",
 		"title": "Allegiance Shift",
-		"body": "Enemy marchers inside the selected circle become yours after combat. Place the smaller target area carefully, and check the Reconfiguration cost before locking.",
+		"body": "Spend 4 Reconfiguration to make enemy Marchers inside the selected circle yours after combat. Place the smaller target area carefully before locking.",
 		"priority": 74,
 		"urgent": false
 	},
-	"power:Inversion": {
-		"id": "power:Inversion",
-		"title": "Inversion",
-		"body": "Flip eligible Guards to the opposite player’s matching zone next round. Either side can be targeted, and a successful transfer adds a Neutral Tear.",
+	"power:Multiply": {
+		"id": "power:Multiply",
+		"title": "Multiply",
+		"body": "Spend 3 Reconfiguration to destroy one enemy Guard and create up to three copies in your matching Guard zone before Development this round. Requires at least two free slots after your planned deployments; the first two copies form a pair. This grants no Tear.",
 		"priority": 74,
 		"urgent": false
 	},

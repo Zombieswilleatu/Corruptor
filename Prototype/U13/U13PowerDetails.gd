@@ -20,7 +20,7 @@ func install(board) -> void:
 		[board.redirect_button, "Move units to the other lane"],
 		[board.false_orders_button, "Move a Guard next round"],
 		[board.shift_button, "Convert enemy Marchers"],
-		[board.inversion_button, "Flip Guards next round"]
+		[board.inversion_button, "Destroy a Guard; gain up to 3 copies this round"]
 	]:
 		var button: Button = pair[0]
 		var next: int = button.get_index() + 1

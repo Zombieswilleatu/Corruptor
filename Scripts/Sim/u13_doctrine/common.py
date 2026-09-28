@@ -33,7 +33,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V34_KANIFOUS_MATCHUPS'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V42_DEIMOS_FINAL_SPOILS'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 
@@ -133,12 +133,23 @@ def ordinary(f, category, weights):
                 if result['banished'] or result['destroyed'] or result['pillage'] or result['guards'] or result['damage'] >= 3:
                     break
             commitments = [minimum, [r['id'] for r in ordered]]
-            if f.kind == 'Orias' and action == 'Hunt':
+            against_valak = action == 'Hunt' and f.lord[f.enemy]['attributes']['lord_id'] == 'Valak'
+            if against_valak:
+                # Retain one economical depletion option; the usual minimum
+                # otherwise keeps adding cards until a guard/castle/Lord suffers.
+                drain = []
+                for row in ordered[:2]:
+                    drain.append(row['id'])
+                    if f.attack(action, target, drain)['essence_spent'] >= 2:
+                        if drain not in commitments: commitments.insert(1, drain.copy())
+                        break
+            if (f.kind == 'Orias' or against_valak) and action == 'Hunt':
                 lethal = []
                 for row in ordered:
                     lethal.append(row['id'])
                     if f.attack(action, target, lethal)['banished']:
-                        commitments.insert(1, lethal); break
+                        if not against_valak or lethal not in commitments: commitments.insert(1, lethal)
+                        break
             for ids in commitments:
                 value = f.attack_value(action, target, ids, weights)
                 yield Proposal(category, action, dict(action=action, lane=lane, target_id=target, card_ids=ids), value,
@@ -275,6 +286,17 @@ class CommonSmartCore:
         kanifous = WishPlans(f, self.lord_modules)
         valak = ValakPlans(f, self.lord_modules)
         kroni = KroniPlans(f, self.lord_modules)
+        multiply_options = []
+        if f.kind == 'Odradek':
+            for lane in LANES:
+                target = max((p for p in generated['powers'] if p.term=='Multiply' and p.payload['target']['lane']==lane),key=lambda p:p.value,default=None)
+                if target:
+                    other_action = 'Siege' if lane=='Lord' else 'Hunt'
+                    attacks = [p for p in generated['combat']+generated['monsters'] if p.term==other_action]
+                    nonattacks = [p for p in generated['combat'] if p.term in ('Ward','Pass')]
+                    for options in (attacks,nonattacks):
+                        if options: multiply_options.append([target,max(options,key=lambda p:(p.value,key(p)))])
+        multiply_reserve = min(len(multiply_options),4)
         complete = []
         mandatory_machine = next((p for p in generated['powers']
             if f.kind == 'Deimos' and p.term == 'WarMachine'
@@ -291,9 +313,9 @@ class CommonSmartCore:
         valak_reserve = min(4, self.limits.complete_plans//4) if valak.enabled else 0
         kroni_reserve = min(4, self.limits.complete_plans//4) if kroni.enabled else 0
         memory_reserve = min(4, self.limits.complete_plans//4) if f.opponent['aggression'] else 0
-        assembly_limit = max(1, self.limits.complete_plans-memory_reserve-len(split)-omission_reserve-defense_reserve-artillery_reserve-support_reserve-rout_reserve-orias_reserve-gremory_reserve-kanifous_reserve-valak_reserve-kroni_reserve)
-        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False, support_variant=False, rout_variant=False, orias_variant=False, gremory_variant=False, kanifous_variant=False, valak_variant=False, kroni_variant=False, split_variant=False):
-            if not split_variant and not omitted and not defense_variant and not artillery_variant and not support_variant and not rout_variant and not orias_variant and not gremory_variant and not kanifous_variant and not valak_variant and not kroni_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
+        assembly_limit = max(1, self.limits.complete_plans-memory_reserve-len(split)-omission_reserve-defense_reserve-artillery_reserve-support_reserve-rout_reserve-orias_reserve-gremory_reserve-kanifous_reserve-valak_reserve-kroni_reserve-multiply_reserve)
+        def assemble(anchors, priorities, reserve=(), omitted=(), defense_variant='', artillery_variant=False, support_variant=False, rout_variant=False, orias_variant=False, gremory_variant=False, kanifous_variant=False, valak_variant=False, kroni_variant=False, split_variant=False, multiply_variant=False):
+            if not multiply_variant and not split_variant and not omitted and not defense_variant and not artillery_variant and not support_variant and not rout_variant and not orias_variant and not gremory_variant and not kanifous_variant and not valak_variant and not kroni_variant and budget.report()['used'].get('complete_plans', 0) >= assembly_limit: return
             if not budget.take('complete_plans'): return
             selected, cards, used, resource_spend = [], set(), set(), Counter()
             plan = dict(powers=[], order={})
@@ -336,6 +358,9 @@ class CommonSmartCore:
             enforced_omissions = []
             if f.kind == 'Kroni':
                 selected, enforced_omissions = kroni_normalize(f, plan, selected, retained['powers'])
+            if f.kind == 'Odradek':
+                from .lords.odradek import normalize_multiply
+                selected, enforced_omissions = normalize_multiply(f, plan, selected)
             score = sum(p.value-p.memory_bonus for p in selected)
             # Shared Veil risk is a score, never a hard veto under hidden orders.
             # Current board, known round pressure and explicit own Rite additions
@@ -401,6 +426,9 @@ class CommonSmartCore:
         if len(positive) > 1: assemble(positive[:2], base)
         for p in split:
             assemble([p], ('resummon', 'powers', 'work', 'guards', 'rites'), split_variant=True)
+        for anchors in multiply_options[:multiply_reserve]:
+            # Reserve the receiving slots; do not add same-round Guard deployments.
+            assemble(anchors, ('resummon','rites','work'), multiply_variant=True)
         # Reserve real Ward alternatives before variant slots are consumed.
         memory_wards = sorted((p for p in generated['combat'] if p.term == 'Ward'),
                               key=lambda p: (-p.value, key(p)))

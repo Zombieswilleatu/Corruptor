@@ -159,7 +159,7 @@ static func guards(c, powers: Array, base: Dictionary) -> Array:
 	var result: Array = []
 	for order in Development.guard_orders(c.view, powers, base):
 		var move: Dictionary = order.guard_moves.back()
-		if powers.any(func(p): return p.power_id == "Inversion" and p.target.lane == move.lane):
+		if powers.any(func(p): return p.power_id == "Multiply" and p.target.lane == move.lane):
 			continue # Keep receiving slots open for the already chosen transfer.
 		var coverage: int = c.guard_value(c.pid, move.lane)
 		for prior in base.get("guard_moves", []):

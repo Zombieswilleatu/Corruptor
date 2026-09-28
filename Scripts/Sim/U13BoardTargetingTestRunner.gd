@@ -112,14 +112,12 @@ func run() -> void:
 	state = board.session._owner.snapshot()
 	state.world.players[0].resources.reconfiguration = 4
 	install(state)
-	board._begin_guard_power("Inversion")
-	check(board.guard_targeting.visible and not board.phase_prompt.visible, "Inversion leaves the actual Guard zones accessible")
+	board._begin_guard_power("Multiply")
+	check(board.guard_targeting.visible and not board.phase_prompt.visible, "Multiply leaves actual Guard targets accessible")
 	board.sides[1].castle_guard_box.get_child(0).input_surface.pressed.emit()
-	check(board.queued.is_empty() and not board.guard_targeting.confirm_button.disabled and board.guard_destination.owner == 0 and board.guard_destination.lane == "Castle", "Inversion selects a friendly zone directly and waits for confirmation")
-	board.guard_targeting.confirm_button.pressed.emit()
-	check(board.queued.is_empty() and board.guard_targeting.note.text.contains("Could not queue"), "an empty Inversion zone still fails authoritative validation")
+	check(board.queued.is_empty() and board.guard_targeting.confirm_button.disabled and board.guard_destination.is_empty(), "Multiply rejects friendly or empty slots")
 	board.guard_targeting.cancelled.emit()
-	check(board.reconfiguration_menu.visible and not board.guard_targeting.visible, "Inversion cancellation returns to the Reconfiguration menu")
+	check(board.reconfiguration_menu.visible and not board.guard_targeting.visible, "Multiply cancellation returns to Reconfiguration")
 
 	await fresh("Gremory")
 	board.queue_predator()

@@ -212,6 +212,8 @@ class PlannerObserver(ReferenceObserver):
             metrics = dict(activation_pulses=1, immediate_hp_restored=d['healing'], healed_marchers=len(d['healed_ids']))
         elif kind == 'REDIRECT_RESOLVED' and identity:
             metrics = dict(redirected_marchers=len(d['changes']))
+        elif kind == 'MULTIPLY_RESOLVED' and identity:
+            metrics = dict(enemy_guards_destroyed=1, copies_created=len(d['created_ids']), pairs_created=int(len(d['created_ids'])>=2), **{'copies_'+str(len(d['created_ids']))+'_resolutions': 1})
         elif kind == 'RECONFIGURATION_RESOLVED' and identity:
             metrics = dict(guard_changes=d['moved'])
         elif kind in ('ARTILLERY_FIRED', 'ARTILLERY_NO_TARGET'):

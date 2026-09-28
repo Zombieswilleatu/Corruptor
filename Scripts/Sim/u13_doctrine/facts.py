@@ -36,6 +36,22 @@ def kroni_hunt_bonus(attributes, result):
     return 3*tier*min(2, result['guards'])
 
 
+def valak_hunt_bonus(attributes, essence, result):
+    """Finite pressure value; depletion is useful even before a guard falls.
+
+    Three points per essence is discounted setup value: enemy replenishment,
+    new Ward and Projection reservations are unknown. Never assume a future kill.
+    """
+    if attributes.get('lord_id') != 'Valak' or not attributes.get('alive'):
+        return 0
+    progress = bool(result['guards'] or result['damage'] or result['banished'])
+    depletion = 3*min(5, result.get('essence_spent', 0))
+    pressure = 12 if progress else 0
+    window = 8 if progress and essence <= 2 else 0
+    finish = 16 if result['banished'] else 0
+    return min(40, depletion+pressure+window+finish)
+
+
 class Facts:
     def __init__(self, view):
         from .opponent_memory import profile
@@ -139,7 +155,7 @@ class Facts:
         result = self.attack(action, target, ids)
         return (weights.recruit*self.recruits(ids, action)+12*result['guards']+weights.damage*result['damage']
                 +weights.banishment*result['banished']+weights.destruction*result['destroyed']+12*result['pillage']
-                +result['kroni_pressure_bonus']+result['orias_hunt_bonus'])
+                +result['kroni_pressure_bonus']+result['orias_hunt_bonus']+result['valak_pressure_bonus'])
 
     def attack(self, action, target, ids, excluded_waiters=()):
         """Baseline layers only. Enemy orders and spatial reactions are unknown."""
@@ -150,11 +166,13 @@ class Facts:
         strength += sum(r['attributes']['waiting'] and r['id'] not in excluded_waiters for r in self.units(self.pid, lane))
         remaining, lost, damage, banished, destroyed = strength, 0, 0, False, False
         castle_hits = {}
+        essence_spent = 0
         for pair in self.v['data']['guard_work']['pairs']:
             if pair['player_id'] == self.enemy and pair['lane'] == lane and pair['suit'] == 'Penitent' and intact(self.world, pair):
                 remaining = max(0, remaining-PENITENT_PAIR_SCREEN)
         if lane == 'Lord' and self.lord[self.enemy]['attributes']['lord_id'] == 'Valak' and self.lord[self.enemy]['attributes']['alive']:
-            remaining = max(0, remaining-self.v['players'][self.enemy]['resources']['life_essence'])
+            essence_spent = min(remaining, self.v['players'][self.enemy]['resources']['life_essence'])
+            remaining -= essence_spent
         for guard in sorted(self.guards(self.enemy, lane), key=lambda r: (-r['attributes']['value'], r['attributes']['slot'])):
             if remaining <= guard['attributes']['value']:
                 remaining = 0; break
@@ -186,10 +204,12 @@ class Facts:
             castle_hits[victim['id']] = hit
             destroyed = remaining > 0 and hit == victim['attributes']['integrity']
         result = dict(strength=strength, guards=lost, damage=damage, banished=banished,
-                      destroyed=destroyed, pillage=pillage and remaining > 0, castle_hits=castle_hits)
+                      destroyed=destroyed, pillage=pillage and remaining > 0, castle_hits=castle_hits, essence_spent=essence_spent)
         result['kroni_pressure_bonus'] = (kroni_hunt_bonus(self.lord[self.enemy]['attributes'], result)
                                             if action == 'Hunt' else 0)
         result['orias_hunt_bonus'] = self.orias_hunt_value(result) if action == 'Hunt' else 0
+        result['valak_pressure_bonus'] = (valak_hunt_bonus(self.lord[self.enemy]['attributes'],
+            self.v['players'][self.enemy]['resources']['life_essence'], result) if action == 'Hunt' else 0)
         return result
 
     def orias_hunt_value(self, result):

@@ -62,15 +62,15 @@ func _build() -> void:
 	false_orders_button = _button(
 		odradek_box, "FALSE ORDERS · 2 · NEXT ROUND", _begin_guard_power.bind(Odradek.FALSE_ORDERS)
 	)
-	shift_button = _button(odradek_box, "ALLEGIANCE SHIFT · 3", _begin_shift)
+	shift_button = _button(odradek_box, "ALLEGIANCE SHIFT · 4", _begin_shift)
 	inversion_button = _button(
-		odradek_box, "INVERSION · 4 · NEXT ROUND", _begin_guard_power.bind(Odradek.INVERSION)
+		odradek_box, "MULTIPLY · 3 · THIS ROUND", _begin_guard_power.bind(Odradek.MULTIPLY)
 	)
 	for pair in [
 		[redirect_button, "Both sides inside the circle move to the other lane after combat."],
 		[false_orders_button, "Move one Guard to its owner's other zone before next round's deployment."],
 		[shift_button, "Enemy Marchers inside the smaller circle become yours after combat."],
-		[inversion_button, "Flip legal Guards from either side to the opposite matching zone next round. Any success adds 1 Neutral Tear."]
+		[inversion_button, "Destroy one enemy Guard and create up to three copies in your matching zone before development this round. Requires two open slots; the first two copies form a pair."]
 	]:
 		var note: Label = _label(odradek_box, pair[1], 13)
 		note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -115,8 +115,8 @@ func _update_direct_ui() -> void:
 		not _planning() or not powers_step or not _human_alive() or bank <= reserved
 	)
 	false_orders_button.disabled = redirect_button.disabled or bank - reserved < 2
-	shift_button.disabled = redirect_button.disabled or bank - reserved < 3
-	inversion_button.disabled = redirect_button.disabled or bank - reserved < 4
+	shift_button.disabled = redirect_button.disabled or bank - reserved < 4
+	inversion_button.disabled = redirect_button.disabled or bank - reserved < 3
 	for child in redirect_queue.get_children():
 		redirect_queue.remove_child(child)
 		child.queue_free()
@@ -136,7 +136,7 @@ func _update_direct_ui() -> void:
 					source.target.lane,
 					(
 						" · next round"
-						if source.power_id in [Odradek.FALSE_ORDERS, Odradek.INVERSION]
+						if source.power_id == Odradek.FALSE_ORDERS
 						else ""
 					)
 				]
@@ -290,7 +290,7 @@ static func _odradek_name(power: String) -> String:
 			Odradek.REDIRECT: "Redirect",
 			Odradek.FALSE_ORDERS: "False Orders",
 			Odradek.SHIFT: "Allegiance Shift",
-			Odradek.INVERSION: "Inversion"
+			Odradek.MULTIPLY: "Multiply"
 		}
 		. get(power, power)
 	)
@@ -301,7 +301,7 @@ func _begin_guard_power(power: String) -> void:
 		return
 	if (
 		(power == Odradek.FALSE_ORDERS and false_orders_button.disabled)
-		or (power == Odradek.INVERSION and inversion_button.disabled)
+		or (power == Odradek.MULTIPLY and inversion_button.disabled)
 	):
 		return
 	reconfiguration_menu.hide()
@@ -317,8 +317,8 @@ func _begin_guard_power(power: String) -> void:
 func _guide() -> String:
 	if _intent == Odradek.FALSE_ORDERS:
 		return "FALSE ORDERS · click a Guard to queue its move to the same owner's other zone next round."
-	if _intent == Odradek.INVERSION:
-		return "INVERSION · select your or the enemy's Guard zone. Next round its Guards transfer to free slots in the opposite side's matching zone; success grants one Neutral Tear."
+	if _intent == Odradek.MULTIPLY:
+		return "MULTIPLY · select one enemy Guard. Destroy it and create up to three copies in your matching zone this round. Requires two open slots."
 	return super._guide()
 
 
@@ -341,12 +341,17 @@ func _cell_guard(target: Dictionary) -> Dictionary:
 
 
 func _target_allowed(target: Dictionary, intent: String) -> bool:
-	if intent not in [Odradek.FALSE_ORDERS, Odradek.INVERSION]:
+	if intent not in [Odradek.FALSE_ORDERS, Odradek.MULTIPLY]:
 		return super._target_allowed(target, intent)
 	if not _planning() or not powers_step or target.get("lane") not in Odradek.Guards.LANES:
 		return false
-	if intent == Odradek.INVERSION:
-		return target.get("owner") in [0, 1] and target.get("kind") in ["zone", "card"]
+	if intent == Odradek.MULTIPLY:
+		var guard: Dictionary = _cell_guard(target)
+		if guard.is_empty() or guard.owner != 1: return false
+		var occupied: int = 0
+		for row in _visible_world.entities:
+			if row.kind == "card" and row.owner == 0 and row.attributes.get("role") == "guard" and row.attributes.get("lane") == guard.attributes.lane: occupied += 1
+		return occupied <= 1
 	if guard_source.is_empty():
 		return not _cell_guard(target).is_empty()
 	return (
@@ -357,7 +362,7 @@ func _target_allowed(target: Dictionary, intent: String) -> bool:
 
 
 func _guard_selected(target: Dictionary) -> void:
-	if _intent not in [Odradek.FALSE_ORDERS, Odradek.INVERSION]:
+	if _intent not in [Odradek.FALSE_ORDERS, Odradek.MULTIPLY]:
 		super._guard_selected(target)
 		return
 	if not _target_allowed(target, _intent):
@@ -367,6 +372,7 @@ func _guard_selected(target: Dictionary) -> void:
 		guard_destination = {"kind": "zone", "owner": guard_source.owner, "lane": "Castle" if guard_source.attributes.lane == "Lord" else "Lord"}
 		_confirm_guard_power()
 		return
+	guard_source = _cell_guard(target).duplicate(true)
 	guard_destination = target.duplicate(true)
 	_sync_guard_targeting()
 
@@ -378,6 +384,8 @@ func _confirm_guard_power() -> void:
 	var payload: Dictionary = {"owner_id": int(target.owner), "lane": target.lane}
 	if _intent == Odradek.FALSE_ORDERS:
 		payload["entity_id"] = guard_source.id
+	else:
+		payload = {"entity_id": guard_source.id, "lane": guard_source.attributes.lane}
 	var draft: Array = queued.duplicate(true)
 	draft.append(session.declaration(_intent, draft.size(), payload))
 	var result: Dictionary = session.choose(draft, _order())
@@ -399,7 +407,7 @@ func _confirm_guard_power() -> void:
 
 func _guard_input(event: InputEvent, owner_id: int, lane: String, control: Control) -> void:
 	if (
-		_intent in [Odradek.FALSE_ORDERS, Odradek.INVERSION]
+		_intent in [Odradek.FALSE_ORDERS, Odradek.MULTIPLY]
 		and event is InputEventMouseButton
 		and event.button_index == MOUSE_BUTTON_LEFT
 		and event.pressed
@@ -498,7 +506,7 @@ func _cancel_guard_power() -> void:
 func _sync_guard_targeting() -> void:
 	if guard_targeting == null:
 		return
-	if _intent not in [Odradek.FALSE_ORDERS, Odradek.INVERSION] or not _planning():
+	if _intent not in [Odradek.FALSE_ORDERS, Odradek.MULTIPLY] or not _planning():
 		guard_targeting.hide()
 		return
 	var zones: Array = []
@@ -508,7 +516,7 @@ func _sync_guard_targeting() -> void:
 		for lane in ["Lord", "Castle"]:
 			var box = side.lord_guard_box if lane == "Lord" else side.castle_guard_box
 			var target: Dictionary = {"kind": "zone", "owner": pid, "lane": lane}
-			if _intent == Odradek.FALSE_ORDERS and guard_source.is_empty():
+			if (_intent == Odradek.FALSE_ORDERS and guard_source.is_empty()) or _intent == Odradek.MULTIPLY:
 				for slot in box.get_children():
 					var cell: Dictionary = target.duplicate()
 					cell.slot = slot.get_index()
@@ -521,15 +529,15 @@ func _sync_guard_targeting() -> void:
 		var side = sides[1 - int(guard_source.owner)]
 		var box = side.lord_guard_box if guard_source.attributes.lane == "Lord" else side.castle_guard_box
 		markers.append({"control": box.get_child(int(guard_source.attributes.slot)), "selected": true})
-	var message: String = "Choose a Guard zone on either side.\nGuards switch sides next round, filling free slots. A successful transfer adds 1 Neutral Tear."
+	var message: String = "Choose one enemy Guard.\nDestroy it and create up to three copies in your matching zone this round. The first two form a pair. Requires two open slots; queued hand Guards reserve their slots."
 	if _intent == Odradek.FALSE_ORDERS:
 		message = "Click a Guard to queue its move to the same owner's other zone next round. The destination is automatic."
 	if not guard_source.is_empty():
 		message += "\nSelected: %s %s Guard, slot %d." % ["your" if guard_source.owner == 0 else "enemy", guard_source.attributes.lane, int(guard_source.attributes.slot) + 1]
-	if not guard_destination.is_empty():
+	if not guard_destination.is_empty() and _intent == Odradek.FALSE_ORDERS:
 		message += "\nSelected zone: %s %s Guards.\nConfirm to queue; resolves NEXT ROUND." % ["your" if guard_destination.owner == 0 else "enemy", guard_destination.lane]
-	if _intent == Odradek.INVERSION and not guard_destination.is_empty():
-		message += "\nDestination: %s %s Guards." % ["ENEMY" if guard_destination.owner == 0 else "YOUR", guard_destination.lane]
+	if _intent == Odradek.MULTIPLY and not guard_destination.is_empty():
+		message += "\nCopies enter YOUR %s Guards before development this round." % guard_source.attributes.lane
 	guard_targeting.heading.text = _odradek_name(_intent).to_upper()
 	guard_targeting.display(message, not guard_destination.is_empty(), zones, markers)
 	guard_targeting.confirm_button.visible = _intent != Odradek.FALSE_ORDERS

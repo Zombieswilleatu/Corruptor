@@ -11,7 +11,7 @@ from .power_rules import RULES, RUIN_INTEGRITY, LONGEVITY_INTEGRITY
 LANES = ('Lord','Castle')
 WISHES = ('WishPower','WishLongevity','WishResurrection','WishDeath','WishWealth')
 WISHES += tuple('Breach'+power for power in WISHES)
-RECONFIG = ('Redirect','FalseOrders','AllegianceShift','Inversion')
+RECONFIG = ('Redirect','FalseOrders','AllegianceShift','Multiply')
 
 
 def spatial(target):
@@ -70,6 +70,9 @@ def validate(s,w,phase,active):
         legal=set(t)=={'player_id'} and type(t['player_id']) is int and t['player_id']==1-pid and not p
         if phase=='declaration': legal=legal and e.entity(w,w['players'][pid]['lord_entity_id'])['attributes']['threat']<1000000
         return '' if legal else 'snare_terms_invalid'
+    if power == 'Multiply':
+        from .multiply import validate
+        return validate(s, w, phase)
     if power in RECONFIG:
         legal=not p
         if power in ('Redirect','AllegianceShift'): legal=legal and spatial(t)
@@ -114,7 +117,7 @@ def odradek_event(kind,d):
     if kind=='GUARD_RECONFIGURED':
         a=d['after'];message=f"{d['power']}: {a['attributes']['suit']} {a['attributes']['value']} moves to player {a['owner']+1}'s {a['attributes']['lane']} Guards."
     elif kind=='RECONFIGURATION_RESOLVED': message=f"{d['power']}: {d['moved']} Guard(s) moved."
-    elif kind=='NEUTRAL_TEAR_CREATED': message='Inversion: +1 Neutral Tear.'
+    elif kind=='NEUTRAL_TEAR_CREATED': message='Multiply: +1 Neutral Tear.'
     elif kind=='ALLEGIANCE_SHIFT_RESOLVED': message=f"{'Paradox Geometry' if d['player_id']==-1 else 'Allegiance Shift'}: {len(d['affected_ids'])} Marcher(s) changed allegiance."
     elif kind=='PSYCHIC_INTERLOCK': message=f"Psychic Interlock: {d['damage']} damage reflected{'' if d['target_alive'] else ' (attacker already defeated)'}."
     elif kind=='PARADOX_GEOMETRY': message='Paradox Geometry: '+('no valid targets' if d['kind']=='none' else d['kind']+' allegiance event')+'.'
@@ -229,16 +232,32 @@ def resolve(rec,state,n):
                 del duels[lane]
         changes=[]
         for key in ids:
-            r=e.entity(w,key);r['attributes']['lane']='Castle' if r['attributes']['lane']=='Lord' else 'Lord';changes.append(dict(before=prior[key],after=copy_data(r)))
+            r=e.entity(w,key);a=r['attributes']
+            a['lane']='Castle' if a['lane']=='Lord' else 'Lord'
+            if a.get('suit') == 'Wright' and 'monster_id' not in a:
+                # A construction/guard assignment belongs to its original lane.
+                # Built Wrights keep their one-build history and leave guard duty;
+                # unfinished builders and replacement guards may find a new job.
+                a.pop('navigation', None)
+                if a.get('wright_built', False):
+                    a['wright_released'] = True
+                else:
+                    for field in ('wright_site','wright_progress','wright_owner','wright_guard_target',
+                                  'wright_guard_until','wright_arrived','wright_released'):
+                        a.pop(field, None)
+            changes.append(dict(before=prior[key],after=copy_data(r)))
         events.append(odradek_event('REDIRECT_RESOLVED',dict(declaration_id=identity,player_id=pid,round=n,hook=rec['fire_hook'],target=t,radius_fp=300,changes=changes)))
     elif power=='AllegianceShift': events.extend(shift(b,t,pid,identity))
-    elif power in ('FalseOrders','Inversion'):
+    elif power == 'Multiply':
+        from .multiply import resolve
+        events.extend(resolve(rec, state, n, b))
+    elif power == 'FalseOrders':
         ids=[t['entity_id']] if power=='FalseOrders' else eligible(w,t['owner_id'],t['lane'],1-t['owner_id']);changed=0
         for key in ids:
             before=transfer(w,key,t['owner_id'],t['owner_id'] if power=='FalseOrders' else 1-t['owner_id'],t['lane'],True)
             if before is None: continue
             changed+=1;events.append(odradek_event('GUARD_RECONFIGURED',dict(before=before,after=e.entity(w,key),power=power,declaration_id=identity,round=n,hook=rec['fire_hook'])))
-        tear=int(power=='Inversion' and changed>0);w['data']['neutral_tears']+=tear
+        tear=int(power=='Multiply' and changed>0);w['data']['neutral_tears']+=tear
         if tear: events.append(odradek_event('NEUTRAL_TEAR_CREATED',dict(amount=tear,source=power,player_id=pid,round=n,hook=rec['fire_hook'])))
         events.append(odradek_event('RECONFIGURATION_RESOLVED',dict(power=power,player_id=pid,declaration_id=identity,round=n,hook=rec['fire_hook'],moved=changed,neutral_tears=tear)))
     elif power in ('Consume','Ravenous'):

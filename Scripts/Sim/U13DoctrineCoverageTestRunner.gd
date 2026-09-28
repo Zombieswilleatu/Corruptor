@@ -3,7 +3,7 @@ extends "res://Scripts/Sim/U13BasicDoctrineTestRunner.gd"
 const Marching = preload("res://Scripts/Sim/U13Marching.gd")
 
 func run() -> void:
-	for power in ["Inversion", "WishPower", "WishResurrection"]:
+	for power in ["Multiply", "WishPower", "WishResurrection"]:
 		var low = opportunity(power, 1)
 		var high = opportunity(power, 5)
 		if low == null or high == null: continue
@@ -23,15 +23,11 @@ func run() -> void:
 		var opponent: Dictionary = {}
 		var plans: Array = [plan, {"powers": [], "order": opponent}]
 		if not check(low.submit(plans).action != "invalid" and replay.submit(plans).action != "invalid" and low.finish_round().action != "invalid" and replay.finish_round().action != "invalid" and low.snapshot() == replay.snapshot(), power + " accepted round replays exactly"): continue
-		if power == "Inversion":
-			var pending_save = Game.new()
-			check(pending_save.restore_json(low.snapshot_json()).action != "invalid", power + " delayed order restores between rounds")
-			low.next_round(); pending_save.next_round()
-			check(low.step().action != "invalid" and pending_save.step().action != "invalid" and low.snapshot() == pending_save.snapshot(), power + " next-round transfer replays exactly")
+
 		var events: Array = low._owner.player_view(0).events
 		check(events.any(func(e): return e.type == "POWER_RESOLVED" and e.data.get("power_id") == power), power + " actually reaches resolution")
-		if power == "Inversion":
-			check(events.filter(func(e): return e.type == "GUARD_RECONFIGURED" and e.data.get("power") == power).size() == 3, "Inversion moves the entire three-guard source into the empty receiving zone")
+		if power == "Multiply":
+			check(events.any(func(e): return e.type == "MULTIPLY_RESOLVED" and e.data.created_ids.size() == 3), "Multiply destroys one target and makes three copies")
 		elif power == "WishResurrection":
 			check(events.any(func(e): return e.type == "KANIFOUS_WISH_RESOLVED" and e.data.power == power and e.data.count == 3), "Resurrection actually restores the three Marchers lost during Marching")
 	print("U13 doctrine coverage failures: %d" % failures)
@@ -39,12 +35,17 @@ func run() -> void:
 
 func place_guards(world: Dictionary, pid: int, lane: String, count: int, hidden_value: int = 3) -> void:
 	for slot in range(count):
-		var id: String = world.data.card_zones.hands[pid][0]
-		world.data.card_zones.hands[pid].erase(id)
-		patch(world, id, {"role": "guard", "lane": lane, "slot": slot, "value": hidden_value})
+		var zones: Dictionary = world.data.card_zones
+		var id: String = zones.hands[pid].pop_back() if not zones.hands[pid].is_empty() else zones.deck.pop_back()
+		var ids = Game.Content.Ids.new()
+		ids.restore(world.entities)
+		var row: Dictionary = ids.get_entity(id)
+		row.attributes.merge({"role": "guard", "lane": lane, "slot": slot, "value": hidden_value}, true)
+		ids.update(id, pid, row.attributes)
+		world.entities = ids.snapshot()
 
 func opportunity(power: String, hidden_value: int):
-	var odradek: bool = power == "Inversion"
+	var odradek: bool = power == "Multiply"
 	var world: Dictionary = fixture("Odradek" if odradek else "Kanifous", 17)
 	if odradek:
 		world.players[0].resources.reconfiguration = 3

@@ -16,7 +16,9 @@ static func draw(board) -> void:
 		var rect: Rect2 = travel(board.size, lane)
 		var col: Rect2 = column(board.size, lane)
 		board.draw_string(font, Vector2(col.position.x, 46), lane.to_upper() + " LANE", HORIZONTAL_ALIGNMENT_CENTER, col.size.x, 15, Color("ebdab4"))
-		board._scenery(Rect2(rect.position.x, 172, rect.size.x, rect.end.y - 164), Rect2(0.36, 0.10, 0.24, 0.82))
+		# Adjacent slices of one domain: same zoom and vertical framing, no repeated scenery.
+		var domain_crop := Rect2(0.26 if lane == "Lord" else 0.50, 0.10, 0.24, 0.82)
+		board._scenery(Rect2(rect.position.x, 172, rect.size.x, rect.end.y - 164), domain_crop)
 		board.draw_rect(rect, Color("68583b"), false, 1)
 		for aura in board.active_auras:
 			if aura.lane == lane:

@@ -43,7 +43,12 @@ static func valid(world: Dictionary) -> bool:
 		if pair.ids[0] == pair.ids[1] or pair.slots[0] >= pair.slots[1]: return false
 		for id in pair.ids:
 			if id not in world.entities.used_ids: return false
-		if pair.round > state.developed_round: return false
+		if pair.round > state.developed_round:
+			# Same-round Multiply resolves before ordinary Development work.
+			# Permit only its explicitly recorded fresh copies in this boundary.
+			if pair.round != state.developed_round + 1: return false
+			for id in pair.ids:
+				if not world.data.get("multiply_fresh_guards", []).any(func(m): return m.card_id == id and m.player_id == pair.player_id and m.round == pair.round and m.lane == pair.lane): return false
 		if pair.active:
 			if not intact(world, pair): return false
 			for id in pair.ids:
@@ -107,8 +112,15 @@ static func develop(world: Dictionary, round_number: int, player_order: Array) -
 	ids.restore(world.entities)
 	for pid in player_order:
 		var moves: Array = world.data.guard_orders[pid].moves
-		var work: int = moves.size()
+		var fresh_copies: Array = []
+		for move in world.data.get("multiply_fresh_guards", []):
+			var row: Dictionary = ids.get_entity(move.card_id)
+			if move.player_id == pid and move.round == round_number and not row.is_empty() and row.owner == pid and row.attributes.get("role") == "guard" and row.attributes.get("lane") == move.lane:
+				fresh_copies.append(move.card_id)
+		var work: int = moves.size() + fresh_copies.size()
 		var wright_pairs: int = 0
+		for pair in state.pairs:
+			if pair.active and pair.player_id == pid and pair.suit == "Wright" and pair.ids.all(func(id): return id in fresh_copies): wright_pairs += 1
 		for lane in ["Lord", "Castle"]:
 			for suit in ["Butcher", "Penitent", "Wright", "Vulture"]:
 				var fresh: Array = []

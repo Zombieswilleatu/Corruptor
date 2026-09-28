@@ -20,9 +20,9 @@ ECONOMY = "U13_GAME_ECONOMY_V5_FREE_OPENING"
 SHUFFLE_VERSION = "U13_GAME_ECONOMY_V4"
 MARKET = "U13_GAME_MARKET_V2"
 # Pin the complete declared-power roster identity. Native and Python rule
-# dictionaries were compared exactly at the V26 integration checkpoint.
+# dictionaries were compared exactly at the V41 Multiply integration checkpoint.
 # This identifies declarations, not all rule implementations or bot decisions.
-RULES_HASH = "8466e29e676ea503c6e7f848a3fc9ed264c48b3111e773f9fd8768ba4fbe42b0"
+RULES_HASH = "729d7484f193cee7569497891ff3f74f886889ca70a38fbc580a13f8afe687e7"
 POLICY = ":".join([
     "U13_PERMANENT_BREACHES_V1",
     "U13_GUARD_WORK_V4", "U13_VICTORY_V2_ROUND_PRESSURE", "U13_PROFANE_PILLAGE_V1",

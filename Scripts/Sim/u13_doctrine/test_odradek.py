@@ -54,29 +54,27 @@ def horizon(view, plan, winner=-1):
 
 
 class OdradekTests(unittest.TestCase):
-    def test_save_fourth_point_then_cast_inversion_and_resolve_real_guard_transfers(self):
-        game, targets = prepared(); before = game.snapshot()
+    def test_save_third_point_then_multiply_one_guard_into_three(self):
+        game, targets = prepared(points=2, units=0); before = game.snapshot()
         saved = decision(game)
         self.assertEqual([], saved['plan']['powers'])
-        self.assertEqual('Inversion', saved['resource_horizon']['selected']['goal']['power'])
+        self.assertEqual('Multiply', saved['resource_horizon']['selected']['goal']['power'])
         self.assertEqual(1, saved['resource_horizon']['selected']['goal']['income_ticks'])
-        self.assertGreater(saved['resource_horizon']['omission_plans'], 0)
         self.assertEqual(before, game.snapshot())
         next_planning(game, saved['plan'])
-        self.assertEqual(4, game._state['world']['players'][0]['resources']['reconfiguration'])
+        self.assertEqual(3, game._state['world']['players'][0]['resources']['reconfiguration'])
         cast = decision(game)
-        self.assertEqual(['Inversion'], [p['power_id'] for p in cast['plan']['powers']])
+        self.assertEqual(['Multiply'], [p['power_id'] for p in cast['plan']['powers']])
         self.assertEqual(0, cast['resource_horizon']['selected']['remaining'])
+        selected = cast['plan']['powers'][0]['target']['entity_id']
         next_planning(game, cast['plan'])
-        self.assertEqual(1, game._state['world']['players'][0]['resources']['reconfiguration'])
-        self.assertEqual([0]*3, [economy.entity(game._state['world'], k)['owner'] for k in targets])
+        self.assertNotEqual('guard', economy.entity(game._state['world'], selected)['attributes']['role'])
         events = [r['event'] for r in game._state['events']['rows']]
-        changes = [e['data']['moved'] for e in events if e['type'] == 'RECONFIGURATION_RESOLVED'
-                   and e['data']['power'] == 'Inversion']
-        self.assertEqual([3], changes)
+        changes = [e['data']['created_ids'] for e in events if e['type'] == 'MULTIPLY_RESOLVED']
+        self.assertEqual([3], [len(ids) for ids in changes])
 
-    def test_large_immediate_shift_outweighs_saving_for_inversion(self):
-        game, _ = prepared(units=3)
+    def test_large_immediate_shift_outweighs_multiply(self):
+        game, _ = prepared(points=4, units=6)
         result = decision(game)
         self.assertEqual(['AllegianceShift'], [p['power_id'] for p in result['plan']['powers']])
 
@@ -86,19 +84,18 @@ class OdradekTests(unittest.TestCase):
         self.assertEqual(['Redirect'], [p['power_id'] for p in result['plan']['powers']])
         self.assertFalse(result['resource_horizon']['hard_veto'])
 
-    def test_inversion_current_and_saved_value_account_for_own_deployments(self):
-        game, _ = prepared(points=4, units=0)
+    def test_multiply_future_value_requires_two_unreserved_slots(self):
+        game, targets = prepared(points=2, units=0)
         view = observe(game, 0); hand(view, [('Butcher', 1)]*3)
-        p = dict(powers=[declaration(0, 1, 'Inversion', dict(owner_id=1, lane='Castle'))],
-                 order=dict(guard_moves=[dict(card_id=r['id'], lane='Castle', slot=i) for i, r in enumerate(view['hand'])]))
-        adjusted = evaluate(Facts(view), p)
-        self.assertEqual(-60, adjusted['score_delta'])
-        p['powers'] = []
+        p = dict(powers=[], order=dict(guard_moves=[dict(card_id=r['id'], lane='Castle', slot=i) for i, r in enumerate(view['hand'])]))
         self.assertEqual(0, horizon(view, p)['score'])
         p['order']['guard_moves'].pop()
+        self.assertEqual(0, horizon(view, p)['score'])
+        p['order']['guard_moves'].pop()
+        self.assertGreater(horizon(view, p)['score'], 0)
         self.assertEqual(1, len(horizon(view, p)['goal']['target_ids']))
 
-    def test_own_attack_removes_future_inversion_targets_and_false_orders_target(self):
+    def test_own_attack_removes_future_multiply_targets_and_false_orders_target(self):
         game, targets = prepared(points=4, guards=1, units=0)
         view = observe(game, 0); hand(view, [('Butcher', 5)])
         f = Facts(view)
@@ -148,13 +145,13 @@ class OdradekTests(unittest.TestCase):
             self.assertEqual(0, horizon(observe(game, 0), p, winner)['score'])
 
     def test_horizon_stops_at_two_missing_incomes_and_counts_one_best_goal(self):
-        game, _ = prepared(points=1, units=0); view = observe(game, 0)
+        game, _ = prepared(points=0, units=0); view = observe(game, 0)
         p = dict(powers=[], order={})
         self.assertEqual(0, horizon(view, p)['score'])
-        view['players'][0]['resources']['reconfiguration'] = 2
+        view['players'][0]['resources']['reconfiguration'] = 1
         result = horizon(view, p)
         self.assertEqual(2, result['goal']['income_ticks'])
-        self.assertEqual(3, len(result['goal']['target_ids']))
+        self.assertEqual(1, len(result['goal']['target_ids']))
 
     def test_resource_choices_are_bounded_deterministic_and_do_not_change_authority(self):
         game, _ = prepared(); before = game.snapshot(); view = observe(game, 0)
@@ -168,11 +165,11 @@ class OdradekTests(unittest.TestCase):
             self.assertLessEqual(count, limit)
 
     def test_observer_records_saving_separately_from_actual_casts(self):
-        game, _ = prepared(); result = decision(game)
+        game, _ = prepared(points=2, units=0); result = decision(game)
         observer = PlannerObserver(dict(name='odradek-saving', setup=dict(lords=['Odradek', 'Gremory'])))
         observer.accepted(1, 0, result)
-        self.assertEqual(1, observer.report()['resource_horizon']['saved_for:Inversion'])
-        self.assertFalse(any(a['term'] == 'Inversion' and a['selected'] for a in result['assessments']))
+        self.assertEqual(1, observer.report()['resource_horizon']['saved_for:Multiply'])
+        self.assertFalse(any(a['term'] == 'Multiply' and a['selected'] for a in result['assessments']))
 
 
 if __name__ == '__main__': unittest.main()

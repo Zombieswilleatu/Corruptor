@@ -8,7 +8,9 @@ const Transfers = preload("res://Scripts/Sim/U13GuardTransfers.gd")
 const Rng = preload("res://Scripts/Sim/U13KeyedRng.gd")
 const FALSE_ORDERS: String = "FalseOrders"
 const SHIFT: String = "AllegianceShift"
-const INVERSION: String = "Inversion"
+const MULTIPLY: String = "Multiply"
+# Keep the symbol available to older debug fixtures; it names the new power.
+const INVERSION: String = MULTIPLY
 const POWERS: Array = [REDIRECT, FALSE_ORDERS, SHIFT, INVERSION]
 # Smaller than Redirect; shared initial tuning for Paradox's small circle.
 const SHIFT_RADIUS_FP: int = 180
@@ -56,13 +58,16 @@ static func rules() -> Dictionary:
 	}
 	for power in [FALSE_ORDERS, SHIFT, INVERSION]:
 		var rule: Dictionary = result[REDIRECT].duplicate(true)
-		rule.cost = {RESOURCE: POWERS.find(power) + 1}
+		rule.cost = {RESOURCE: 2 if power == FALSE_ORDERS else 4 if power == SHIFT else 3}
 		rule.fire_hook = (
 			Timeline.POST_RESOLUTION_ALLEGIANCE
 			if power == SHIFT
-			else Timeline.ROUND_START_SCHEDULED
+			else Timeline.DEVELOPMENT if power == MULTIPLY else Timeline.ROUND_START_SCHEDULED
 		)
-		rule.delay_rounds = 0 if power == SHIFT else 1
+		rule.delay_rounds = 1 if power == FALSE_ORDERS else 0
+		if power == MULTIPLY:
+			rule.target_kind = "card"
+			rule.target_relation = "enemy"
 		result[power] = rule
 	return result
 
@@ -116,13 +121,8 @@ static func target_shape(power: String, target: Dictionary, _pid: int) -> bool:
 			and target.owner_id in [0, 1]
 			and target.get("lane") in Guards.LANES
 		)
-	if power == INVERSION:
-		return (
-			target.size() == 2
-			and Data.is_integer(target.get("owner_id"))
-			and target.owner_id in [0, 1]
-			and target.get("lane") in Guards.LANES
-		)
+	if power == MULTIPLY:
+		return target.size() == 2 and typeof(target.get("entity_id")) == TYPE_STRING and not target.entity_id.is_empty() and target.get("lane") in Guards.LANES
 	return false
 
 
@@ -148,12 +148,14 @@ func validate(source: Dictionary, world: Dictionary, phase: String) -> Dictionar
 			)
 			== "resolved"
 		)
-	elif legal and source.power_id == INVERSION:
-		legal = not (
-			Transfers
-			. eligible(world, source.target.owner_id, source.target.lane, 1 - int(source.target.owner_id))
-			. is_empty()
-		)
+	elif legal and source.power_id == MULTIPLY:
+		var guard: Dictionary = Transfers.guard(world, source.target.entity_id)
+		legal = not guard.is_empty() and guard.owner == 1 - int(source.player_id) and guard.attributes.lane == source.target.lane
+		if legal and phase == "declaration":
+			if Transfers.free_slots(world, source.player_id, source.target.lane).size() < 2:
+				return {"legal": false, "reason": "multiply_requires_two_slots"}
+	if source.power_id == MULTIPLY:
+		return {"legal": legal, "reason": "" if legal else "multiply_target_unavailable"}
 	return {"legal": legal, "reason": "reconfiguration_target_unavailable"}
 
 
@@ -203,6 +205,13 @@ func resolve(record: Dictionary, context: Dictionary) -> Dictionary:
 		var unit: Dictionary = entities.get_entity(id)
 		var before: Dictionary = prior[id]
 		unit.attributes.lane = "Castle" if unit.attributes.lane == "Lord" else "Lord"
+		if unit.attributes.get("suit") == "Wright" and not unit.attributes.has("monster_id"):
+			unit.attributes.erase("navigation")
+			if unit.attributes.get("wright_built", false):
+				unit.attributes["wright_released"] = true
+			else:
+				for field in ["wright_site", "wright_progress", "wright_owner", "wright_guard_target", "wright_guard_until", "wright_arrived", "wright_released"]:
+					unit.attributes.erase(field)
 		entities.update(id, unit.owner, unit.attributes)
 		changes.append({"before": before, "after": entities.get_entity(id)})
 	world.entities = entities.snapshot()
@@ -361,6 +370,8 @@ func _resolve_reconfiguration(record: Dictionary, context: Dictionary) -> Dictio
 	var result: Dictionary = {
 		"action": "resolved", "world": Data.copy_data(context.world), "events": []
 	}
+	if source.power_id == MULTIPLY:
+		return _multiply(result, record, context)
 	if source.power_id == SHIFT:
 		return _shift(result, source.target, source.player_id, context.round, source.declaration_id)
 	var targets: Array = (
@@ -398,21 +409,7 @@ func _resolve_reconfiguration(record: Dictionary, context: Dictionary) -> Dictio
 				}
 			)
 		)
-	var tear: int = 1 if source.power_id == INVERSION and changed > 0 else 0
-	if tear > 0:
-		result.world.data.neutral_tears += tear
-		result.events.append(
-			_odradek_event(
-				"NEUTRAL_TEAR_CREATED",
-				{
-					"amount": tear,
-					"source": INVERSION,
-					"player_id": source.player_id,
-					"round": context.round,
-					"hook": record.fire_hook
-				}
-			)
-		)
+	var tear: int = 0
 	result.events.append(
 		_odradek_event(
 			"RECONFIGURATION_RESOLVED",
@@ -672,8 +669,8 @@ static func _odradek_event(kind: String, details: Dictionary) -> Dictionary:
 			)
 		"RECONFIGURATION_RESOLVED":
 			message = "%s: %d Guard(s) moved." % [details.power, details.moved]
-		"NEUTRAL_TEAR_CREATED":
-			message = "Inversion: +1 Neutral Tear."
+		"MULTIPLY_RESOLVED":
+			message = "Multiply: enemy guard destroyed; %d copies created." % details.created_ids.size()
 		"ALLEGIANCE_SHIFT_RESOLVED":
 			message = (
 				"%s: %d Marcher(s) changed allegiance."
@@ -700,3 +697,44 @@ static func _odradek_event(kind: String, details: Dictionary) -> Dictionary:
 			)
 	var event: Dictionary = {"type": kind, "text": message, "data": details}
 	return {"event": event, "views": [event, event]}
+
+
+func _multiply(result: Dictionary, record: Dictionary, context: Dictionary) -> Dictionary:
+	var source: Dictionary = record.declaration
+	var guard: Dictionary = Transfers.guard(result.world, source.target.entity_id)
+	var suit: String = guard.attributes.suit
+	var value: int = guard.attributes.value
+	var hit: Dictionary = Battle.apply(result.world, {"command_id": Data.instance_id("multiply", source.declaration_id, guard.id), "kind": "defeat_guard", "target_id": guard.id}, context.round, record.fire_hook)
+	if hit.action == "invalid": return hit
+	var reacted: Dictionary = react(hit.world, hit.event, context.seed, context.player_order)
+	if reacted.action == "invalid": return reacted
+	result.world = reacted.world
+	result.events.append({"event": hit.event, "views": [hit.event, hit.event]})
+	result.events.append_array(reacted.events)
+	var reserved: Array = []
+	var order = result.world.data.guard_orders[source.player_id]
+	if record.fire_hook == Timeline.DEVELOPMENT and order is Dictionary and order.get("round") == context.round:
+		for move in order.moves:
+			if move.lane == source.target.lane: reserved.append(move.slot)
+	var available: Array = Transfers.free_slots(result.world, source.player_id, source.target.lane).filter(func(slot): return slot not in reserved)
+	var ids = Ids.new()
+	ids.restore(result.world.entities)
+	var created: Array = []
+	var slots: Array = []
+	var origin: String = Data.instance_id("multiply_copies", source.declaration_id, "guards")
+	for ordinal in range(mini(3, available.size())):
+		var attributes: Dictionary = {"role": "guard", "suit": suit, "value": value, "lane": source.target.lane, "slot": available[ordinal]}
+		var made: Dictionary = ids.create("card", origin, ordinal, source.player_id, attributes)
+		if made.action == "invalid": return made
+		created.append(made.entity.id)
+		slots.append(available[ordinal])
+	result.world.entities = ids.snapshot()
+	if created.size() >= 2 and result.world.data.has("guard_work"):
+		var pair_ids: Array = created.slice(0, 2)
+		result.world.data.guard_work.pairs.append({"player_id": source.player_id, "lane": source.target.lane, "suit": suit, "ids": pair_ids, "slots": slots.slice(0, 2), "round": context.round, "active": true})
+		result.events.append(preload("res://Scripts/Sim/U13Structures.gd").public_event("GUARD_PAIR_FORMED", {"player_id": source.player_id, "round": context.round, "lane": source.target.lane, "suit": suit, "card_ids": pair_ids}))
+	if not result.world.data.has("multiply_fresh_guards"): result.world.data["multiply_fresh_guards"] = []
+	for index in range(created.size()):
+		result.world.data.multiply_fresh_guards.append({"player_id": source.player_id, "round": context.round, "card_id": created[index], "lane": source.target.lane, "slot": slots[index]})
+	result.events.append(_odradek_event("MULTIPLY_RESOLVED", {"declaration_id": source.declaration_id, "player_id": source.player_id, "round": context.round, "hook": record.fire_hook, "target_id": source.target.entity_id, "suit": suit, "value": value, "created_ids": created, "neutral_tears": 0}))
+	return result
