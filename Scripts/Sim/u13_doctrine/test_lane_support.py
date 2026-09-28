@@ -87,7 +87,7 @@ class LaneSupportTests(unittest.TestCase):
         unit(view,'rooted',hp=4,step_fp=0,sprite_form='turret')
         row=breath_value(Facts(view),'Castle')
         self.assertEqual((3,1,0,1),(row['immediate_healing'],row['next_regen_bonus'],row['movement_windows'],row['waiting_excluded']))
-        self.assertEqual(16,row['score'])
+        self.assertEqual(32,row['score'])  # Eight utility per capped HP of healing.
 
     def test_breath_movement_respects_readiness_contact_and_ranged_stopping(self):
         view=observe(planning('Humbaba'),0)
@@ -112,12 +112,12 @@ class LaneSupportTests(unittest.TestCase):
 
     def test_healthy_distant_column_holds_breath_but_gate_approach_has_value(self):
         view=observe(planning('Humbaba'),0)
-        row=unit(view,'column',x_fp=0)
+        row=unit(view,'column',x_fp=0,step_fp=3)
         value=breath_value(Facts(view),'Castle')
         self.assertEqual((2,0,0),(value['movement_windows'],value['pressure_movement_windows'],value['score']))
-        row['attributes']['x_fp']=800
+        row['attributes']['x_fp']=1200
         value=breath_value(Facts(view),'Castle')
-        self.assertEqual((0,2,6),(value['immediate_healing'],value['pressure_movement_windows'],value['score']))
+        self.assertEqual((0,2,2),(value['immediate_healing'],value['pressure_movement_windows'],value['score']))
         # Public geometry and the opposing gate must mirror both seats.
         other=copy_data(view);other['player_id']=1
         for r in other['board']:

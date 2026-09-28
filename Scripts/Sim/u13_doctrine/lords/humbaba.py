@@ -9,6 +9,7 @@ from u13_pysim.power_rules import declaration
 from ..diagnostics import fingerprint
 from ..facts import LANES, power
 from ..lane_support import free_to_advance, travel
+from .. import humbaba_tactics
 
 LORD = 'Humbaba'
 BREATH, MUSTER = 'BreathOfLife', 'MusterTheFaithful'
@@ -71,17 +72,17 @@ def breath_value(f, lane, ctx=None):
         windows += muster*eligible; pressure += muster*credited
     # Monster movement/spawn placement is deliberately not priced here: Varn
     # count, Sooge rooting and other special movement are unresolved.
-    return dict(score=4*(now+later)+3*pressure, immediate_healing=now,
+    result = dict(score=4*(now+later)+3*pressure, immediate_healing=now,
                 next_regen_bonus=later, movement_windows=windows, waiting_excluded=waiting,
                 pressure_movement_windows=pressure, unpressured_movement_windows=windows-pressure,
                 consumed_excluded=len(excluded.intersection(r['id'] for r in f.units(f.pid, lane))),
                 ordinary_recruits=recruits, muster_recruits=muster)
+    result.update(humbaba_tactics.breath_score(f,lane,result,units,ctx))
+    return result
 
 
 def muster_value(f, lane):
-    aura = f.active(BREATH)
-    windows = max(0, aura['activated_round']+2-f.v['round']) if aura and aura['target']['lane'] == lane else 0
-    return 27+6*f.lane_need(lane)+9*windows
+    return humbaba_tactics.muster_score(f,lane)
 
 
 def proposals(f):

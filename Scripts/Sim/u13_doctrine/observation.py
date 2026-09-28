@@ -23,6 +23,9 @@ def observe(match, seat):
     if 'tempo_experiment' in d:
         data['tempo_experiment'] = d['tempo_experiment']
     data['rekindle_defunct_ids'] = d.get('rekindle_defunct_ids', [])
+    if w['players'][seat]['lord_id']=='Humbaba' and d.get('humbaba_muster_endurance'):
+        data['humbaba_muster_endurance'] = {key: {k: value[k] for k in ('owner','points','rewarded')}
+            for key,value in d['humbaba_muster_endurance'].items() if value['owner']==seat}
     data['veil_breaches'] = d.get('veil_breaches', {})
     data['monsters'] = d.get('monsters', {})
     if 'game_staging' in d:

@@ -165,7 +165,10 @@ class Defense:
         hunt_score = kanifous_hunt_bonus(self.f, world, plan)
         kalligan_score = kalligan_orias_bonus(self.f, world, plan)
         deimos_score = deimos_orias_bonus(self.f, world, plan)
-        return dict(enabled=True, score_delta=structure_score+work_score-old_work+history_score+hunt_score+kalligan_score+deimos_score,
+        from .humbaba_tactics import survival_bonus
+        humbaba_score = survival_bonus(self.f, world, plan)
+        return dict(enabled=True, score_delta=structure_score+work_score-old_work+history_score+hunt_score+kalligan_score+deimos_score+humbaba_score,
+                    humbaba_survival_score=humbaba_score,
                     deimos_orias_score=deimos_score,
                     kalligan_orias_score=kalligan_score,
                     kanifous_hunt_score=hunt_score,

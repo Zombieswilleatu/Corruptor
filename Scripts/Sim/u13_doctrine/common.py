@@ -33,7 +33,7 @@ from .recipes import Recipes
 from .selection import PlanSelector
 from .veil_judgment import settlement_projection, protection_projection
 
-VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V42_DEIMOS_FINAL_SPOILS'
+VERSION = 'U13_COMMON_SMART_CORE_ALPHA_V43_HUMBABA_SUPPORT'
 BREACH_WISHES = tuple(power for power in WISHES if RULES[power].get('breach_wish'))
 
 

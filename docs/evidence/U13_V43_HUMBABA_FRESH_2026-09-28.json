@@ -1,0 +1,265 @@
+{
+  "phase": "fresh",
+  "arm": "candidate",
+  "totals": {
+    "games": 32,
+    "old_wins": 14,
+    "new_wins": 20,
+    "gained": 11,
+    "lost": 5,
+    "old_rounds": 465,
+    "old_rejections": 0,
+    "old_breath": 104,
+    "old_healing": 127.36095901,
+    "old_muster": 186,
+    "old_endurance": 14,
+    "old_banished_turns": 125,
+    "old_max_plan_work": 32,
+    "old_resummon": 59,
+    "new_rounds": 463,
+    "new_rejections": 0,
+    "new_breath": 101,
+    "new_healing": 149.03795649,
+    "new_muster": 199,
+    "new_endurance": 16,
+    "new_banished_turns": 94,
+    "new_max_plan_work": 32,
+    "new_resummon": 39
+  },
+  "matchups": {
+    "Deimos": {
+      "games": 4,
+      "old_wins": 1,
+      "new_wins": 3
+    },
+    "Gremory": {
+      "games": 4,
+      "old_wins": 3,
+      "new_wins": 3
+    },
+    "Kalligan": {
+      "games": 4,
+      "old_wins": 3,
+      "new_wins": 3
+    },
+    "Kanifous": {
+      "games": 4,
+      "old_wins": 2,
+      "new_wins": 2
+    },
+    "Kroni": {
+      "games": 4,
+      "old_wins": 0,
+      "new_wins": 3
+    },
+    "Odradek": {
+      "games": 4,
+      "old_wins": 1,
+      "new_wins": 2
+    },
+    "Orias": {
+      "games": 4,
+      "old_wins": 3,
+      "new_wins": 2
+    },
+    "Valak": {
+      "games": 4,
+      "old_wins": 1,
+      "new_wins": 2
+    }
+  },
+  "games": [
+    {
+      "name": "deimos_humbaba_00",
+      "opponent": "Deimos",
+      "old_win": false,
+      "new_win": true
+    },
+    {
+      "name": "deimos_humbaba_01",
+      "opponent": "Deimos",
+      "old_win": false,
+      "new_win": true
+    },
+    {
+      "name": "gremory_humbaba_00",
+      "opponent": "Gremory",
+      "old_win": true,
+      "new_win": true
+    },
+    {
+      "name": "gremory_humbaba_01",
+      "opponent": "Gremory",
+      "old_win": true,
+      "new_win": true
+    },
+    {
+      "name": "humbaba_deimos_00",
+      "opponent": "Deimos",
+      "old_win": false,
+      "new_win": false
+    },
+    {
+      "name": "humbaba_deimos_01",
+      "opponent": "Deimos",
+      "old_win": true,
+      "new_win": true
+    },
+    {
+      "name": "humbaba_gremory_00",
+      "opponent": "Gremory",
+      "old_win": false,
+      "new_win": true
+    },
+    {
+      "name": "humbaba_gremory_01",
+      "opponent": "Gremory",
+      "old_win": true,
+      "new_win": false
+    },
+    {
+      "name": "humbaba_kalligan_00",
+      "opponent": "Kalligan",
+      "old_win": true,
+      "new_win": true
+    },
+    {
+      "name": "humbaba_kalligan_01",
+      "opponent": "Kalligan",
+      "old_win": true,
+      "new_win": false
+    },
+    {
+      "name": "humbaba_kanifous_00",
+      "opponent": "Kanifous",
+      "old_win": false,
+      "new_win": false
+    },
+    {
+      "name": "humbaba_kanifous_01",
+      "opponent": "Kanifous",
+      "old_win": true,
+      "new_win": false
+    },
+    {
+      "name": "humbaba_kroni_00",
+      "opponent": "Kroni",
+      "old_win": false,
+      "new_win": true
+    },
+    {
+      "name": "humbaba_kroni_01",
+      "opponent": "Kroni",
+      "old_win": false,
+      "new_win": true
+    },
+    {
+      "name": "humbaba_odradek_00",
+      "opponent": "Odradek",
+      "old_win": false,
+      "new_win": true
+    },
+    {
+      "name": "humbaba_odradek_01",
+      "opponent": "Odradek",
+      "old_win": true,
+      "new_win": false
+    },
+    {
+      "name": "humbaba_orias_00",
+      "opponent": "Orias",
+      "old_win": true,
+      "new_win": true
+    },
+    {
+      "name": "humbaba_orias_01",
+      "opponent": "Orias",
+      "old_win": true,
+      "new_win": true
+    },
+    {
+      "name": "humbaba_valak_00",
+      "opponent": "Valak",
+      "old_win": false,
+      "new_win": true
+    },
+    {
+      "name": "humbaba_valak_01",
+      "opponent": "Valak",
+      "old_win": true,
+      "new_win": true
+    },
+    {
+      "name": "kalligan_humbaba_00",
+      "opponent": "Kalligan",
+      "old_win": false,
+      "new_win": true
+    },
+    {
+      "name": "kalligan_humbaba_01",
+      "opponent": "Kalligan",
+      "old_win": true,
+      "new_win": true
+    },
+    {
+      "name": "kanifous_humbaba_00",
+      "opponent": "Kanifous",
+      "old_win": true,
+      "new_win": true
+    },
+    {
+      "name": "kanifous_humbaba_01",
+      "opponent": "Kanifous",
+      "old_win": false,
+      "new_win": true
+    },
+    {
+      "name": "kroni_humbaba_00",
+      "opponent": "Kroni",
+      "old_win": false,
+      "new_win": false
+    },
+    {
+      "name": "kroni_humbaba_01",
+      "opponent": "Kroni",
+      "old_win": false,
+      "new_win": true
+    },
+    {
+      "name": "odradek_humbaba_00",
+      "opponent": "Odradek",
+      "old_win": false,
+      "new_win": false
+    },
+    {
+      "name": "odradek_humbaba_01",
+      "opponent": "Odradek",
+      "old_win": false,
+      "new_win": true
+    },
+    {
+      "name": "orias_humbaba_00",
+      "opponent": "Orias",
+      "old_win": false,
+      "new_win": false
+    },
+    {
+      "name": "orias_humbaba_01",
+      "opponent": "Orias",
+      "old_win": true,
+      "new_win": false
+    },
+    {
+      "name": "valak_humbaba_00",
+      "opponent": "Valak",
+      "old_win": false,
+      "new_win": false
+    },
+    {
+      "name": "valak_humbaba_01",
+      "opponent": "Valak",
+      "old_win": false,
+      "new_win": false
+    }
+  ]
+}

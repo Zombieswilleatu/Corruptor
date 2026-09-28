@@ -69,6 +69,12 @@ static func read(owner, pid: int) -> Dictionary:
 		allowed["field_structures"] = data.field_structures.duplicate(true)
 		allowed.field_structures.sort_custom(func(a, b): return a.id < b.id)
 	allowed["rekindle_defunct_ids"] = data.get("rekindle_defunct_ids", [])
+	if world.players[pid].lord_id == "Humbaba" and not data.get("humbaba_muster_endurance", {}).is_empty():
+		allowed["humbaba_muster_endurance"] = {}
+		for key in data.humbaba_muster_endurance:
+			var progress: Dictionary = data.humbaba_muster_endurance[key]
+			if progress.owner == pid:
+				allowed.humbaba_muster_endurance[key] = {"owner": pid, "points": progress.points, "rewarded": progress.rewarded}
 	allowed["guard_work"] = {"targets": data.guard_work.targets, "pairs": data.guard_work.pairs}
 	allowed["invocation_rounds"] = data.dominion_rites.invocation_rounds
 	allowed["vacant_counts"] = data.vacant_throne.counts
