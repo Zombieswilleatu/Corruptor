@@ -1,0 +1,44 @@
+name: Presentation polish test inputs
+on:
+  push:
+    branches: [work/wilhelm-audio-20260928]
+    paths: [.github/workflows/presentation-polish-test-inputs.yml]
+permissions:
+  contents: read
+jobs:
+  inputs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 24b654862d97ac05af937d575fecbd67baf32fa5
+          fetch-depth: 1
+      - name: Package original art, shaders, and instruction inventory
+        run: |
+          mkdir -p /tmp/presentation-inputs
+          python3 - <<'PY'
+          from pathlib import Path
+          import zipfile, json, re
+          root = Path.cwd()
+          paths = set()
+          for file in ['Prototype/UI2/LordArtCatalog.gd','Prototype/UI2/CastleArtCatalog.gd','Prototype/U13/U13MenuBackdrop.gd','Prototype/U13/U13MainMenu.gd','Prototype/UI2/SubjectCardArtCatalog.gd']:
+              for p in re.findall(r'res://[^\"\s]+\.png', (root/file).read_text()):
+                  paths.add(p[6:])
+          paths.add('ConceptImages/Sprites/Scorch/Fire1.png')
+          for p in root.rglob('*'):
+              if p.is_file() and '.git' not in p.parts and (p.suffix in ['.gdshader','.ttf','.otf','.svg'] or p.name == 'AGENTS.md'):
+                  paths.add(str(p.relative_to(root)))
+          paths.update(str(p.relative_to(root)) for p in (root/'ConceptImages/Sprites').rglob('*.png'))
+          with zipfile.ZipFile('/tmp/presentation-inputs/original-assets.zip','w',zipfile.ZIP_DEFLATED) as z:
+              for rel in sorted(paths):
+                  p = root/rel
+                  if p.is_file(): z.write(p,rel)
+          instructions = [str(p.relative_to(root)) for p in root.rglob('AGENTS.md') if '.git' not in p.parts]
+          Path('/tmp/presentation-inputs/inventory.json').write_text(json.dumps({'source_commit':'24b654862d97ac05af937d575fecbd67baf32fa5','instructions':instructions,'files':sorted(paths)},indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: presentation-polish-test-inputs
+          path: /tmp/presentation-inputs/
+          retention-days: 3
