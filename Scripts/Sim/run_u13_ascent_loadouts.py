@@ -16,16 +16,16 @@ import subprocess
 import sys
 import time
 
-VERSION = "U13_ASCENT_LOADOUT_SCREEN_V1"
+VERSION = "U13_ASCENT_LOADOUT_SCREEN_V2_DUPLICATES"
 BASE = ["Keep", "Stockpile", "SummoningCircle", "SiegeEngine", "Bastion"]
 NAMESPACE = "u13-ascent-loadout-screen-20260929"
 PROFILE_NAMES = ("control", "stock_engine", "stock_bastion",
                  "circle_engine", "circle_bastion", "engine_bastion")
 SCOPE = (
     "Paired five-slot, three-active-castle self-play screen. Only one Lord's "
-    "castle ordering changes per treatment. No stat or doctrine edits. "
+    "castle loadout changes per treatment. No stat or doctrine edits. "
     "Not native Ascent balance: retinue, inheritance, player three-slot domains, "
-    "duplicate castles and full positional permutations need separate validation. "
+    "all reserve combinations and full positional permutations need separate validation. "
     "Shared controls are reused; comparisons are correlated. One repeat is "
     "screening evidence, not a reliable optimum or a 50% balance verdict."
 )
@@ -48,10 +48,26 @@ def write_json(path, value):
 
 
 def profiles():
-    return {
+    result = {
         name: ["Keep", *pair, *[kind for kind in BASE[1:] if kind not in pair]]
         for name, pair in zip(PROFILE_NAMES, combinations(BASE[1:], 2))
     }
+    # Each duplicate is a one-slot replacement of a single-copy profile.
+    # Hold the reserve pair fixed for the second-copy comparison.
+    result.update(
+        double_stock=["Keep", "Stockpile", "Stockpile", "SiegeEngine", "Bastion"],
+        double_circle=["Keep", "SummoningCircle", "SummoningCircle", "SiegeEngine", "Bastion"],
+        double_engine=["Keep", "SiegeEngine", "SiegeEngine", "SummoningCircle", "Bastion"],
+        double_bastion=["Keep", "Bastion", "Bastion", "SummoningCircle", "SiegeEngine"])
+    require(len(result) == 10, "Expected ten active-trio profiles")
+    require(len({tuple(sorted(order[:3])) for order in result.values()}) == 10,
+            "Active trios must be distinct")
+    for order in result.values():
+        require(len(order) == 5 and order[0] == "Keep" and order.count("Keep") == 1,
+                "Expected Keep and four non-Keep castles")
+        require(all(kind in BASE and count <= 2 for kind, count in Counter(order).items()),
+                "Illegal duplicate castle loadout")
+    return result
 
 
 def make_config(repeats, namespace, smoke):
@@ -89,18 +105,33 @@ def make_config(repeats, namespace, smoke):
                 candidate["name"] = f"{profile}_s{seat}_{left.lower()}_{right.lower()}_{repeat:02d}"
                 candidate["setup"]["castles"][seat] = loadout[:]
                 cases.append(candidate)
-                pairs.append(dict(control=baseline["name"], treatment=candidate["name"],
-                                  lord=lord, opponent=(right if seat == 0 else left),
-                                  seat=seat, profile=profile, repeat=repeat))
-    require(len(cases) == (12 if smoke else 792) * repeats, "Wrong unique game count")
-    require(len(pairs) == (10 if smoke else 720) * repeats, "Wrong pairing count")
+                pair = dict(control=baseline["name"], treatment=candidate["name"],
+                            lord=lord, opponent=(right if seat == 0 else left),
+                            seat=seat, profile=profile, repeat=repeat, comparator="control")
+                pairs.append(pair)
+                # Stock/Circle duplicates already differ by one slot from control.
+                # These two extra comparisons reuse games, adding no simulation cost.
+                parent = {"double_engine": "stock_engine",
+                          "double_bastion": "stock_bastion"}.get(profile)
+                if parent:
+                    pairs.append(dict(pair, comparator=parent,
+                        control=f"{parent}_s{seat}_{left.lower()}_{right.lower()}_{repeat:02d}"))
+    require(len(cases) == (20 if smoke else 1368) * repeats, "Wrong unique game count")
+    require(len(pairs) == (22 if smoke else 1584) * repeats, "Wrong pairing count")
     require(len({s["name"] for s in cases}) == len(cases), "Duplicate case name")
     by_name = {s["name"]: s for s in cases}
     for pair in pairs:
         control, treatment = by_name[pair["control"]], by_name[pair["treatment"]]
         restored = deepcopy(treatment["setup"])
-        restored["castles"][pair["seat"]] = BASE[:]
+        restored["castles"][pair["seat"]] = control["setup"]["castles"][pair["seat"]][:]
         require(restored == control["setup"], "Treatment changed more than focal castles")
+        if pair["profile"].startswith("double_") and (
+                pair["comparator"] != "control" or pair["profile"] in ("double_stock", "double_circle")):
+            before = control["setup"]["castles"][pair["seat"]]
+            after = treatment["setup"]["castles"][pair["seat"]]
+            require(before[3:] == after[3:], "Second-copy comparison changed reserve castles")
+            require(sum(a != b for a, b in zip(before, after)) == 1,
+                    "Second-copy comparison must change exactly one slot")
         reverse_key = (pair["repeat"], *reversed(control["setup"]["lords"]))
         require(originals[reverse_key]["setup"]["seed"] == control["setup"]["seed"],
                 "Seat-swapped games must share the seed")
@@ -180,9 +211,9 @@ def summarize(output, config):
         missing = [s["name"] for s in config["cases"]]
     rows, excluded = {}, []
     for pair in config["pairs"]:
-        key = (pair["lord"], pair["profile"])
+        key = (pair["lord"], pair["profile"], pair["comparator"])
         row = rows.setdefault(key, dict(
-            lord=key[0], profile=key[1], scheduled=0, paired=0, control_wins=0,
+            lord=key[0], profile=key[1], comparator=key[2], scheduled=0, paired=0, control_wins=0,
             treatment_wins=0, wins_gained=0, wins_lost=0, round_delta=0,
             control_rounds=0, treatment_rounds=0,
             control_powers=Counter(), treatment_powers=Counter(),
@@ -234,12 +265,16 @@ def summarize(output, config):
              f"unresolved {len(unresolved)}; excluded pairs {len(excluded)}.", "",
              "Control wins are recalculated on the exact completed treatment pairs.",
              "Gained/lost means a loss-to-win / win-to-loss flip on the same seed and seat.",
-             "Rates across rows share controls and must not be pooled as independent games.", "",
-             "| Lord | Active trio profile | Pairs | Control wins | Test wins | Gained | Lost | Delta pp | Round delta |",
-             "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |"]
+             "Rates across rows share controls and must not be pooled as independent games.",
+             "Comparator identifies the reference loadout. Most rows use the original control.",
+             "Extra double_engine/stock_engine and double_bastion/stock_bastion rows isolate",
+             "the second copy with identical reserve castles. Double Stockpile and Circle",
+             "already have identical reserves to the original control.", "",
+             "| Lord | Active trio profile | Comparator | Pairs | Reference wins | Test wins | Gained | Lost | Delta pp | Round delta |",
+             "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |"]
     for row in report["rows"]:
         lines.append("| " + " | ".join(str(row[k]) for k in (
-            "lord", "profile", "paired", "control_wins", "treatment_wins",
+            "lord", "profile", "comparator", "paired", "control_wins", "treatment_wins",
             "wins_gained", "wins_lost", "paired_delta_pp", "mean_round_delta")) + " |")
     lines += ["", "Power declarations, action selections, win routes, rejected previews, "
               "seat/opponent breakdowns, failures and missing cases are in loadout-report.json.",
@@ -287,7 +322,7 @@ def main():
     parser.add_argument("--output", type=Path)
     parser.add_argument("--resume", type=Path)
     parser.add_argument("--run", action="store_true", help="Execute games; default only prepares")
-    parser.add_argument("--smoke", action="store_true", help="12 games: Deimos vs Orias, all profiles, both seats")
+    parser.add_argument("--smoke", action="store_true", help="20 games: Deimos vs Orias, all ten profiles, both seats")
     parser.add_argument("--summarize", action="store_true", help="Report/package existing complete or partial results")
     parser.add_argument("--repeats", type=int, default=1)
     parser.add_argument("--namespace", default=NAMESPACE, help="Change for fresh-seed confirmation")
@@ -306,7 +341,7 @@ def main():
 
     from run_u13_lord_balance import freeze, verify_frozen, package
     root = Path(__file__).resolve().parents[2]
-    mode = "smoke" if args.smoke else "screen"
+    mode = "duplicates-smoke" if args.smoke else "duplicates-screen"
     output = (args.resume or args.output or Path.home() / "Downloads/Corruptor/Balance" /
               time.strftime("u13-loadouts-" + mode + "-%Y%m%d-%H%M%S")).resolve()
     env = dict(os.environ)
