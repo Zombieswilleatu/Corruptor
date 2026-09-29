@@ -11,6 +11,7 @@ const Feedback = preload("res://Prototype/U13/U13MarcherFeedback.gd")
 var feedback = Feedback.new()
 var projectiles: Array = []
 var monster_fields: Array = []
+var sinodek_portals = preload("res://Prototype/U13/U13SinodekPortalVisuals.gd").new()
 var monster_attacks: Array = []
 var field_structures: Array = []
 const Ranged = preload("res://Scripts/Sim/U13RangedMarching.gd")
@@ -83,6 +84,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	clip_contents = true
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	add_child(sinodek_portals)
 	_build_display_controls()
 
 
@@ -497,6 +499,7 @@ func reset_effects() -> void:
 	field_structures = []
 	projectiles = []
 	monster_fields = []
+	sinodek_portals.clear()
 	monster_attacks = []
 	quiet_removal_ids = []
 	deaths.clear()
@@ -598,6 +601,7 @@ func show_frame(frame: Dictionary, round_number: int) -> void:
 	field_structures = frame.get("field_structures", []).duplicate(true)
 	projectiles = frame.get("projectiles", [])
 	monster_fields = frame.get("monster_fields", [])
+	sinodek_portals.sync(self, monster_fields, float(MonsterRules.TUNING.portal_radius))
 	monster_attacks = frame.get("monster_attacks", [])
 	for id in frame.get("banished_ids", []):
 		if id not in quiet_removal_ids: quiet_removal_ids.append(id)
@@ -618,9 +622,9 @@ func _monster_point(a: Dictionary) -> Vector2:
 func _draw_monster_fields(lane: String) -> void:
 	var rect: Rect2 = travel_rect(lane)
 	for field in monster_fields:
-		if field.lane != lane: continue
+		if field.lane != lane or field.kind == "portal": continue
 		var center: Vector2 = _monster_point(field)
-		var radius: float = 100.0 if field.kind == "portal" else 200.0
+		var radius: float = 200.0
 		var points := PackedVector2Array()
 		for i in range(49):
 			var angle: float = TAU * float(i) / 48.0
@@ -628,10 +632,6 @@ func _draw_monster_fields(lane: String) -> void:
 		if field.kind == "pool":
 			draw_colored_polygon(points, Color(0.20, 0.30, 0.09, 0.42))
 			draw_polyline(points, Color(0.48, 0.56, 0.21, 0.55), 1.2, true)
-		else:
-			draw_colored_polygon(points, Color(0.035, 0.01, 0.075, 0.95))
-			draw_polyline(points, Color(0.52, 0.28, 0.85, 0.70), 4.0, true)
-			draw_polyline(points, Color(0.45, 0.70, 1.0, 0.9), 1.0, true)
 
 func _attack_point(attributes: Dictionary, identity: String, owner: int) -> Vector2:
 	var unit: Dictionary = {"id": identity, "owner": owner, "attributes": attributes}
@@ -854,3 +854,4 @@ func _draw_beam_blast(attack: Dictionary) -> void:
 		var impact := _monster_point(hit.attributes)
 		var flash: float = 1.0 - smoothstep(0.0, 0.55, weight)
 		draw_circle(impact, 9.0, Color(0.72, 0.94, 1.0, 0.8 * flash))
+

@@ -273,6 +273,8 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 	if not kroni_actors.is_empty():
 		events.append(public_event("KRONI_ACTORS_STARTED", {"round": context.round, "actors": kroni_actors.duplicate(true)}))
 	var has_monsters: bool = Monsters.enabled(world) and (not world.data.monsters.fields.is_empty() or not world.data.monsters.pending_beams.is_empty() or _units(entities).any(func(u): return u.attributes.has("monster_id") or u.attributes.has("poison_until_round") or int(u.attributes.get("poison_ticks_left", 0)) > 0))
+	# Optional isolated encounter objectives. Ordinary matches never supply this.
+	var encounter_tick: Callable = context.get("encounter_tick", Callable())
 	for tick in range(tick_offset, tick_offset + ticks):
 		Embolden.refresh_phase(world, entities, context.round)
 		var tick_events_start: int = events.size()
@@ -531,6 +533,8 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			events.append_array(MonsterEffects.deaths(world, context.round, tick))
 		if not kroni_actors.is_empty():
 			events.append(public_event("KRONI_ACTOR_TICK", {"round": context.round, "tick": tick, "actors": kroni_actors.duplicate(true)}))
+		if encounter_tick.is_valid():
+			encounter_tick.call(world, entities, int(context.round), tick)
 		var active: Array = []
 		for lane in LANES:
 			if duels.has(lane):
@@ -550,6 +554,9 @@ static func resolve(context: Dictionary, reaction: Callable) -> Dictionary:
 			)
 		)
 		if has_ranged: events.back().event.data["field_structures"] = Fort.rows(world).duplicate(true)
+		if encounter_tick.is_valid():
+			events.back().event.data["encounter"] = world.data.encounter.duplicate(true)
+			if not str(world.data.encounter.get("outcome", "")).is_empty(): break
 	if has_wishes:
 		world.data.kanifous_objects = lamp_objects
 	if world.data.has("valak_orbs"):
@@ -825,7 +832,8 @@ static func _move(
 		var taunted: bool = nearby.get("taunted", false)
 		var allies: Dictionary = {} if modern else accepted_grids[a.lane][unit.owner]
 		var previous_ticket: int = int(a.contact_tick)
-		var retreat: bool = has_rout and Rout.retreating(a, int(context.round))
+		var carrying: bool = context.has("encounter_tick") and a.get("encounter_carrier", false)
+		var retreat: bool = carrying or (has_rout and Rout.retreating(a, int(context.round)))
 		var step: int = Rout.speed(a, int(context.round), clock) if has_rout else int(a.step_fp)
 		if not lane_modifiers.is_empty():
 			var percent: int = int(lane_modifiers[a.lane][unit.owner].speed_percent)
@@ -877,11 +885,21 @@ static func _move(
 		if modern and not taunted and Navigation.avoided(unit, preferred, clock): preferred = {}
 		if not preferred.is_empty(): nearest = preferred
 		var best: int = int(nearby.distance) if preferred.is_empty() else _distance(a, preferred.attributes)
-		if retreat: step = Rout.flee_step(step, clock)
+		if carrying: step = maxi(1, int(step * 0.7)) if step > 0 else 0
+		elif retreat: step = Rout.flee_step(step, clock)
 		var dx: int = int(a.direction) * step * (-1 if retreat else 1)
 		var dy: int = 0
 		var destination: Dictionary = (Fort.point(a, nearest) if modern else nearest.attributes) if not nearest.is_empty() else {}
 		var movement_target: String = str(nearest.get("id", ""))
+		# Isolated encounter: approach and hold a loose lamp when no close fight
+		# takes priority. Ordinary games never supply the encounter callback.
+		if context.has("encounter_tick") and not retreat and not taunted and not a.has("monster_id"):
+			var objective: Dictionary = context.world.data.get("encounter", {})
+			if objective.get("scenario", "") == "lamp" and str(objective.get("carrier", "")).is_empty() and best > 320 * 320:
+				destination = {"x_fp": objective.lamp_x, "y_fp": objective.lamp_y}
+				movement_target = "encounter-lamp"
+				best = _distance(a, destination)
+				if best <= 60 * 60: continue
 		if not a.has("monster_id") and not retreat and not taunted and not context.get("wishmaster_lamps", []).is_empty():
 			var lamp: Dictionary = Wishmaster.nearby_lamp(a, context.wishmaster_lamps)
 			if not lamp.is_empty():

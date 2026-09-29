@@ -52,3 +52,4 @@ void fragment() {
 	float inside_lane = step(clip_uv.x, SCREEN_UV.x) * step(clip_uv.y, SCREEN_UV.y) * step(SCREEN_UV.x, clip_uv.z) * step(SCREEN_UV.y, clip_uv.w);
 	COLOR = vec4(mix(color, oil, color_depth), feather * strength * inside_lane);
 }
+

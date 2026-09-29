@@ -168,6 +168,8 @@ static func step(world: Dictionary, entities, number: int, tick: int, fleeing: D
 	var structures: Array = rows(world)
 	var units: Array = entities.marchers()
 	var clock: int = number * 200 + tick
+	# Crossing opts into slower building; parallel construction and repairs stay intact.
+	var build_divisor: int = 3 if world.data.get("encounter", {}).get("slow_construction", false) else 1
 	var events: Array = []
 	var reserved: Dictionary = {}
 	var guarded: Dictionary = {}
@@ -181,7 +183,7 @@ static func step(world: Dictionary, entities, number: int, tick: int, fleeing: D
 		if a.has("wright_site") and not guarding(a):
 			var site: int = a.wright_site
 			if a.get("wright_owner", -1) != unit.owner or not find(structures, unit.owner, a.lane, site).is_empty() or (site == 2 and (find(structures, unit.owner, a.lane, 0).is_empty() or find(structures, unit.owner, a.lane, 1).is_empty())):
-				a.erase("wright_site"); a.erase("wright_progress"); a.erase("wright_owner")
+				a.erase("wright_site"); a.erase("wright_progress"); a.erase("wright_owner"); a.erase("wright_build_subtick")
 				entities.update(unit.id, unit.owner, a)
 			else: reserved["%d:%s:%d" % [unit.owner, a.lane, site]] = unit.id
 	for original in units:
@@ -229,11 +231,17 @@ static func step(world: Dictionary, entities, number: int, tick: int, fleeing: D
 				if d < best: best = d; selected = site
 			if selected < 0: continue
 			a.merge({"wright_site": selected, "wright_progress": 0, "wright_owner": unit.owner}, true)
+			if build_divisor > 1: a["wright_build_subtick"] = 0
 			reserved["%d:%s:%d" % [unit.owner, a.lane, selected]] = unit.id
 			events.append(event("WRIGHT_BUILD_ASSIGNED", {"unit_id": unit.id, "site": selected, "owner": unit.owner, "lane": a.lane, "round": number, "tick": tick}))
 		var threatened: bool = units.any(func(r): return r.owner != unit.owner and r.attributes.lane == a.lane and not r.attributes.get("hidden", false) and in_melee(unit, r))
 		if distance(a, anchor(unit.owner, a.wright_site)) <= 16 * 16 and not threatened:
-			a.wright_progress += 1
+			if build_divisor > 1:
+				a["wright_build_subtick"] = int(a.get("wright_build_subtick", 0)) + 1
+				if int(a.wright_build_subtick) >= build_divisor:
+					a.wright_progress += 1
+					a.wright_build_subtick = 0
+			else: a.wright_progress += 1
 			if a.wright_progress >= BUILD_TICKS:
 				var p: Dictionary = site_point(unit.owner, a.wright_site)
 				var tower: bool = a.wright_site == 2
@@ -303,6 +311,7 @@ static func beam_hit(source: Dictionary, aim: Dictionary, row: Dictionary, radiu
 	return dx * vx + dy * vy >= 0 and dx * dx + dy * dy <= radius * radius and cross * cross <= half_width * half_width * maxi(1, vx * vx + vy * vy)
 
 static func valid_unit(a: Dictionary) -> bool:
+	if a.has("wright_build_subtick") and (a.get("suit") != "Wright" or a.has("monster_id") or not Data.is_integer(a.wright_build_subtick) or a.wright_build_subtick < 0 or a.wright_build_subtick > 2): return false
 	for key in ["wright_site", "wright_progress", "wright_owner", "wright_guard_until", "wright_repair_round", "wright_repair_next_tick"]:
 		if a.has(key) and (a.get("suit") != "Wright" or a.has("monster_id") or not Data.is_integer(a[key]) or int(a[key]) < 0): return false
 	for key in ["wright_built", "wright_released", "wright_arrived"]:

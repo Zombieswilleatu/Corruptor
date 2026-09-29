@@ -1,5 +1,6 @@
 extends RefCounted
 
+const Crossing = preload("res://Scripts/Sim/U13CrossingMonsters.gd")
 const Embolden = preload("res://Scripts/Sim/U13Embolden.gd")
 
 const Charge = preload("res://Scripts/Sim/U13TumlerCharge.gd")
@@ -188,6 +189,10 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 	var events: Array = []
 	if not Rules.enabled(world): return {"action": "resolved", "world": world, "events": events, "fleeing": {}}
 	var state: Dictionary = world.data.monsters
+	var crossing: bool = Crossing.enabled(world)
+	var hide_ticks: int = Crossing.HIDE_TICKS if crossing else int(Rules.TUNING.dotra_hide_delay_ticks)
+	var beam_range: int = Crossing.BEAM_RANGE if crossing else int(Rules.TUNING.beam_range)
+	var charge_ticks: int = Crossing.BEAM_CHARGE_TICKS if crossing else int(Rules.TUNING.beam_charge_ticks)
 	var n: int = context.round
 	var clock: int = n * 200 + tick
 	var hits: Array = []
@@ -213,7 +218,7 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 			else:
 				# Start only on the field; protected staging and birth hold do not count.
 				if int(a.get("dotra_hide_at_tick", 0)) == 0:
-					a["dotra_hide_at_tick"] = clock + int(Rules.TUNING.dotra_hide_delay_ticks)
+					a["dotra_hide_at_tick"] = clock + hide_ticks
 				if clock >= int(a.dotra_hide_at_tick):
 					a["hidden"] = true
 					a["dotra_concealment_round"] = n
@@ -240,7 +245,7 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 			var key: String = "%s:%d" % [unit.id, n]
 			match a.monster_id:
 				"Sooge":
-					if a.sprite_form != "turret" and int(a.get("sooge_root_round", 0)) < n:
+					if not crossing and a.sprite_form != "turret" and int(a.get("sooge_root_round", 0)) < n:
 						var chance: int = Rules.root_chance(a)
 						# Count eligible rolls, not global rounds or simulation ticks.
 						a["sooge_root_attempts"] = int(a.get("sooge_root_attempts", 0)) + 1
@@ -260,12 +265,14 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 		match a.monster_id:
 			"Sinodek":
 				if int(a.birth_round) < n and int(a.get("sinodek_portal_round", 0)) < n:
-					var target: Dictionary = nearest(unit, rows, int(Rules.TUNING.portal_target_range))
+					var target: Dictionary = nearest(unit, rows, Crossing.PORTAL_RANGE if crossing else int(Rules.TUNING.portal_target_range))
 					if not target.is_empty():
 						# One attempt per active round; an empty lane spends no roll.
 						a["sinodek_portal_round"] = n
 						var key: String = "%s:%d" % [unit.id, n]
-						if Lamp.draw(context.seed, key, "PORTAL", 100) < Rules.TUNING.sinodek_portal_chance:
+						var chance: int = Crossing.PORTAL_CHANCE if crossing else int(Rules.TUNING.sinodek_portal_chance)
+						if (crossing and not a.get("crossing_portal_opened", false)) or Lamp.draw(context.seed, key, "PORTAL", 100) < chance:
+							if crossing: a["crossing_portal_opened"] = true
 							var f: Dictionary = {"kind": "portal", "id": key + ":portal", "source_id": unit.id, "target_id": target.id, "owner": unit.owner, "lane": a.lane, "x_fp": int(target.attributes.x_fp), "y_fp": int(target.attributes.y_fp), "expires_round": n}
 							state.fields.append(f)
 							events.append(event("MONSTER_FIELD_CREATED", {"field": f, "round": n, "tick": tick}))
@@ -304,22 +311,27 @@ static func step(world: Dictionary, entities, context: Dictionary, tick: int, re
 					if not target.is_empty():
 						hits.append({"source": unit, "target": target.id, "amount": 5, "bypass": false, "ability": "Ambush"})
 			"Sooge":
-				if a.sprite_form == "turret" and int(a.get("beam_next_tick", 0)) - int(Rules.TUNING.beam_charge_ticks) <= clock:
-					var target: Dictionary = nearest(unit, rows + Fort.rows(world), Rules.TUNING.beam_range)
+				# Root only when useful; a rear deployment must keep approaching.
+				if crossing and a.sprite_form != "turret" and not nearest(unit, rows + Fort.rows(world), Crossing.ROOT_RANGE).is_empty():
+					a.merge({"sprite_form": "turret", "attack": 3, "armor": 6, "max_armor": 6, "step_fp": 0, "sooge_root_round": n}, true)
+					Embolden.transform(a, ["attack", "armor", "max_armor"])
+					events.append(event("MONSTER_ROOTED", {"unit_id": unit.id, "round": n, "tick": tick}))
+				if a.sprite_form == "turret" and int(a.get("beam_next_tick", 0)) - charge_ticks <= clock:
+					var target: Dictionary = nearest(unit, rows + Fort.rows(world), beam_range)
 					if target.is_empty():
 						# Losing all targets cancels the wind-up without spending a shot.
 						a["beam_charge_tick"] = 0
 						a["beam_ready_tick"] = 0
 					elif int(a.get("beam_ready_tick", 0)) == 0:
 						a["beam_charge_tick"] = clock
-						a["beam_ready_tick"] = clock + int(Rules.TUNING.beam_charge_ticks)
+						a["beam_ready_tick"] = clock + charge_ticks
 					elif clock >= int(a.beam_ready_tick):
 						# Reacquire at release: the closest live enemy sets the ray.
 						a["beam_next_tick"] = clock + int(Rules.TUNING.beam_interval_ticks)
 						a["beam_charge_tick"] = 0
 						a["beam_ready_tick"] = 0
 						# Lock the ground path at release. Its explosion survives the caster.
-						var beam: Dictionary = {"attacker": unit.duplicate(true), "target": target.duplicate(true), "range_fp": Rules.TUNING.beam_range, "detonate_tick": clock + int(Rules.TUNING.beam_blast_delay_ticks)}
+						var beam: Dictionary = {"attacker": unit.duplicate(true), "target": target.duplicate(true), "range_fp": beam_range, "detonate_tick": clock + int(Rules.TUNING.beam_blast_delay_ticks)}
 						state.pending_beams.append(beam)
 						var details: Dictionary = beam.duplicate(true)
 						details.merge({"round": n, "tick": tick})

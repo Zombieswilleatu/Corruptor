@@ -51,3 +51,4 @@ func _sync() -> void:
 	material.set_shader_parameter("phase", phase)
 	material.set_shader_parameter("color_depth", color_depth)
 	material.set_shader_parameter("glitch", glitch)
+

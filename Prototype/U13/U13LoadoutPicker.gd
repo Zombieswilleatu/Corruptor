@@ -23,6 +23,8 @@ var animation_previews
 var animation_button: Button
 var sandbox_button: Button
 var lane_sandbox
+var encounter_lab
+var encounter_button: Button
 # CORRUPTOR_NATIVE_MUSIC_LAB_V1
 var music_lab_button: Button
 var music_lab
@@ -120,6 +122,11 @@ func _ready() -> void:
 	music_lab_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_child(music_lab_button)
 	music_lab_button.pressed.connect(_open_music_lab)
+	encounter_button = Button.new()
+	encounter_button.text = "THE CROSSING · ASCENT ENCOUNTER PLAYTEST"
+	encounter_button.custom_minimum_size.y = 38
+	column.add_child(encounter_button)
+	encounter_button.pressed.connect(_open_encounter_lab)
 	_label(column, "FULL GAME OPENING" if full_game else "TEST OPENING", 16)
 	opening = _option(
 		column,
@@ -172,6 +179,7 @@ func _ready() -> void:
 
 
 func present(lords: Array, castles: Array, quick: bool, can_cancel: bool) -> void:
+	if is_instance_valid(encounter_lab): encounter_lab.dismiss()
 	if is_instance_valid(lane_sandbox): lane_sandbox.dismiss()
 	if is_instance_valid(music_lab): music_lab.dismiss()
 	if is_instance_valid(sound_lab): sound_lab.dismiss()
@@ -306,6 +314,22 @@ func _open_lane_sandbox() -> void:
 		lane_sandbox = null
 		_loadout_content.show()
 		sandbox_button.grab_focus())
+	_loadout_content.hide()
+
+
+func _open_encounter_lab() -> void:
+	if tutorial_popup.visible or is_instance_valid(encounter_lab): return
+	var scene := load("res://Prototype/U13/Encounters/U13EncounterLab.tscn") as PackedScene
+	if scene == null:
+		message.text = "Encounter playtest is missing. Reapply its installer."
+		return
+	encounter_lab = scene.instantiate()
+	encounter_lab.embedded = true
+	add_child(encounter_lab)
+	encounter_lab.closed.connect(func():
+		encounter_lab = null
+		_loadout_content.show()
+		encounter_button.grab_focus())
 	_loadout_content.hide()
 
 
